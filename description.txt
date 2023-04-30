@@ -1,0 +1,27 @@
+Parts:
+
+The world -- static -- has background some obstacles
+  Bacground:
+  Obstacles:
+    a) walls -- each wall is a line having start and end coordinates, and RGBA color.
+    b) polygons -- collections > 3 dots, connected with continuous line, with RGBA color,
+
+
+The agent -- mobile -- can move forward and backward, left and right, and rotate left and right.
+  The agent's movement is impeded by obstacles.
+  Key bindings:
+    W - forward
+    S - backward
+    A - left translation
+    D - right translation
+    Q - left rotation
+    E - right rotation
+
+Agent's view -- a strip rendering what the agent sees.
+
+
+Two renderers:
+  1 - a top view of the world with agent in it.
+    All static objects are pre-rendered, and this pre-rendered view then serves as backdrop
+
+  2 - a strip view from agents perspective.
