@@ -9,10 +9,12 @@ use fltk::{
 
 use world::World;
 
-use crate::common_structs::{Ellipse, RGBAColor};
+use crate::{common_structs::RGBAColor, ellipse::Ellipse};
 
 mod common_structs;
 mod world;
+mod line;
+mod ellipse;
 
 const WIND_LABEL: &str = "Moving Agent";
 // const WIND_WIDTH: i32 = 1820;
@@ -165,9 +167,9 @@ fn main() {
                     if world.ellipses.len() == 0 {
                         let central_ellipse: Ellipse = Ellipse::new(
                             Coord::new((world.width as f64) / 2.0, (world.height as f64) / 2.0),
-                            100.0,
+                            75.0,
                             50.0,
-                            RGBAColor::new_rgb(255, 255, 255),
+                            RGBAColor::new_rgb(255, 255, 0),
                         );
 
                         world.ellipses.push(central_ellipse);
@@ -199,12 +201,12 @@ fn main() {
                         }
                         'e' => {
                             // rotate right
-                            world.ellipses[0].turn(0.05);
+                            world.ellipses[0].angle.turn(0.05);
                             world.is_updated = true;
                         }
                         'q' => {
                             // rotate left
-                            world.ellipses[0].turn(-0.05);
+                            world.ellipses[0].angle.turn(-0.05);
                             world.is_updated = true;
                         }
                         _ => {}

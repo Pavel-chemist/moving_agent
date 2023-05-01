@@ -1,3 +1,5 @@
+use crate::line::Line;
+
 #[derive(Copy, Clone)]
 pub struct RGBAColor {
     pub r: u8,
@@ -33,12 +35,13 @@ impl RGBAColor {
 
         new_color.b = (((foreground.b as i32) * (foreground.a as i32) + (background.b as i32) * (255 - foreground.a as i32)) / 255) as u8;
 
-        new_color.a = 255;
+        new_color.a = if foreground.a as i32 + background.a as i32 > 255 {255} else {foreground.a + background.a};
 
-        return new_color;;
+        return new_color;
     }
 }
 
+#[derive(Clone)]
 pub struct RGBACanvas {
     pub width: i32,
     pub height: i32,
@@ -53,7 +56,29 @@ impl RGBACanvas {
         return RGBACanvas {
             width,
             height,
+            data: vec![RGBAColor::new(); u_width * u_height],
+        };
+    }
+
+    pub fn new_black(width: i32, height: i32) -> RGBACanvas {
+        let u_width: usize = if width > 0 {width as usize} else {panic!("Canvas width should be positive non-zero integer")};
+        let u_height: usize = if width > 0 {width as usize} else {panic!("Canvas height should be positive non-zero integer")};
+
+        return RGBACanvas {
+            width,
+            height,
             data: vec![RGBAColor::new_black(); u_width * u_height],
+        };
+    }
+
+    pub fn new_color(width: i32, height: i32, color: RGBAColor) -> RGBACanvas {
+        let u_width: usize = if width > 0 {width as usize} else {panic!("Canvas width should be positive non-zero integer")};
+        let u_height: usize = if width > 0 {width as usize} else {panic!("Canvas height should be positive non-zero integer")};
+
+        return RGBACanvas {
+            width,
+            height,
+            data: vec![color; u_width * u_height],
         };
     }
 
@@ -107,124 +132,6 @@ impl RGBACanvas {
         }
         // else just ignore pixels outside of canvas borders
     }
-
-    pub fn draw_line_p(&mut self, line: Line) {
-        // draw parametric line
-        
-        let x_s: i32 = line.start.get_x_i();
-        let y_s: i32 = line.start.get_y_i();
-        
-        let mut delta_x: f64 = line.end.get_x() - line.start.get_x();
-        let mut delta_y: f64 = line.end.get_y() - line.start.get_y();
-        let mut t: f64;
-    
-        let step_x: f64;
-        let step_y: f64;
-    
-        let mut x: i32;
-        let mut y: i32;
-    
-        if delta_x < 0.0 { delta_x = - delta_x; }
-        if delta_y < 0.0 { delta_y = - delta_y; }
-
-        if delta_x >= delta_y {
-            t = delta_x;
-        } else {
-            t = delta_y;
-        }
-
-        if t < 1.0 { t = 1.0; } 
-    
-        step_x = delta_x / t;
-        step_y = delta_y / t;
-    
-        for t in 0..(t as usize) {
-            x = x_s + (t as f64 * step_x) as i32;
-            y = y_s + (t as f64 * step_y) as i32;
-
-            self.put_pixel(x, y, line.color);
-        }
-    }
-
-    /* pub fn draw_ellipse_p(&mut self, ellipse: &Ellipse) {
-        // draw parametric ellipse
-        let angular_steps: usize = ((ellipse.ver_axis  + ellipse.hor_axis) as usize);
-
-        let mut x: i32;
-        let mut y: i32;
-
-        for j in 0..(ellipse.ver as usize) {
-            x = 
-        }
-    } */
-
-    pub fn draw_ellipse(&mut self, ellipse: &Ellipse) {
-        let mut y: i32;
-        let mut x: i32;
-
-        if ellipse.angle == 0.0 {
-            for x in 0..(ellipse.hor_axis as i32) {
-                y = (ellipse.ver_axis * f64::sqrt(1.0 - ((x * x) as f64) / (ellipse.hor_axis * ellipse.hor_axis))) as i32;
-    
-                self.put_pixel(ellipse.center.x as i32 + x, ellipse.center.y as i32 + y, ellipse.color);
-                self.put_pixel(ellipse.center.x as i32 - x, ellipse.center.y as i32 + y, ellipse.color);
-                self.put_pixel(ellipse.center.x as i32 + x, ellipse.center.y as i32 - y, ellipse.color);
-                self.put_pixel(ellipse.center.x as i32 - x, ellipse.center.y as i32 - y, ellipse.color);
-            }
-    
-            for y in 0..(ellipse.ver_axis as i32) {
-                x = (ellipse.hor_axis * f64::sqrt(1.0 - ((y * y) as f64) / (ellipse.ver_axis * ellipse.ver_axis))) as i32;
-    
-                self.put_pixel(ellipse.center.x as i32 + x, ellipse.center.y as i32 + y, ellipse.color);
-                self.put_pixel(ellipse.center.x as i32 - x, ellipse.center.y as i32 + y, ellipse.color);
-                self.put_pixel(ellipse.center.x as i32 + x, ellipse.center.y as i32 - y, ellipse.color);
-                self.put_pixel(ellipse.center.x as i32 - x, ellipse.center.y as i32 - y, ellipse.color);
-            }
-        } else {
-            let sin_alpha: f64 = f64::sin(ellipse.angle);
-            let cos_alpha: f64 = f64::cos(ellipse.angle);
-
-            let mut x: f64;
-            let mut y: f64;
-            let mut tr: Coord;
-            let mut tl: Coord;
-            let mut br: Coord;
-            let mut bl: Coord;
-
-            for i in 0..(ellipse.hor_axis as i32) {
-                x = i as f64;
-                y = ellipse.ver_axis * f64::sqrt(1.0 - x * x / (ellipse.hor_axis * ellipse.hor_axis));
-                
-
-                tr = Coord::new(x * cos_alpha - y * sin_alpha, x * sin_alpha + y * cos_alpha);
-                tl = Coord::new(-x * cos_alpha - y * sin_alpha, -x * sin_alpha + y * cos_alpha);
-                br = Coord::new(x * cos_alpha + y * sin_alpha, x * sin_alpha - y * cos_alpha);
-                bl = Coord::new(-x * cos_alpha + y * sin_alpha, -x * sin_alpha - y * cos_alpha);
-
-                self.put_pixel(ellipse.center.get_x_i() + tr.get_x_i(), ellipse.center.get_y_i() + tr.get_y_i(), ellipse.color);
-                self.put_pixel(ellipse.center.get_x_i() + tl.get_x_i(), ellipse.center.get_y_i() + tl.get_y_i(), ellipse.color);
-                self.put_pixel(ellipse.center.get_x_i() + br.get_x_i(), ellipse.center.get_y_i() + br.get_y_i(), ellipse.color);
-                self.put_pixel(ellipse.center.get_x_i() + bl.get_x_i(), ellipse.center.get_y_i() + bl.get_y_i(), ellipse.color);
-            }
-
-            for j in 0..(ellipse.ver_axis as i32) {
-                y = j as f64;
-                x = ellipse.hor_axis * f64::sqrt(1.0 - (y * y) / (ellipse.ver_axis * ellipse.ver_axis));
-    
-                tr = Coord::new(x * cos_alpha - y * sin_alpha, x * sin_alpha + y * cos_alpha);
-                tl = Coord::new(-x * cos_alpha - y * sin_alpha, -x * sin_alpha + y * cos_alpha);
-                br = Coord::new(x * cos_alpha + y * sin_alpha, x * sin_alpha - y * cos_alpha);
-                bl = Coord::new(-x * cos_alpha + y * sin_alpha, -x * sin_alpha - y * cos_alpha);
-
-                self.put_pixel(ellipse.center.get_x_i() + tr.get_x_i(), ellipse.center.get_y_i() + tr.get_y_i(), ellipse.color);
-                self.put_pixel(ellipse.center.get_x_i() + tl.get_x_i(), ellipse.center.get_y_i() + tl.get_y_i(), ellipse.color);
-                self.put_pixel(ellipse.center.get_x_i() + br.get_x_i(), ellipse.center.get_y_i() + br.get_y_i(), ellipse.color);
-                self.put_pixel(ellipse.center.get_x_i() + bl.get_x_i(), ellipse.center.get_y_i() + bl.get_y_i(), ellipse.color);
-            }
-        }
-        
-    }
-    // pub fn put_sprite(&mut self, sprite: &RGBACanvas, sprite_com: Coord, )
 }
 
 #[derive(Copy, Clone)]
@@ -248,6 +155,14 @@ impl Coord {
     pub fn set_i(&mut self, x: i32, y: i32) {
         self.x = x as f64;
         self.y = y as f64;
+    }
+
+    pub fn set_x(&mut self, x: f64) {
+        self.x = x;
+    }
+
+    pub fn set_y(&mut self, y: f64) {
+        self.y = y;
     }
 
     pub fn get_x(&self) -> f64 {
@@ -275,46 +190,23 @@ impl Coord {
     }
 }
 
-pub struct Line {
-    pub start: Coord,
-    pub end: Coord,
-    pub color: RGBAColor,
-}
-
-impl Line {
-    pub fn new(start: Coord, end: Coord, color: RGBAColor) -> Line {
-        return Line{
-            start,
-            end,
-            color,
-        };
-    } 
-}
-
 /* pub struct Dot {
     pub center: Coord,
     pub color: RGBAColor,
 } */
 
 #[derive(Clone, Copy)]
-pub struct Ellipse {
-    pub center: Coord,
-    pub hor_axis: f64,
-    pub ver_axis: f64,
-    pub angle: f64,
-    pub color: RGBAColor,
+pub struct Angle {
+    a: f64,
 }
 
-impl Ellipse {
-    pub fn new(center: Coord, hor_axis: f64, ver_axis: f64, color: RGBAColor) -> Ellipse {
-        if hor_axis <= 0.0 { panic!("Horisontal axis for Ellipse should be positive number!"); }
-        if ver_axis <= 0.0 { panic!("Vertical axis for Ellipse should be positive number!"); }
-
-        return Ellipse{center, hor_axis, ver_axis, angle: 0.0, color};
+impl Angle {
+    pub fn new() -> Angle {
+        return Angle{a: 0.0};
     }
 
-    pub fn turn(&mut self, angle: f64) {
-        let mut new_angle: f64 = self.angle + angle;
+    pub fn turn(&mut self, value: f64) {
+        let mut new_angle: f64 = self.a + value;
 
         while new_angle > std::f64::consts::TAU {
             new_angle -= std::f64::consts::TAU;
@@ -324,6 +216,38 @@ impl Ellipse {
             new_angle += std::f64::consts::TAU;
         }
 
-        self.angle = new_angle;
+        self.a = new_angle;
     }
+
+    pub fn get_value(&self) -> f64 {
+        return self.a;
+    }
+}
+
+/* #[derive(Clone, Copy)]
+pub struct Ellipse {
+    pub center: Coord,
+    // pub pivot: Coord,
+    pub hor_axis: f64,
+    pub ver_axis: f64,
+    pub angle: Angle,
+    pub color: RGBAColor,
+}
+
+impl Ellipse {
+    pub fn new(center: Coord, hor_axis: f64, ver_axis: f64, color: RGBAColor) -> Ellipse {
+        if hor_axis <= 0.0 { panic!("Horisontal axis for Ellipse should be positive number!"); }
+        if ver_axis <= 0.0 { panic!("Vertical axis for Ellipse should be positive number!"); }
+
+        return Ellipse{center, hor_axis, ver_axis, angle: Angle::new(), color};
+    }
+} */
+
+#[derive(Clone, Copy)]
+pub struct Box {
+    pub center: Coord,
+    pub length: f64,
+    pub heigt: f64,
+    pub angle: Angle,
+    pub color: RGBAColor,
 }
