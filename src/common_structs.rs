@@ -165,11 +165,11 @@ impl Coord {
         self.y = y;
     }
 
-    pub fn get_x(&self) -> f64 {
+    pub fn x(&self) -> f64 {
         return self.x;
     }
 
-    pub fn get_y(&self) -> f64 {
+    pub fn y(&self) -> f64 {
         return self.y;
     }
 
@@ -189,11 +189,6 @@ impl Coord {
         self.y += delta_y;
     }
 }
-
-/* pub struct Dot {
-    pub center: Coord,
-    pub color: RGBAColor,
-} */
 
 #[derive(Clone, Copy)]
 pub struct Angle {
@@ -223,25 +218,6 @@ impl Angle {
         return self.a;
     }
 }
-
-/* #[derive(Clone, Copy)]
-pub struct Ellipse {
-    pub center: Coord,
-    // pub pivot: Coord,
-    pub hor_axis: f64,
-    pub ver_axis: f64,
-    pub angle: Angle,
-    pub color: RGBAColor,
-}
-
-impl Ellipse {
-    pub fn new(center: Coord, hor_axis: f64, ver_axis: f64, color: RGBAColor) -> Ellipse {
-        if hor_axis <= 0.0 { panic!("Horisontal axis for Ellipse should be positive number!"); }
-        if ver_axis <= 0.0 { panic!("Vertical axis for Ellipse should be positive number!"); }
-
-        return Ellipse{center, hor_axis, ver_axis, angle: Angle::new(), color};
-    }
-} */
 
 #[derive(Clone, Copy)]
 pub struct Box {

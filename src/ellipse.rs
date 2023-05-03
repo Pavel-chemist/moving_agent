@@ -53,12 +53,12 @@ impl Ellipse {
         }
 
         // turn
-        foc_1 = Coord::new(foc_1.get_x() * cos_alpha - foc_1.get_y() * sin_alpha, foc_1.get_x() * sin_alpha + foc_1.get_y() * cos_alpha);
-        foc_2 = Coord::new(foc_2.get_x() * cos_alpha - foc_2.get_y() * sin_alpha, foc_2.get_x() * sin_alpha + foc_2.get_y() * cos_alpha);
+        foc_1 = Coord::new(foc_1.x() * cos_alpha - foc_1.y() * sin_alpha, foc_1.x() * sin_alpha + foc_1.y() * cos_alpha);
+        foc_2 = Coord::new(foc_2.x() * cos_alpha - foc_2.y() * sin_alpha, foc_2.x() * sin_alpha + foc_2.y() * cos_alpha);
 
         // translate
-        foc_1 = Coord::new(foc_1.get_x() + self.center.get_x(), foc_1.get_y() + self.center.get_y());
-        foc_2 = Coord::new(foc_2.get_x() + self.center.get_x(), foc_2.get_y() + self.center.get_y());
+        foc_1 = Coord::new(foc_1.x() + self.center.x(), foc_1.y() + self.center.y());
+        foc_2 = Coord::new(foc_2.x() + self.center.x(), foc_2.y() + self.center.y());
 
         // fill pixels inside ellipse
         for j in (self.center.get_y_i()-(long_semi_axis as i32 + edge_width as i32))..(self.center.get_y_i()+(long_semi_axis as i32 + edge_width as i32 + 1)) {
@@ -67,8 +67,8 @@ impl Ellipse {
                 y = j as f64;
 
                 sum_dist_from_foci =
-                    f64::sqrt((x - foc_1.get_x()) * (x - foc_1.get_x()) + (y - foc_1.get_y()) * (y - foc_1.get_y())) +
-                    f64::sqrt((x - foc_2.get_x()) * (x - foc_2.get_x()) + (y - foc_2.get_y()) * (y - foc_2.get_y()));
+                    f64::sqrt((x - foc_1.x()) * (x - foc_1.x()) + (y - foc_1.y()) * (y - foc_1.y())) +
+                    f64::sqrt((x - foc_2.x()) * (x - foc_2.x()) + (y - foc_2.y()) * (y - foc_2.y()));
 
 
                 if is_filled {

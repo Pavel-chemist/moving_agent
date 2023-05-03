@@ -22,8 +22,8 @@ impl Line {
         let x_s: i32 = self.start.get_x_i();
         let y_s: i32 = self.start.get_y_i();
         
-        let mut delta_x: f64 = self.end.get_x() - self.start.get_x();
-        let mut delta_y: f64 = self.end.get_y() - self.start.get_y();
+        let mut delta_x: f64 = self.end.x() - self.start.x();
+        let mut delta_y: f64 = self.end.y() - self.start.y();
         let mut t: f64;
     
         let step_x: f64;
