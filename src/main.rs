@@ -1,4 +1,4 @@
-use common_structs::{Coord, RGBACanvas};
+use common_structs::{Coord, RGBACanvas, Angle};
 use fltk::{
     app::{self, App, MouseButton},
     enums::{self, ColorDepth, FrameType, Event},
@@ -15,6 +15,7 @@ mod common_structs;
 mod world;
 mod line;
 mod ellipse;
+mod polygon;
 
 const WIND_LABEL: &str = "Moving Agent";
 // const WIND_WIDTH: i32 = 1820;
@@ -157,9 +158,14 @@ fn main() {
                     fltk::app::quit();
                 }
                 Message::Tick => {
+
+                    if world.shapes.len() > 3 {
+                        world.shapes[2].rotate(Angle::new_f(0.01));
+
+                        world.is_updated = true;
+                    }
+
                     redraw_image(&mut world, &mut top_view_frame);
-                    
-                    /* _total_momentum_display_frame.set_label(&(String::from("Total momentum is:\n") + &format!("{:>10.3}", world_state.get_total_momentum()))); */
                 }
                 Message::MouseDown(x, y, button) => {
                     println!("The image was clicked at coordinates x={}, y={}", x, y);

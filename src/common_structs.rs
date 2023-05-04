@@ -188,6 +188,13 @@ impl Coord {
     pub fn move_y(&mut self, delta_y: f64) {
         self.y += delta_y;
     }
+
+    pub fn rotate(&self, alpha: Angle) -> Coord {
+        return Coord::new(
+            f64::cos(alpha.a) * self.x - f64::sin(alpha.a) * self.y,
+            f64::sin(alpha.a) * self.x + f64::cos(alpha.a) * self.y,
+        );
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -198,6 +205,10 @@ pub struct Angle {
 impl Angle {
     pub fn new() -> Angle {
         return Angle{a: 0.0};
+    }
+
+    pub fn new_f(a: f64) -> Angle {
+        return Angle{ a };
     }
 
     pub fn turn(&mut self, value: f64) {
@@ -217,13 +228,4 @@ impl Angle {
     pub fn get_value(&self) -> f64 {
         return self.a;
     }
-}
-
-#[derive(Clone, Copy)]
-pub struct Box {
-    pub center: Coord,
-    pub length: f64,
-    pub heigt: f64,
-    pub angle: Angle,
-    pub color: RGBAColor,
 }
