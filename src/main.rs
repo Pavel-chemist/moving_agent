@@ -18,15 +18,19 @@ mod ellipse;
 mod polygon;
 
 const WIND_LABEL: &str = "Moving Agent";
-// const WIND_WIDTH: i32 = 1820;
+
+// big_window consts:
+/* const WIND_WIDTH: i32 = 1820;
+const WIND_HEIGHT: i32 = 1000;
+const MAIN_IMAGE_WIDTH: i32 = 1560;
+const MAIN_IMAGE_HEIGHT: i32 = 940; */
+
+// small window consts
 const WIND_WIDTH: i32 = 800;
-// const WIND_HEIGHT: i32 = 1000;
 const WIND_HEIGHT: i32 = 600;
-// const MAIN_IMAGE_WIDTH: i32 = 940;
-// const MAIN_IMAGE_WIDTH: i32 = 1560;
 const MAIN_IMAGE_WIDTH: i32 = 780;
-// const MAIN_IMAGE_HEIGHT: i32 = 940;
 const MAIN_IMAGE_HEIGHT: i32 = 520;
+
 const MAIN_IMAGE_FRAME_THICKNESS: i32 = 4;
 const MAIN_IMAGE_X_POS: i32 = 10;
 const MAIN_IMAGE_Y_POS: i32 = 10;
@@ -235,7 +239,7 @@ fn redraw_image(world_state: &mut World, image_frame: &mut frame::Frame) {
         let image_data: RGBACanvas = world_state.get_rendered_view();
 
         let image = RgbImage::new(
-            &image_data.get_data_as_bytes(),
+            &image_data.data,
             image_data.width,
             image_data.height,
             ColorDepth::Rgba8,

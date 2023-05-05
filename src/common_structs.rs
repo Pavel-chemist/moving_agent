@@ -1,5 +1,3 @@
-use crate::line::Line;
-
 #[derive(Copy, Clone)]
 pub struct RGBAColor {
     pub r: u8,
@@ -44,8 +42,11 @@ impl RGBAColor {
 #[derive(Clone)]
 pub struct RGBACanvas {
     pub width: i32,
+    u_width: usize,
     pub height: i32,
-    pub data: Vec<RGBAColor>,
+    u_height: usize,
+    pub data: Vec<u8>,
+    // switch: bool,
 }
 
 impl RGBACanvas {
@@ -55,8 +56,10 @@ impl RGBACanvas {
 
         return RGBACanvas {
             width,
+            u_width,
             height,
-            data: vec![RGBAColor::new(); u_width * u_height],
+            u_height,
+            data: vec![0; u_width * u_height * 4],
         };
     }
 
@@ -64,10 +67,17 @@ impl RGBACanvas {
         let u_width: usize = if width > 0 {width as usize} else {panic!("Canvas width should be positive non-zero integer")};
         let u_height: usize = if width > 0 {width as usize} else {panic!("Canvas height should be positive non-zero integer")};
 
+        let mut data: Vec<u8> = vec![0; u_width * u_height * 4];
+        for i in 0..(u_width * u_height) {
+            data[i * 4 + 3] = 255;
+        }
+
         return RGBACanvas {
             width,
+            u_width,
             height,
-            data: vec![RGBAColor::new_black(); u_width * u_height],
+            u_height,
+            data,
         };
     }
 
@@ -75,10 +85,20 @@ impl RGBACanvas {
         let u_width: usize = if width > 0 {width as usize} else {panic!("Canvas width should be positive non-zero integer")};
         let u_height: usize = if width > 0 {width as usize} else {panic!("Canvas height should be positive non-zero integer")};
 
+        let mut data: Vec<u8> = vec![0; u_width * u_height * 4];
+        for i in 0..(u_width * u_height) {
+            data[i * 4 + 0] = color.r;
+            data[i * 4 + 1] = color.g;
+            data[i * 4 + 2] = color.b;
+            data[i * 4 + 3] = 255;
+        }
+
         return RGBACanvas {
             width,
+            u_width,
             height,
-            data: vec![color; u_width * u_height],
+            u_height,
+            data,
         };
     }
 
@@ -86,15 +106,22 @@ impl RGBACanvas {
         let u_width: usize = if width >= 1.0 {width as usize} else {panic!("Canvas width should be a number bigger than 1.0")};
         let u_height: usize = if width >= 1.0 {width as usize} else {panic!("Canvas height should be a number bigger than 1.0")};
 
+        let mut data: Vec<u8> = vec![0; u_width * u_height * 4];
+        for i in 0..(u_width * u_height) {
+            data[i * 4 + 3] = 255;
+        }
+
         return RGBACanvas {
-            width: width as i32,
-            height: height as i32,
-            data: vec![RGBAColor::new_black(); u_width * u_height],
+            width: u_width as i32,
+            u_width,
+            height: u_height as i32,
+            u_height,
+            data,
         };
     }
 
     pub fn copy(&self) -> RGBACanvas {
-        let mut copied_data: Vec<RGBAColor> = Vec::with_capacity(self.data.len());
+        let mut copied_data: Vec<u8> = Vec::with_capacity(self.data.len());
 
         for i in 0..self.data.len() {
             copied_data.push(self.data[i]);
@@ -102,32 +129,47 @@ impl RGBACanvas {
 
         return RGBACanvas {
             width: self.width,
+            u_width: self.u_width,
             height: self.height,
+            u_height: self.u_height,
             data: copied_data,
         };
     }
 
-    pub fn get_data_as_bytes(&self) -> Vec<u8> {
-        let array_size: usize = self.data.len() * 4;
+    fn get_color(&self, x: i32, y: i32) -> RGBAColor {
+        let index: usize = 4 * self.u_width * y as usize + 4 * x as usize;
 
-        let mut data_as_bytes: Vec<u8> = vec![0; array_size];
-
-        for i in 0..self.data.len() {
-            data_as_bytes[i * 4 + 0] = self.data[i].r;
-            data_as_bytes[i * 4 + 1] = self.data[i].g;
-            data_as_bytes[i * 4 + 2] = self.data[i].b;
-            data_as_bytes[i * 4 + 3] = self.data[i].a;
-        }
-
-        return data_as_bytes;
+        return RGBAColor::new_rgba(
+            self.data[index + 0],
+            self.data[index + 1],
+            self.data[index + 2],
+            self.data[index + 3],
+        );
     }
 
     pub fn put_pixel(&mut self, x: i32, y: i32, color: RGBAColor) {
+        // this offset is needed somehow for proper alignment
+        // it is a clutch
+        let y_offset: i32 = 128;
+        // let y_offset: i32 = 308;
+
         if x >= 0 && x < self.width && y >= 0 && y < self.height {
+            
+            let index: usize = 4 * self.u_width * (y_offset + y) as usize + 4 * x as usize;
+            let mixed_color: RGBAColor;
+
             if color.a == 255 {
-                self.data[(y * self.width + x) as usize] = color;
+                self.data[index + 0] = color.r;
+                self.data[index + 1] = color.g;
+                self.data[index + 2] = color.b;
+                self.data[index + 3] = color.a;
             } else {
-                self.data[(y * self.width + x) as usize] = RGBAColor::mix_colors(color, self.data[(y * self.width + x) as usize]);
+                mixed_color = RGBAColor::mix_colors(color, self.get_color(x, (y_offset + y)));
+
+                self.data[index + 0] = mixed_color.r;
+                self.data[index + 1] = mixed_color.g;
+                self.data[index + 2] = mixed_color.b;
+                self.data[index + 3] = mixed_color.a;
             }
         }
         // else just ignore pixels outside of canvas borders

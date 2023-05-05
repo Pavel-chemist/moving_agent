@@ -1,13 +1,14 @@
 Parts:
 
-The world -- static -- has background some obstacles
-  Bacground:
+The world -- static -- has background and some obstacles
+  Bacground: just a plain color, for example, black
   Obstacles:
     a) walls -- each wall is a line having start and end coordinates, and RGBA color.
     b) polygons -- collections > 3 dots, connected with continuous line, with RGBA color,
 
 
 The agent -- mobile -- can move forward and backward, left and right, and rotate left and right.
+  Agent itself can have a complex shape consisting from polygons and lines.
   The agent's movement is impeded by obstacles.
   Key bindings:
     W - forward

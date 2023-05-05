@@ -48,6 +48,10 @@ impl World {
     pub fn get_rendered_view(&self) -> RGBACanvas {
         let mut rendered_scene = self.static_background.clone();
 
+        Line::new(Coord::new(0.0, 100.0), Coord::new(200.0, 100.0), RGBAColor::new_rgb(255, 0, 0)).draw_line_p(&mut rendered_scene);
+
+        Line::new(Coord::new(100.0, 0.0), Coord::new(100.0, 200.0), RGBAColor::new_rgb(255, 0, 0)).draw_line_p(&mut rendered_scene);
+
         for i in 0..self.shapes.len() {
             self.shapes[i].draw(&mut rendered_scene);
         }
@@ -61,7 +65,7 @@ impl World {
 
 /////////////////////////////////////////////////////////
     fn create_static_bacground(&mut self) {
-        let mut background: RGBACanvas = RGBACanvas::new_f(self.width, self.height);
+        let background: RGBACanvas = RGBACanvas::new_f(self.width, self.height);
 
         /* for i in 0..self.shapes.len() {
             self.shapes[i].draw(&mut background);

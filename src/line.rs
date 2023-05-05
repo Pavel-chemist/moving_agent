@@ -55,4 +55,27 @@ impl Line {
             canvas.put_pixel(x, y, self.color);
         }
     }
+
+
+
+    pub fn draw(&self, canvas: &mut RGBACanvas) {
+        // this should draw line using line equation
+    }
+
+    pub fn draw_smooth(&self, canvas: &mut RGBACanvas) {
+        // this should draw smooth line using line equation(?)
+    }
+
+    pub fn intersection(&self, other: Line) -> Option<Coord> {
+        // this method will return coordinates of intersection point if there is an intersection between lines
+
+        // placeholder
+        let is_intersecting: bool = false;
+        
+        if is_intersecting {
+            return Some(Coord::new(0.0, 0.0));
+        } else {
+            return None;
+        }
+    }
 }
