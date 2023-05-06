@@ -129,6 +129,8 @@ impl Line {
 
         // placeholder
         let is_intersecting: bool = false;
+
+        
         
         if is_intersecting {
             return Some(Coord::new(0.0, 0.0));

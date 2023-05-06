@@ -3,7 +3,7 @@
 use crate::{
     common_structs::{
         RGBAColor,
-        Coord,
+        Coord, Angle,
     },
     ellipse::Ellipse,
     line::Line,
@@ -67,11 +67,6 @@ impl World {
     fn create_static_bacground(&mut self) {
         let background: RGBACanvas = RGBACanvas::new_f(self.width, self.height);
 
-        /* for i in 0..self.shapes.len() {
-            self.shapes[i].draw(&mut background);
-        } */
-        
-
         self.static_background = background;
         self.is_updated = true;
     }
@@ -87,6 +82,16 @@ impl World {
                 }
             ).unwrap());
         }
+
+        self.shapes.push(Polygon::new(PType::Box { 
+                length: 200.0,
+                width: 100.0,
+                pivot: Coord::new(250.0, 250.0),
+                color: RGBAColor::new_rgb(255, 255, 0),
+            }
+        ).unwrap());
+
+        self.shapes[6].rotate(Angle::new_f(1.0));
     }
     
 }

@@ -4,7 +4,7 @@ use crate::{common_structs::{Coord, Angle, RGBAColor}, line::Line, rgba_canvas::
 
 pub enum PType {
   Regular{n: usize, r: f64, pivot: Coord, color: RGBAColor},
-  // Box{length: f64, width: f64, pivot: Coord, color: RGBAColor},
+  Box{length: f64, width: f64, pivot: Coord, color: RGBAColor},
   // RegElliptic{n: usize, length: f64, width: f64, pivot: Coord, color: RGBAColor},
   // Convex{pivot: Coord, vertices: Vec<Coord>, color: RGBAColor},
   // Random{pivot: Coord, vertices: Vec<Coord>, color: RGBAColor},
@@ -45,7 +45,7 @@ impl Polygon {
             }
 
             let new_polygon = Polygon {
-              name: String::from(""),
+              name: String::from("Regular with ".to_owned() + &n.to_string() + " sides"),
               pivot,
               vertices,
               sides,
@@ -55,9 +55,37 @@ impl Polygon {
             return Some(new_polygon);
           }
         }
-        /* PType::Box(length, width, pivot, color) => {
+        PType::Box{length, width, pivot, color} => {
+          if length <= 0.0 && width <= 0.0 {
+            return None;
+          } else {
+            let mut vertices: Vec<Coord> = Vec::with_capacity(4);
+            let mut sides: Vec<Line> = Vec::with_capacity(4);
+  
+            vertices.push(Coord::new(length / 2.0, width / 2.0));
+            vertices.push(Coord::new(-length / 2.0, width / 2.0));
+            vertices.push(Coord::new(-length / 2.0, -width / 2.0));
+            vertices.push(Coord::new(length / 2.0, -width / 2.0));
 
-        } */
+            for i in 0..4 { 
+              sides.push(
+                Line::new(
+                  Coord::new(vertices[i].x() + pivot.x(), vertices[i].y() + pivot.y()),
+                  Coord::new(vertices[(i + 1) % 4].x() + pivot.x(), vertices[(i + 1) % 4].y() + pivot.y()), color)
+              );
+            }
+
+            let new_polygon = Polygon {
+              name: String::from("Rectangle"),
+              pivot,
+              vertices,
+              sides,
+              angle: Angle::new(),
+            };
+
+            return Some(new_polygon);
+          } 
+        }
       }
     }
 

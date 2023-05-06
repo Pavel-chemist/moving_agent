@@ -3,15 +3,15 @@
 // or a combination of primitives?
 
 enum Translation {
-  F,
-  B,
-  R,
-  L,
+  F(f64),
+  B(f64),
+  R(f64),
+  L(f64),
 }
 
 enum Rotation {
-  R,
-  L,
+  R(f64),
+  L(f64),
 }
 
 struct Sprite {

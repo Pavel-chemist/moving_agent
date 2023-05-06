@@ -165,13 +165,16 @@ fn main() {
                 }
                 Message::Tick => {
 
-                    if world.shapes.len() > 3 {
-                        world.shapes[2].rotate(Angle::new_f(0.01));
+                    if world.shapes.len() > 0 {
+                        for i in 0..world.shapes.len() {
+                            world.shapes[i].rotate(Angle::new_f(0.05 / ((i+3) as f64)));
+                        }
+                        
 
                         world.is_updated = true;
                     }
 
-                    redraw_image(&mut world, &mut top_view_frame, false);
+                    redraw_image(&mut world, &mut top_view_frame);
                 }
                 Message::MouseDown(x, y, button) => {
                     println!("The image was clicked at coordinates x={}, y={}", x, y);
@@ -185,8 +188,6 @@ fn main() {
                         );
 
                         world.ellipses.push(central_ellipse);
-                    } else {
-                        redraw_image(&mut world, &mut top_view_frame, true);
                     }
 
                     world.is_updated = true;
@@ -237,7 +238,7 @@ fn main() {
 }
 
 
-fn redraw_image(world_state: &mut World, image_frame: &mut frame::Frame, is_show_stats: bool) {
+fn redraw_image(world_state: &mut World, image_frame: &mut frame::Frame) {
     if world_state.is_updated {
 
         let image_data: RGBACanvas = world_state.get_rendered_view();
@@ -248,13 +249,7 @@ fn redraw_image(world_state: &mut World, image_frame: &mut frame::Frame, is_show
             image_data.height,
             ColorDepth::Rgba8,
         )
-        .unwrap() };
-
-        if is_show_stats {
-            println!("calculated data size: {}; actual data size: {}.", image_data.width * image_data.height * 4, image_data.data.len());
-            // println!("image data size for frame: {}", image.)
-        }
-        
+        .unwrap() };        
 
         image_frame.set_image(Some(image));
         image_frame.redraw();

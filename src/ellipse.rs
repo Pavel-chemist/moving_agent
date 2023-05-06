@@ -5,7 +5,7 @@ use crate::{common_structs::{Coord, Angle, RGBAColor}, rgba_canvas::RGBACanvas};
 #[derive(Clone, Copy)]
 pub struct Ellipse {
     pub center: Coord,
-    pivot: Coord, // by default same as center
+    pivot: Coord, // by default same as center --> can be moved, all the rotations are around this point
     hor_axis: f64,
     ver_axis: f64,
     pub angle: Angle,
