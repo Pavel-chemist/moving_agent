@@ -1,4 +1,4 @@
-use common_structs::{Coord, RGBACanvas, Angle};
+use common_structs::{Coord, Angle};
 use fltk::{
     app::{self, App, MouseButton},
     enums::{self, ColorDepth, FrameType, Event},
@@ -7,6 +7,7 @@ use fltk::{
     *,
 };
 
+use rgba_canvas::RGBACanvas;
 use world::World;
 
 use crate::{common_structs::RGBAColor, ellipse::Ellipse};
@@ -14,6 +15,7 @@ use crate::{common_structs::RGBAColor, ellipse::Ellipse};
 mod common_structs;
 mod world;
 mod line;
+mod rgba_canvas;
 mod ellipse;
 mod polygon;
 
@@ -169,7 +171,7 @@ fn main() {
                         world.is_updated = true;
                     }
 
-                    redraw_image(&mut world, &mut top_view_frame);
+                    redraw_image(&mut world, &mut top_view_frame, false);
                 }
                 Message::MouseDown(x, y, button) => {
                     println!("The image was clicked at coordinates x={}, y={}", x, y);
@@ -183,6 +185,8 @@ fn main() {
                         );
 
                         world.ellipses.push(central_ellipse);
+                    } else {
+                        redraw_image(&mut world, &mut top_view_frame, true);
                     }
 
                     world.is_updated = true;
@@ -233,18 +237,24 @@ fn main() {
 }
 
 
-fn redraw_image(world_state: &mut World, image_frame: &mut frame::Frame) {
+fn redraw_image(world_state: &mut World, image_frame: &mut frame::Frame, is_show_stats: bool) {
     if world_state.is_updated {
 
         let image_data: RGBACanvas = world_state.get_rendered_view();
 
-        let image = RgbImage::new(
+        let image = unsafe { RgbImage::from_data(
             &image_data.data,
             image_data.width,
             image_data.height,
             ColorDepth::Rgba8,
         )
-        .unwrap();
+        .unwrap() };
+
+        if is_show_stats {
+            println!("calculated data size: {}; actual data size: {}.", image_data.width * image_data.height * 4, image_data.data.len());
+            // println!("image data size for frame: {}", image.)
+        }
+        
 
         image_frame.set_image(Some(image));
         image_frame.redraw();

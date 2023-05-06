@@ -1,6 +1,6 @@
 // this is a versatile structure that can be used to describe different closed shapes
 
-use crate::{common_structs::{Coord, Angle, RGBAColor, RGBACanvas}, line::Line};
+use crate::{common_structs::{Coord, Angle, RGBAColor}, line::Line, rgba_canvas::RGBACanvas};
 
 pub enum PType {
   Regular{n: usize, r: f64, pivot: Coord, color: RGBAColor},
@@ -55,7 +55,7 @@ impl Polygon {
             return Some(new_polygon);
           }
         }
-        /* PType::Box(length, width) => {
+        /* PType::Box(length, width, pivot, color) => {
 
         } */
       }
@@ -81,7 +81,8 @@ impl Polygon {
 
     pub fn draw(&self, canvas: &mut RGBACanvas) {
       for i in 0..self.sides.len() {
-        self.sides[i].draw_line_p(canvas);
+        self.sides[i].draw(canvas);
+        // self.sides[i].draw_line_p(canvas);
       }
     }
 }
