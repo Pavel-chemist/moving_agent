@@ -4,7 +4,7 @@ use crate::{common_structs::{Coord, Angle, RGBAColor}, line::Line, rgba_canvas::
 
 pub enum PType {
   Regular{n: usize, r: f64, pivot: Coord, color: RGBAColor},
-  Box{length: f64, width: f64, pivot: Coord, color: RGBAColor},
+  Rectangle{length: f64, width: f64, pivot: Coord, color: RGBAColor},
   // RegElliptic{n: usize, length: f64, width: f64, pivot: Coord, color: RGBAColor},
   // Convex{pivot: Coord, vertices: Vec<Coord>, color: RGBAColor},
   // Random{pivot: Coord, vertices: Vec<Coord>, color: RGBAColor},
@@ -14,7 +14,7 @@ pub enum PType {
 // These line segments are not intersecting
 #[derive(Clone)]
 pub struct Polygon {
-  name: String,
+  pub name: String,
   pivot: Coord, // global coordinates
   vertices: Vec<Coord>, // relative to pivot
   pub sides: Vec<Line>, // lines defined in global coordinates 
@@ -22,95 +22,110 @@ pub struct Polygon {
 }
 
 impl Polygon {
-    pub fn new(kind: PType) -> Option<Polygon> {
-      match kind {
-        PType::Regular{n, r, pivot, color} => {
-          if n < 3 && r <= 0.0 {
-            return None;
-          } else {
-            let delta_alpha: f64 = std::f64::consts::TAU / (n as f64);
-            let mut vertices: Vec<Coord> = Vec::with_capacity(n);
-            let mut sides: Vec<Line> = Vec::with_capacity(n);
+  pub fn new(kind: PType) -> Option<Polygon> {
+    match kind {
+      PType::Regular{n, r, pivot, color} => {
+					if n < 3 && r <= 0.0 {
+						return None;
+					} else {
+						let delta_alpha: f64 = std::f64::consts::TAU / (n as f64);
+						let mut vertices: Vec<Coord> = Vec::with_capacity(n);
+						let mut sides: Vec<Line> = Vec::with_capacity(n);
 
-            for i in 0..n {
-              vertices.push(Coord::new(f64::cos(delta_alpha * (i as f64)) * r, f64::sin(delta_alpha * (i as f64)) * r));
-            }
-
-            for i in 0..n { 
-              sides.push(
-                Line::new(
-                  Coord::new(vertices[i].x() + pivot.x(), vertices[i].y() + pivot.y()),
-                  Coord::new(vertices[(i + 1) % n].x() + pivot.x(), vertices[(i + 1) % n].y() + pivot.y()), color)
-              );
-            }
-
-            let new_polygon = Polygon {
-              name: String::from("Regular with ".to_owned() + &n.to_string() + " sides"),
-              pivot,
-              vertices,
-              sides,
-              angle: Angle::new(),
-            };
-
-            return Some(new_polygon);
+          for i in 0..n {
+            vertices.push(Coord::new(f64::cos(delta_alpha * (i as f64)) * r, f64::sin(delta_alpha * (i as f64)) * r));
           }
-        }
-        PType::Box{length, width, pivot, color} => {
-          if length <= 0.0 && width <= 0.0 {
-            return None;
-          } else {
-            let mut vertices: Vec<Coord> = Vec::with_capacity(4);
-            let mut sides: Vec<Line> = Vec::with_capacity(4);
-  
-            vertices.push(Coord::new(length / 2.0, width / 2.0));
-            vertices.push(Coord::new(-length / 2.0, width / 2.0));
-            vertices.push(Coord::new(-length / 2.0, -width / 2.0));
-            vertices.push(Coord::new(length / 2.0, -width / 2.0));
 
-            for i in 0..4 { 
-              sides.push(
-                Line::new(
-                  Coord::new(vertices[i].x() + pivot.x(), vertices[i].y() + pivot.y()),
-                  Coord::new(vertices[(i + 1) % 4].x() + pivot.x(), vertices[(i + 1) % 4].y() + pivot.y()), color)
-              );
-            }
+          for i in 0..n { 
+          sides.push(
+            Line::new(
+              Coord::new(vertices[i].x() + pivot.x(), vertices[i].y() + pivot.y()),
+              Coord::new(vertices[(i + 1) % n].x() + pivot.x(), vertices[(i + 1) % n].y() + pivot.y()), color)
+          	);
+          }
 
-            let new_polygon = Polygon {
-              name: String::from("Rectangle"),
-              pivot,
+          let new_polygon = Polygon {
+            name: String::from("Regular with ".to_owned() + &n.to_string() + " sides"),
+            pivot,
               vertices,
               sides,
               angle: Angle::new(),
             };
 
-            return Some(new_polygon);
-          } 
+          return Some(new_polygon);
         }
       }
-    }
+      PType::Rectangle{length, width, pivot, color} => {
+        if length <= 0.0 && width <= 0.0 {
+          return None;
+        } else {
+          let mut vertices: Vec<Coord> = Vec::with_capacity(4);
+          let mut sides: Vec<Line> = Vec::with_capacity(4);
 
-    pub fn rotate(&mut self, alpha: Angle) {
-      let mut rot_vertice: Coord;
-      let mut rot_vertice_next: Coord;
+          vertices.push(Coord::new(length / 2.0, width / 2.0));
+          vertices.push(Coord::new(-length / 2.0, width / 2.0));
+          vertices.push(Coord::new(-length / 2.0, -width / 2.0));
+          vertices.push(Coord::new(length / 2.0, -width / 2.0));
 
-      self.angle.turn(alpha.get_value());
+          for i in 0..4 { 
+            sides.push(
+              Line::new(
+                Coord::new(vertices[i].x() + pivot.x(), vertices[i].y() + pivot.y()),
+                Coord::new(vertices[(i + 1) % 4].x() + pivot.x(), vertices[(i + 1) % 4].y() + pivot.y()), color)
+            );
+          }
 
-      for i in 0..self.vertices.len() {
-        rot_vertice = self.vertices[i].rotate(self.angle);
-        rot_vertice_next = self.vertices[(i + 1) % self.vertices.len()].rotate(self.angle);
+          let new_polygon = Polygon {
+            name: String::from("Rectangle"),
+            pivot,
+            vertices,
+            sides,
+            angle: Angle::new(),
+          };
 
-        self.sides[i].start.set_x(rot_vertice.x() + self.pivot.x());
-        self.sides[i].start.set_y(rot_vertice.y() + self.pivot.y());
-
-        self.sides[i].end.set_x(rot_vertice_next.x() + self.pivot.x());
-        self.sides[i].end.set_y(rot_vertice_next.y() + self.pivot.y());
+          return Some(new_polygon);
+        } 
       }
     }
+  }
 
-    pub fn draw(&self, canvas: &mut RGBACanvas) {
-      for i in 0..self.sides.len() {
-        self.sides[i].draw(canvas);
-        // self.sides[i].draw_line_p(canvas);
-      }
+  pub fn rotate(&mut self, alpha: Angle) {
+    let mut rot_vertex: Coord;
+    let mut rot_vertex_next: Coord;
+
+    self.angle.turn(alpha.get_value());
+
+    for i in 0..self.vertices.len() {
+      rot_vertex = self.vertices[i].rotate(self.angle);
+      rot_vertex_next = self.vertices[(i + 1) % self.vertices.len()].rotate(self.angle);
+
+      self.sides[i].start.set_x(rot_vertex.x() + self.pivot.x());
+      self.sides[i].start.set_y(rot_vertex.y() + self.pivot.y());
+
+      self.sides[i].end.set_x(rot_vertex_next.x() + self.pivot.x());
+      self.sides[i].end.set_y(rot_vertex_next.y() + self.pivot.y());
     }
+  }
+
+  pub fn move_pivot(&mut self, offset: Coord) {
+    for i in 0..self.vertices.len() {
+      self.vertices[i].move_x(-offset.x());
+      self.vertices[i].move_y(-offset.y());
+    }
+
+    for i in 0..self.sides.len() {
+      self.sides[i].start.move_x(-offset.x());
+      self.sides[i].start.move_y(-offset.y());
+
+      self.sides[i].end.move_x(-offset.x());
+      self.sides[i].end.move_y(-offset.y());
+    }
+  }
+
+  pub fn draw(&self, canvas: &mut RGBACanvas) {
+    for i in 0..self.sides.len() {
+      self.sides[i].draw(canvas);
+      // self.sides[i].draw_line_p(canvas);
+    }
+  }
 }

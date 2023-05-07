@@ -1,3 +1,5 @@
+use std::collections::btree_set::Intersection;
+
 #[derive(Copy, Clone)]
 pub struct RGBAColor {
     pub r: u8,
@@ -133,5 +135,93 @@ impl Angle {
 
     pub fn get_value(&self) -> f64 {
         return self.a;
+    }
+}
+
+#[derive(Clone, Copy)]
+struct LineSeg {
+    x_0: f64,
+    x_1: f64,
+}
+
+impl LineSeg {
+    pub fn linear_intersection(a_0: f64, a_1: f64, b_0: f64, b_1: f64) -> Option<LineSeg> {
+        let is_intersected: bool;
+        let x_0: f64;
+        let x_1: f64;
+
+        if a_1 < b_0 || a_0 > b_1 {
+            // no intersection
+            is_intersected = false;
+            x_0 = 0.0;
+            x_1 = 0.0;
+        } else {
+            is_intersected = true;
+
+            if a_0 < b_0 {
+                x_0 = b_0;
+
+                if a_1 < b_1 {
+                    x_1 = a_1;
+                } else {
+                    x_1 = b_1;
+                }
+            } else {
+                x_0 = a_0;
+
+                if a_1 < b_1 {
+                    x_1 = a_1;
+                } else {
+                    x_1 = b_1;
+                }
+            }
+        }
+
+        if is_intersected {
+            return Some(LineSeg {x_0, x_1});
+        } else {
+            return None;
+        }
+    } 
+}
+
+#[derive(Clone, Copy)]
+pub struct AlignedBox {
+    pub x_0: f64,
+    pub y_0: f64,
+    pub x_1: f64,
+    pub y_1: f64,
+}
+
+impl  AlignedBox {
+    // pub fn new()
+    pub fn box_intersection(&self, tested_box: &AlignedBox) -> Option<AlignedBox> {
+
+        let x_intersection: Option<LineSeg> = LineSeg::linear_intersection(
+            self.x_0,
+            self.x_1,
+            tested_box.x_0,
+            tested_box.x_1,
+        );
+
+        let y_intersection: Option<LineSeg> = LineSeg::linear_intersection(
+            self.y_0,
+            self.y_1,
+            tested_box.y_0,
+            tested_box.y_1,
+        );
+
+        if x_intersection.is_none() || y_intersection.is_none() {
+            return None;
+        } else {
+            let intersection_box = AlignedBox {
+                x_0: x_intersection.unwrap().x_0,
+                y_0: y_intersection.unwrap().x_0,
+                x_1: x_intersection.unwrap().x_1,
+                y_1: y_intersection.unwrap().x_1,
+            };
+
+            return Some(intersection_box);
+        }
     }
 }

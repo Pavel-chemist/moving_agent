@@ -19,7 +19,7 @@ pub struct World {
     pub width: f64, //world width
     pub height: f64, //world height
     static_background: RGBACanvas, //contains all static objects pre-rendered
-    // pub lines: Vec<Line>,
+    pub lines: Vec<Line>,
     pub ellipses: Vec<Ellipse>,
     // pub sprites: Vec<Sprite>,
     pub shapes: Vec<Polygon>,
@@ -33,7 +33,7 @@ impl World {
             height: height as f64,
             static_background: RGBACanvas::new(width, height),
             // static_background: Self::create_static_bacground(width, height),
-            // lines: Vec::new(),
+            lines: Vec::new(),
             ellipses: Vec::new(),
             shapes: Vec::new(),
             is_updated: false,
@@ -48,12 +48,28 @@ impl World {
     pub fn get_rendered_view(&self) -> RGBACanvas {
         let mut rendered_scene = self.static_background.clone();
 
-        Line::new(Coord::new(0.0, 100.0), Coord::new(200.0, 100.0), RGBAColor::new_rgb(255, 0, 0)).draw(&mut rendered_scene);
-
-        Line::new(Coord::new(100.0, 0.0), Coord::new(100.0, 200.0), RGBAColor::new_rgb(255, 0, 0)).draw(&mut rendered_scene);
+        for i in 0..self.lines.len() {
+            self.lines[i].draw(&mut rendered_scene);
+        }
 
         for i in 0..self.shapes.len() {
             self.shapes[i].draw(&mut rendered_scene);
+        }
+
+        let num_lines: usize = self.lines.len();
+        let num_shapes: usize = self.shapes.len();
+        let mut point: Option<Coord>;
+
+        for i in 0..self.shapes[num_shapes-1].sides.len() {
+            point = self.shapes[num_shapes-1].sides[i].intersection(&self.lines[num_lines -1]);
+
+            match point {
+                Some(int_pt) => {
+                    // println!("Intersection at x: {:.3}, y: {:.3}", int_pt.x(), int_pt.y());
+                    rendered_scene.place_square(int_pt.get_x_i(), int_pt.get_y_i(), 10, RGBAColor::new_rgb(255, 127, 63));
+                }
+                None => {}
+            }
         }
 
         for i in 0..self.ellipses.len() {
@@ -72,6 +88,13 @@ impl World {
     }
 
     fn add_shapes(&mut self) {
+        self.lines.push(Line::new(Coord::new(0.0, 100.0), Coord::new(200.0, 100.0), RGBAColor::new_rgb(255, 0, 0)));
+
+        self.lines.push(Line::new(Coord::new(100.0, 0.0), Coord::new(100.0, 200.0), RGBAColor::new_rgb(255, 0, 0)));
+
+        self.lines.push(Line::new(Coord::new(100.0, 290.0), Coord::new(600.0, 310.0), RGBAColor::new_rgb(0, 255, 0)));
+
+
         for i in 0..6 {
             self.shapes.push(
                 Polygon::new(PType::Regular { 
@@ -83,10 +106,12 @@ impl World {
             ).unwrap());
         }
 
-        self.shapes.push(Polygon::new(PType::Box { 
+        self.shapes[4].move_pivot(Coord::new(30.0, 10.0));
+
+        self.shapes.push(Polygon::new(PType::Rectangle { 
                 length: 200.0,
                 width: 100.0,
-                pivot: Coord::new(250.0, 250.0),
+                pivot: Coord::new(400.0, 300.0),
                 color: RGBAColor::new_rgb(255, 255, 0),
             }
         ).unwrap());

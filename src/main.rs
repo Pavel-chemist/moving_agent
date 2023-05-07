@@ -18,6 +18,7 @@ mod line;
 mod rgba_canvas;
 mod ellipse;
 mod polygon;
+// mod helpers;
 
 const WIND_LABEL: &str = "Moving Agent";
 
