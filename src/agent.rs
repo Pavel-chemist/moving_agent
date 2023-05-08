@@ -40,6 +40,16 @@ impl Agent {
       color: RGBAColor::new_rgb(0, 255, 0),
     }).unwrap());
 
+    polygons.push(Polygon::new(PType::Sector{
+      radius: 250.0,
+      start_angle: Angle::new_deg(-45.0),
+      end_angle: Angle::new_deg(45.0),
+      pivot: Coord::new_i(0, 0),
+      color: RGBAColor::new_rgb(255, 255, 255),
+    }).unwrap());
+
+    polygons[1].move_pivot(Coord::new(-50.0, 0.0));
+
     return Agent{
       center: init_coord,
       angle: init_angle,

@@ -5,6 +5,7 @@ use crate::{common_structs::{Coord, Angle, RGBAColor}, line::Line, rgba_canvas::
 pub enum PType {
   Regular{n: usize, r: f64, pivot: Coord, color: RGBAColor},
   Rectangle{length: f64, width: f64, pivot: Coord, color: RGBAColor},
+  Sector{radius: f64, start_angle: Angle, end_angle: Angle, pivot: Coord, color: RGBAColor},
   // RegElliptic{n: usize, length: f64, width: f64, pivot: Coord, color: RGBAColor},
   // Convex{pivot: Coord, vertices: Vec<Coord>, color: RGBAColor},
   // Random{pivot: Coord, vertices: Vec<Coord>, color: RGBAColor},
@@ -15,7 +16,7 @@ pub enum PType {
 #[derive(Clone)]
 pub struct Polygon {
   pub name: String,
-  pivot: Coord, // global coordinates
+  pub pivot: Coord, // global coordinates
   vertices: Vec<Coord>, // relative to pivot
   pub sides: Vec<Line>, // lines defined in global coordinates 
   pub angle: Angle, // relative to global x axis
@@ -85,6 +86,43 @@ impl Polygon {
 
           return Some(new_polygon);
         } 
+      }
+      PType::Sector { radius, start_angle, end_angle, pivot, color } => { 
+        if radius <= 0.0 && start_angle.get_rad() >= end_angle.get_rad() {
+          return None;
+        } else {
+          let base_ray: Coord = Coord::new(radius, 0.0);
+          let sub_sector_angle: Angle = Angle::new_deg(5.0);
+          let num_sub_sectors: usize = ((end_angle.get_deg() - start_angle.get_deg()) / 5.0) as usize;
+          let mut vertices: Vec<Coord> = Vec::with_capacity(num_sub_sectors + 2);
+          let mut sides: Vec<Line> = Vec::with_capacity(num_sub_sectors + 2);
+
+          vertices.push(Coord::new(0.0, 0.0));
+          vertices.push(base_ray.new_rotated(start_angle));
+          for v in 2..(num_sub_sectors + 1) {
+            vertices.push(vertices[v-1].new_rotated(sub_sector_angle));
+          }
+          vertices.push(base_ray.new_rotated(end_angle));
+
+
+          for s in 0..vertices.len() { 
+            sides.push(
+              Line::new(
+                Coord::new(vertices[s].x() + pivot.x(), vertices[s].y() + pivot.y()),
+                Coord::new(vertices[(s + 1) % 4].x() + pivot.x(), vertices[(s + 1) % 4].y() + pivot.y()), color)
+            );
+          }
+
+          let new_polygon = Polygon {
+            name: String::from("Sector"),
+            pivot,
+            vertices,
+            sides,
+            angle: Angle::new(),
+          };
+
+          return Some(new_polygon);
+        }
       }
     }
   }
