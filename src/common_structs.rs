@@ -1,3 +1,5 @@
+use crate::rgba_canvas::RGBACanvas;
+
 #[derive(Copy, Clone)]
 pub struct RGBAColor {
     pub r: u8,
@@ -95,11 +97,56 @@ impl Coord {
         self.y += delta_y;
     }
 
-    pub fn rotate(&self, alpha: Angle) -> Coord {
+    pub fn new_rotated(&self, alpha: Angle) -> Coord {
         return Coord::new(
             f64::cos(alpha.a) * self.x - f64::sin(alpha.a) * self.y,
             f64::sin(alpha.a) * self.x + f64::cos(alpha.a) * self.y,
         );
+    }
+
+    pub fn new_offset(&self, offset: Coord) -> Coord {
+        return Coord::new(
+            self.x + offset.x,
+            self.y + offset.y,
+        );
+    }
+}
+
+#[derive(Clone, Copy)]
+pub enum Marker {
+    Square(i32),
+    Disc(i32),
+}
+
+#[derive(Clone, Copy)]
+pub struct Dot {
+    coord: Coord,
+    color: RGBAColor,
+    marker: Marker,
+}
+
+impl Dot {
+    pub fn new(coord: Coord, color: RGBAColor, marker: Marker) -> Dot {
+        return Dot{coord, color, marker};
+    }
+
+    pub fn new_rot_offset(&self, alpha: Angle, offset: Coord) -> Dot {
+        return Dot::new(
+            self.coord.new_rotated(alpha).new_offset(offset),
+            self.color,
+            self.marker,
+          );
+    }
+
+    pub fn draw(&self, canvas: &mut RGBACanvas) {
+        match self.marker {
+            Marker::Square(size) => {
+                canvas.put_square(self.coord.get_x_i(), self.coord.get_y_i(), size, self.color);
+            }
+            Marker::Disc(radius) => {
+                canvas.put_disc(self.coord.get_x_i(), self.coord.get_y_i(), radius, self.color);
+            }
+        }
     }
 }
 
@@ -119,6 +166,12 @@ impl Angle {
 
     pub fn new_deg(degrees: f64) -> Angle {
         return Angle{ a: degrees * std::f64::consts::TAU / 360.0 };
+    }
+
+    pub fn turn(&mut self, alpha: Angle) {
+
+        self.a += alpha.a;
+        self.normalize();
     }
 
     pub fn turn_rad(&mut self, value: f64) {

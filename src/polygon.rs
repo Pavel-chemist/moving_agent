@@ -25,12 +25,12 @@ impl Polygon {
   pub fn new(kind: PType) -> Option<Polygon> {
     match kind {
       PType::Regular{n, r, pivot, color} => {
-					if n < 3 && r <= 0.0 {
-						return None;
-					} else {
-						let delta_alpha: f64 = std::f64::consts::TAU / (n as f64);
-						let mut vertices: Vec<Coord> = Vec::with_capacity(n);
-						let mut sides: Vec<Line> = Vec::with_capacity(n);
+          if n < 3 && r <= 0.0 {
+            return None;
+          } else {
+            let delta_alpha: f64 = std::f64::consts::TAU / (n as f64);
+            let mut vertices: Vec<Coord> = Vec::with_capacity(n);
+            let mut sides: Vec<Line> = Vec::with_capacity(n);
 
           for i in 0..n {
             vertices.push(Coord::new(f64::cos(delta_alpha * (i as f64)) * r, f64::sin(delta_alpha * (i as f64)) * r));
@@ -41,7 +41,7 @@ impl Polygon {
             Line::new(
               Coord::new(vertices[i].x() + pivot.x(), vertices[i].y() + pivot.y()),
               Coord::new(vertices[(i + 1) % n].x() + pivot.x(), vertices[(i + 1) % n].y() + pivot.y()), color)
-          	);
+            );
           }
 
           let new_polygon = Polygon {
@@ -89,15 +89,40 @@ impl Polygon {
     }
   }
 
+  pub fn new_rot_offset(&self, alpha: Angle, offset: Coord) -> Polygon {
+    let mut new_vertices: Vec<Coord> = Vec::new();
+    let mut new_sides: Vec<Line> = Vec::new();
+
+    for v in 0..self.vertices.len() {
+      new_vertices.push(self.vertices[v]);
+    }
+
+    for s in 0..self.sides.len() {
+      new_sides.push(self.sides[s]);
+    }
+
+    let mut new_polygon: Polygon = Polygon {
+      name: self.name.to_owned() + "_moved",
+      pivot: self.pivot.new_offset(offset),
+      vertices: new_vertices,
+      sides: new_sides,
+      angle: self.angle,
+    };
+
+    new_polygon.rotate(alpha);
+
+    return new_polygon;
+  }
+
   pub fn rotate(&mut self, alpha: Angle) {
     let mut rot_vertex: Coord;
     let mut rot_vertex_next: Coord;
 
-    self.angle.turn_rad(alpha.get_rad());
+    self.angle.turn(alpha);
 
     for i in 0..self.vertices.len() {
-      rot_vertex = self.vertices[i].rotate(self.angle);
-      rot_vertex_next = self.vertices[(i + 1) % self.vertices.len()].rotate(self.angle);
+      rot_vertex = self.vertices[i].new_rotated(self.angle);
+      rot_vertex_next = self.vertices[(i + 1) % self.vertices.len()].new_rotated(self.angle);
 
       self.sides[i].start.set_x(rot_vertex.x() + self.pivot.x());
       self.sides[i].start.set_y(rot_vertex.y() + self.pivot.y());
@@ -125,7 +150,6 @@ impl Polygon {
   pub fn draw(&self, canvas: &mut RGBACanvas) {
     for i in 0..self.sides.len() {
       self.sides[i].draw(canvas);
-      // self.sides[i].draw_line_p(canvas);
     }
   }
 }

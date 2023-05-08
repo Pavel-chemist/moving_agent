@@ -12,6 +12,7 @@ use crate::{
         PType,
     },
     rgba_canvas::RGBACanvas,
+    agent::Agent,
 };
 
 
@@ -21,8 +22,8 @@ pub struct World {
     static_background: RGBACanvas, //contains all static objects pre-rendered
     pub lines: Vec<Line>,
     pub ellipses: Vec<Ellipse>,
-    // pub sprites: Vec<Sprite>,
     pub shapes: Vec<Polygon>,
+    pub agent: Agent,
     pub is_updated: bool,
 }
 
@@ -36,6 +37,7 @@ impl World {
             lines: Vec::new(),
             ellipses: Vec::new(),
             shapes: Vec::new(),
+            agent: Agent::new(Coord::new_i(width / 2, height / 2), Angle::new()),
             is_updated: false,
         };
 
@@ -86,6 +88,8 @@ impl World {
         for i in 0..self.ellipses.len() {
             self.ellipses[i].draw_ellipse_raster(&mut rendered_scene, false, 20.0);
         }
+
+        self.agent.draw(&mut rendered_scene);
 
         return rendered_scene;
     }

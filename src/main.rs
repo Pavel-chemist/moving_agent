@@ -13,11 +13,12 @@ use world::World;
 use crate::{common_structs::RGBAColor, ellipse::Ellipse};
 
 mod common_structs;
-mod world;
 mod line;
 mod rgba_canvas;
 mod ellipse;
 mod polygon;
+mod agent;
+mod world;
 
 const WIND_LABEL: &str = "Moving Agent";
 
@@ -196,32 +197,32 @@ fn main() {
                     match key_char {
                         'w' => {
                             // move forward
-                            world.ellipses[0].center.move_y(-5.0);
+                            world.agent.move_forward(5.0);
                             world.is_updated = true;
                         }
                         's' => {
                             // move backward
-                            world.ellipses[0].center.move_y(5.0);
+                            world.agent.move_forward(-5.0);
                             world.is_updated = true;
                         }
                         'd' => {
                             // move right
-                            world.ellipses[0].center.move_x(5.0);
+                            world.agent.move_sideways(5.0);
                             world.is_updated = true;
                         }
                         'a' => {
                             // move left
-                            world.ellipses[0].center.move_x(-5.0);
+                            world.agent.move_sideways(-5.0);
                             world.is_updated = true;
                         }
                         'e' => {
                             // rotate right
-                            world.ellipses[0].angle.turn_rad(0.05);
+                            world.agent.turn_sideways(5.0);
                             world.is_updated = true;
                         }
                         'q' => {
                             // rotate left
-                            world.ellipses[0].angle.turn_rad(-0.05);
+                            world.agent.turn_sideways(-5.0);
                             world.is_updated = true;
                         }
                         _ => {}

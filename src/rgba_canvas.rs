@@ -131,8 +131,8 @@ impl RGBACanvas {
     }
 
     pub fn put_square(&mut self, x: i32, y: i32, size: i32, color: RGBAColor) {
-        for j in (y - size)..(y + size) {
-            for i in (x - size)..(x + size) {
+        for j in (y - size)..(y + size + 1) {
+            for i in (x - size)..(x + size + 1) {
                 self.put_pixel(i, j, color);
             }
         }
