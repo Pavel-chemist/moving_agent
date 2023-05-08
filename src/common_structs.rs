@@ -1,5 +1,3 @@
-use std::collections::btree_set::Intersection;
-
 #[derive(Copy, Clone)]
 pub struct RGBAColor {
     pub r: u8,
@@ -115,26 +113,41 @@ impl Angle {
         return Angle{a: 0.0};
     }
 
-    pub fn new_f(a: f64) -> Angle {
-        return Angle{ a };
+    pub fn new_rad(radians: f64) -> Angle {
+        return Angle{ a: radians };
     }
 
-    pub fn turn(&mut self, value: f64) {
-        let mut new_angle: f64 = self.a + value;
-
-        while new_angle > std::f64::consts::TAU {
-            new_angle -= std::f64::consts::TAU;
-        }
-
-        while new_angle < 0.0 {
-            new_angle += std::f64::consts::TAU;
-        }
-
-        self.a = new_angle;
+    pub fn new_deg(degrees: f64) -> Angle {
+        return Angle{ a: degrees * std::f64::consts::TAU / 360.0 };
     }
 
-    pub fn get_value(&self) -> f64 {
+    pub fn turn_rad(&mut self, value: f64) {
+
+        self.a += value;
+        self.normalize();
+    }
+
+    pub fn turn_deg(&mut self, degrees: f64) {
+
+        self.a += degrees * std::f64::consts::TAU / 360.0;
+        self.normalize();
+    }
+
+    pub fn get_rad(&self) -> f64 {
         return self.a;
+    }
+
+    pub fn get_deg(&self) -> f64 {
+        return self.a * 360.0 / std::f64::consts::TAU;
+    }
+
+    fn normalize(&mut self) {
+        // ensure that angle is in range [0..TAU) radians
+
+        if !(self.a >= 0.0 && self.a < std::f64::consts::TAU) {
+
+            self.a = self.a - std::f64::consts::TAU * (self.a / std::f64::consts::TAU).trunc();
+        }
     }
 }
 

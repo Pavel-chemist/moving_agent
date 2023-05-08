@@ -18,7 +18,6 @@ mod line;
 mod rgba_canvas;
 mod ellipse;
 mod polygon;
-// mod helpers;
 
 const WIND_LABEL: &str = "Moving Agent";
 
@@ -168,7 +167,7 @@ fn main() {
 
                     if world.shapes.len() > 0 {
                         for i in 0..world.shapes.len() {
-                            world.shapes[i].rotate(Angle::new_f(0.05 / ((i+3) as f64)));
+                            world.shapes[i].rotate(Angle::new_rad(0.05 / ((i+3) as f64)));
                         }
                         
 
@@ -217,12 +216,12 @@ fn main() {
                         }
                         'e' => {
                             // rotate right
-                            world.ellipses[0].angle.turn(0.05);
+                            world.ellipses[0].angle.turn_rad(0.05);
                             world.is_updated = true;
                         }
                         'q' => {
                             // rotate left
-                            world.ellipses[0].angle.turn(-0.05);
+                            world.ellipses[0].angle.turn_rad(-0.05);
                             world.is_updated = true;
                         }
                         _ => {}

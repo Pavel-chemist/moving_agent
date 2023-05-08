@@ -1,6 +1,4 @@
-use crate::common_structs::RGBAColor;
-
-pub fn place_square(image_data: &mut Vec<u8>, width: i32, x: i32, y: i32, size: i32, color: RGBAColor) {
+pub fn place_square(image_data: &mut Vec<u8>, width: i32, x: i32, y: i32, size: i32, color: common_structs::RGBColor) {
   let mut index_r: usize;
 
   for j in (y - size / 2)..(y + size / 2) {

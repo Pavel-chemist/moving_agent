@@ -130,11 +130,24 @@ impl RGBACanvas {
         // else just ignore pixels outside of canvas borders
     }
 
-    pub fn place_square(&mut self, x: i32, y: i32, size: i32, color: RGBAColor) {
-      for j in (y - size / 2)..(y + size / 2) {
-          for i in (x - size / 2)..(x + size / 2) {
-              self.put_pixel(i, j, color);
-          }
-      }
+    pub fn put_square(&mut self, x: i32, y: i32, size: i32, color: RGBAColor) {
+        for j in (y - size)..(y + size) {
+            for i in (x - size)..(x + size) {
+                self.put_pixel(i, j, color);
+            }
+        }
+    }
+
+    pub fn put_disc(&mut self, x: i32, y: i32, radius: i32, color: RGBAColor) {
+        let radius_squared: i32 = radius * radius;
+
+        for j in (y - radius)..(y + radius) {
+            for i in (x - radius)..(x + radius) {
+
+                if (j - y) * (j - y) + (i - x) * (i - x) < radius_squared {
+                    self.put_pixel(i, j, color);
+                }
+            }
+        }
     }
 }

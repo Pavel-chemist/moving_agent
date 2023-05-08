@@ -93,7 +93,7 @@ impl Polygon {
     let mut rot_vertex: Coord;
     let mut rot_vertex_next: Coord;
 
-    self.angle.turn(alpha.get_value());
+    self.angle.turn_rad(alpha.get_rad());
 
     for i in 0..self.vertices.len() {
       rot_vertex = self.vertices[i].rotate(self.angle);

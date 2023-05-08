@@ -14,7 +14,7 @@ enum Rotation {
   L(f64),
 }
 
-struct Sprite {
+struct Agent {
   center: Coord,
   height: i32,
   width: i32,

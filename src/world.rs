@@ -65,8 +65,19 @@ impl World {
 
             match point {
                 Some(int_pt) => {
-                    // println!("Intersection at x: {:.3}, y: {:.3}", int_pt.x(), int_pt.y());
-                    rendered_scene.place_square(int_pt.get_x_i(), int_pt.get_y_i(), 10, RGBAColor::new_rgb(255, 127, 63));
+                    rendered_scene.put_square(
+                        int_pt.get_x_i(),
+                        int_pt.get_y_i(),
+                        7,
+                        RGBAColor::new_rgb(255, 127, 63)
+                    );
+
+                    rendered_scene.put_disc(
+                        int_pt.get_x_i(),
+                        int_pt.get_y_i(),
+                        5,
+                        RGBAColor::new_rgb(63, 127, 255)
+                    );
                 }
                 None => {}
             }
@@ -116,7 +127,8 @@ impl World {
             }
         ).unwrap());
 
-        self.shapes[6].rotate(Angle::new_f(1.0));
+        self.shapes[6].move_pivot(Coord::new(50.0, 20.0));
+        self.shapes[6].rotate(Angle::new_rad(1.0));
     }
     
 }

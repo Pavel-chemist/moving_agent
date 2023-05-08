@@ -33,8 +33,8 @@ impl Ellipse {
         let mut x: f64;
         let mut y: f64;
 
-        let sin_alpha: f64 = f64::sin(self.angle.get_value());
-        let cos_alpha: f64 = f64::cos(self.angle.get_value());
+        let sin_alpha: f64 = f64::sin(self.angle.get_rad());
+        let cos_alpha: f64 = f64::cos(self.angle.get_rad());
 
         if self.hor_axis >= self.ver_axis {
             long_semi_axis = self.hor_axis;
