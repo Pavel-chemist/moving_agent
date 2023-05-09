@@ -1,3 +1,5 @@
+use rand::{Rng, rngs::ThreadRng};
+
 use crate::rgba_canvas::RGBACanvas;
 
 #[derive(Copy, Clone)]
@@ -11,6 +13,12 @@ pub struct RGBAColor {
 impl RGBAColor {
     pub fn new() -> RGBAColor {
         return RGBAColor{r: 0, g: 0, b: 0, a: 0};
+    }
+
+    pub fn new_rand() -> RGBAColor {
+        let mut rng: ThreadRng = rand::thread_rng();
+
+        return RGBAColor{r: rng.gen_range(128..255), g: rng.gen_range(128..255), b: rng.gen_range(128..255), a: 255};
     }
 
     pub fn new_black() -> RGBAColor {
@@ -37,6 +45,24 @@ impl RGBAColor {
 
         new_color.a = if foreground.a as i32 + background.a as i32 > 255 {255} else {foreground.a + background.a};
 
+        return new_color;
+    }
+
+    pub fn new_scaled(&self, scaling_factor: f64) -> RGBAColor {
+        let new_color: RGBAColor;
+
+        if scaling_factor <= 0.0 {
+            new_color = RGBAColor::new_black();
+        } else if scaling_factor > 0.0 && scaling_factor < 1.0 {
+            new_color = RGBAColor::new_rgb(
+                (self.r as f64 * scaling_factor) as u8,
+                (self.g as f64 * scaling_factor) as u8,
+                (self.b as f64 * scaling_factor) as u8,
+            );
+        } else {
+            new_color = self.clone();
+        }
+        
         return new_color;
     }
 }
@@ -120,8 +146,8 @@ pub enum Marker {
 
 #[derive(Clone, Copy)]
 pub struct Dot {
-    coord: Coord,
-    color: RGBAColor,
+    pub coord: Coord,
+    pub color: RGBAColor,
     marker: Marker,
 }
 

@@ -1,3 +1,8 @@
+// Main things to do:
+// make a first-person view for agent
+// make main view scalable
+
+
 use common_structs::{Coord, Angle};
 use fltk::{
     app::{self, App, MouseButton},
@@ -29,10 +34,12 @@ const MAIN_IMAGE_WIDTH: i32 = 1560;
 const MAIN_IMAGE_HEIGHT: i32 = 940; */
 
 // small window consts
-const WIND_WIDTH: i32 = 800;
-const WIND_HEIGHT: i32 = 600;
+const WIND_WIDTH: i32 = 1000;
+const WIND_HEIGHT: i32 = 720;
 const MAIN_IMAGE_WIDTH: i32 = 780;
 const MAIN_IMAGE_HEIGHT: i32 = 520;
+
+const FIRST_PERSON_VIEW_HEIGHT: i32 = 128;
 
 const MAIN_IMAGE_FRAME_THICKNESS: i32 = 4;
 const MAIN_IMAGE_X_POS: i32 = 10;
@@ -71,13 +78,13 @@ fn main() {
         Message::Quit,
     );
 
-    let mut framing_frame = frame::Frame::default()
+    let mut framing_frame_1 = frame::Frame::default()
         .with_pos(MAIN_IMAGE_X_POS, MAIN_IMAGE_Y_POS + MENU_HEIGHT)
         .with_size(
             MAIN_IMAGE_WIDTH + MAIN_IMAGE_FRAME_THICKNESS * 2,
             MAIN_IMAGE_HEIGHT + MAIN_IMAGE_FRAME_THICKNESS * 2,
         );
-    framing_frame.set_frame(FrameType::EngravedBox);
+    framing_frame_1.set_frame(FrameType::EngravedBox);
 
     let mut top_view_frame = frame::Frame::default()
         .with_pos(
@@ -85,6 +92,22 @@ fn main() {
             MAIN_IMAGE_Y_POS + MAIN_IMAGE_FRAME_THICKNESS + MENU_HEIGHT,
         )
         .with_size(MAIN_IMAGE_WIDTH, MAIN_IMAGE_HEIGHT);
+
+
+    let mut framing_frame_2 = frame::Frame::default()
+        .with_pos(MAIN_IMAGE_X_POS, MAIN_IMAGE_Y_POS + MENU_HEIGHT + MAIN_IMAGE_FRAME_THICKNESS * 2 + MAIN_IMAGE_HEIGHT)
+        .with_size(
+            MAIN_IMAGE_WIDTH + MAIN_IMAGE_FRAME_THICKNESS * 2,
+            FIRST_PERSON_VIEW_HEIGHT + MAIN_IMAGE_FRAME_THICKNESS * 2,
+        );
+    framing_frame_2.set_frame(FrameType::EngravedBox);
+
+    let mut first_person_view_frame = frame::Frame::default()
+    .with_pos(
+        MAIN_IMAGE_X_POS + MAIN_IMAGE_FRAME_THICKNESS,
+        MAIN_IMAGE_Y_POS + MAIN_IMAGE_FRAME_THICKNESS * 3 + MENU_HEIGHT + MAIN_IMAGE_HEIGHT,
+    )
+    .with_size(MAIN_IMAGE_WIDTH, FIRST_PERSON_VIEW_HEIGHT);
 
     wind.end();
     wind.show();
@@ -166,21 +189,20 @@ fn main() {
                 }
                 Message::Tick => {
 
-                    if world.shapes.len() > 0 {
-                        for i in 0..world.shapes.len() {
+                    if world.shapes.len() > 2 {
+                        for i in 0..(world.shapes.len() - 2) {
                             world.shapes[i].rotate(Angle::new_rad(0.05 / ((i+3) as f64)));
                         }
-                        
-
-                        world.is_updated = true;
                     }
 
+                    world.is_updated = true;
                     redraw_image(&mut world, &mut top_view_frame);
+                    draw_fisrt_person_view(&mut world, &mut first_person_view_frame);
                 }
                 Message::MouseDown(x, y, button) => {
                     println!("The image was clicked at coordinates x={}, y={}", x, y);
 
-                    if world.ellipses.len() == 0 {
+                    /* if world.ellipses.len() == 0 {
                         let central_ellipse: Ellipse = Ellipse::new(
                             Coord::new((world.width as f64) / 2.0, (world.height as f64) / 2.0),
                             75.0,
@@ -189,7 +211,7 @@ fn main() {
                         );
 
                         world.ellipses.push(central_ellipse);
-                    }
+                    } */
 
                     world.is_updated = true;
                 }
@@ -239,10 +261,10 @@ fn main() {
 }
 
 
-fn redraw_image(world_state: &mut World, image_frame: &mut frame::Frame) {
-    if world_state.is_updated {
+fn redraw_image(world: &mut World, top_view_frame: &mut frame::Frame) {
+    if world.is_updated {
 
-        let image_data: RGBACanvas = world_state.get_rendered_view();
+        let mut image_data: RGBACanvas = world.get_rendered_view();
 
         let image = unsafe { RgbImage::from_data(
             &image_data.data,
@@ -250,11 +272,26 @@ fn redraw_image(world_state: &mut World, image_frame: &mut frame::Frame) {
             image_data.height,
             ColorDepth::Rgba8,
         )
-        .unwrap() };        
+        .unwrap() };
 
-        image_frame.set_image(Some(image));
-        image_frame.redraw();
+        top_view_frame.set_image(Some(image));
+        top_view_frame.redraw();
 
-        world_state.is_updated = false;
+        world.is_updated = false;
     }
+}
+
+fn draw_fisrt_person_view(world: &mut World, first_person_view_frame: &mut frame::Frame) {
+    let agent_view: RGBACanvas = world.agent.get_view(MAIN_IMAGE_WIDTH, &world);
+
+    let image = unsafe { RgbImage::from_data(
+        &agent_view.data,
+        agent_view.width,
+        agent_view.height,
+        ColorDepth::Rgba8,
+    )
+    .unwrap() };
+
+    first_person_view_frame.set_image(Some(image));
+    first_person_view_frame.redraw();
 }

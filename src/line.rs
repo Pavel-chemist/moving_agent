@@ -1,4 +1,4 @@
-use crate::{common_structs::{Coord, RGBAColor, AlignedBox}, rgba_canvas::RGBACanvas};
+use crate::{common_structs::{Coord, RGBAColor, AlignedBox, Angle, Dot, Marker}, rgba_canvas::RGBACanvas};
 
 #[derive(Copy, Clone)]
 pub struct Line {
@@ -130,17 +130,23 @@ impl Line {
         let x_1: f64;
         let y_1: f64;
 
-        if self.start.x() <= self.end.x() {
+        if self.start.x() < self.end.x() {
             x_0 = self.start.x();
             x_1 = self.end.x();
+        } else if self.start.x() == self.end.x() {
+            x_0 = self.start.x() - 0.1;
+            x_1 = self.end.x() + 0.1;
         } else {
             x_0 = self.end.x();
             x_1 = self.start.x();
         }
 
-        if self.start.y() <= self.end.y() {
+        if self.start.y() < self.end.y() {
             y_0 = self.start.y();
             y_1 = self.end.y();
+        } else if self.start.y() == self.end.y() {
+            y_0 = self.start.y() - 0.1;
+            y_1 = self.end.y() + 0.1;
         } else {
             y_0 = self.end.y();
             y_1 = self.start.y();
@@ -149,7 +155,7 @@ impl Line {
         return AlignedBox{x_0, x_1, y_0, y_1};
     }
 
-    pub fn intersection(&self, other: &Line) -> Option<Coord> {
+    pub fn intersection(&self, other: &Line) -> Option<Dot> {
         // this method will return coordinates of intersection point if there is an intersection between lines
 
         // if lines on top of each other, they share a continuous line segment, and
@@ -209,12 +215,13 @@ impl Line {
             }
 
             if is_intersecting {
-                if  x_i > intersect_box.x_0 &&
-                    x_i < intersect_box.x_1 &&
-                    y_i > intersect_box.y_0 &&
-                    y_i < intersect_box.y_1
+                if  x_i > intersect_box.x_0 - 0.1 &&
+                    x_i < intersect_box.x_1 + 0.1 &&
+                    y_i > intersect_box.y_0 - 0.1 &&
+                    y_i < intersect_box.y_1 + 0.1
                 {
-                    return Some(Coord::new(x_i, y_i));
+                    // println!("intersection at point x: {:.2}, y: {:.2}", x_i, y_i);
+                    return Some(Dot::new(Coord::new(x_i, y_i), other.color, Marker::Square(0)));
                 } else {
                     return None;
                 }
@@ -224,6 +231,21 @@ impl Line {
         } else {
             return None;
         }
+    }
+
+    pub fn new_rot_offset_line(&self, alpha: Angle, offset: Coord) -> Line {
+        // rotation is about starting point
+
+        let rot_endpoint: Coord = Coord::new(
+            self.end.x() - self.start.x(),
+            self.end.y() - self.start.y(),
+        ).new_rotated(alpha);
+
+        return Line::new(
+            self.start.new_offset(offset),
+            rot_endpoint.new_offset(self.start).new_offset(offset),
+            self.color,
+        );
     }
 
     pub fn get_length(&self) -> f64 {

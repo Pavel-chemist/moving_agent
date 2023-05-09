@@ -34,7 +34,10 @@ impl Polygon {
             let mut sides: Vec<Line> = Vec::with_capacity(n);
 
           for i in 0..n {
-            vertices.push(Coord::new(f64::cos(delta_alpha * (i as f64)) * r, f64::sin(delta_alpha * (i as f64)) * r));
+            vertices.push(Coord::new(
+              f64::cos(delta_alpha * (i as f64)) * r,
+              f64::sin(delta_alpha * (i as f64)) * r,
+            ));
           }
 
           for i in 0..n { 
@@ -72,7 +75,9 @@ impl Polygon {
             sides.push(
               Line::new(
                 Coord::new(vertices[i].x() + pivot.x(), vertices[i].y() + pivot.y()),
-                Coord::new(vertices[(i + 1) % 4].x() + pivot.x(), vertices[(i + 1) % 4].y() + pivot.y()), color)
+                Coord::new(vertices[(i + 1) % 4].x() + pivot.x(), vertices[(i + 1) % 4].y() + pivot.y()),
+                color,
+              )
             );
           }
 
