@@ -22,7 +22,8 @@ pub struct Agent {
   polygons: Vec<Polygon>,
   f_o_v: Angle, // field of view
   m_v_d: f64, // max view distance
-  // is_updated
+  // view: Vec<RGBAColor>,
+  pub is_updated: bool,
 }
 
 impl Agent {
@@ -62,6 +63,7 @@ impl Agent {
       polygons,
       f_o_v,
       m_v_d,
+      is_updated: true,
     };
   }
 
@@ -102,8 +104,9 @@ impl Agent {
     self.angle.turn_deg(degrees);
   }
 
-  pub fn get_view(&self, size: i32, world: &World) -> RGBACanvas {
+  pub fn get_view(&self, size: i32, world: &World) -> Vec<RGBAColor> {
     let angle_between_rays: Angle = Angle::new_deg(self.f_o_v.get_deg() / size as f64);
+    let mut view_line: Vec<RGBAColor> = Vec::with_capacity(size.abs() as usize);
     let mut ray: Line;
     let mut sweeping_ray: Line;
     let mut intersections_list: Vec<Dot>;
@@ -111,7 +114,6 @@ impl Agent {
     let mut current_distance: f64;
     let mut current_dot_index: usize = 0;
     let mut column_color: RGBAColor;
-    let mut view: RGBACanvas = RGBACanvas::new_black(size, 128);
 
     for view_column in 0..size {
       intersections_list = Vec::new();
@@ -155,16 +157,18 @@ impl Agent {
         column_color = intersections_list[current_dot_index].color.new_scaled(get_scaling_factor(shortest_distance, self.m_v_d));
       }
 
-      for i in 0..view.height {
+      view_line.push(column_color);
+
+      /* for i in view.height/2..view.height/2+1 {
         view.put_pixel(
           view_column,
           i,
           column_color,
         );
-      }
+      } */
     }
     
-    return view;
+    return view_line;
   }
 }
 

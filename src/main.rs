@@ -189,13 +189,13 @@ fn main() {
                 }
                 Message::Tick => {
 
-                    if world.shapes.len() > 2 {
+                    /* if world.shapes.len() > 2 {
                         for i in 0..(world.shapes.len() - 2) {
                             world.shapes[i].rotate(Angle::new_rad(0.05 / ((i+3) as f64)));
                         }
                     }
 
-                    world.is_updated = true;
+                    world.is_updated = true; */
                     redraw_image(&mut world, &mut top_view_frame);
                     draw_fisrt_person_view(&mut world, &mut first_person_view_frame);
                 }
@@ -221,31 +221,37 @@ fn main() {
                             // move forward
                             world.agent.move_forward(5.0);
                             world.is_updated = true;
+                            world.agent.is_updated = true;
                         }
                         's' => {
                             // move backward
                             world.agent.move_forward(-5.0);
                             world.is_updated = true;
+                            world.agent.is_updated = true;
                         }
                         'd' => {
                             // move right
                             world.agent.move_sideways(5.0);
                             world.is_updated = true;
+                            world.agent.is_updated = true;
                         }
                         'a' => {
                             // move left
                             world.agent.move_sideways(-5.0);
                             world.is_updated = true;
+                            world.agent.is_updated = true;
                         }
                         'e' => {
                             // rotate right
                             world.agent.turn_sideways(5.0);
                             world.is_updated = true;
+                            world.agent.is_updated = true;
                         }
                         'q' => {
                             // rotate left
                             world.agent.turn_sideways(-5.0);
                             world.is_updated = true;
+                            world.agent.is_updated = true;
                         }
                         _ => {}
                     }
@@ -263,13 +269,26 @@ fn main() {
 
 fn redraw_image(world: &mut World, top_view_frame: &mut frame::Frame) {
     if world.is_updated {
+        let mut rendered_scene: RGBACanvas = world.static_background.clone();
 
-        let mut image_data: RGBACanvas = world.get_rendered_view();
+        for i in 0..world.lines.len() {
+            world.lines[i].draw(&mut rendered_scene);
+        }
+
+        for i in 0..world.shapes.len() {
+            world.shapes[i].draw(&mut rendered_scene);
+        }
+
+        for i in 0..world.ellipses.len() {
+            world.ellipses[i].draw_ellipse_raster(&mut rendered_scene, false, 20.0);
+        }
+
+        world.agent.draw(&mut rendered_scene);
 
         let image = unsafe { RgbImage::from_data(
-            &image_data.data,
-            image_data.width,
-            image_data.height,
+            &rendered_scene.data,
+            rendered_scene.width,
+            rendered_scene.height,
             ColorDepth::Rgba8,
         )
         .unwrap() };
@@ -282,16 +301,27 @@ fn redraw_image(world: &mut World, top_view_frame: &mut frame::Frame) {
 }
 
 fn draw_fisrt_person_view(world: &mut World, first_person_view_frame: &mut frame::Frame) {
-    let agent_view: RGBACanvas = world.agent.get_view(MAIN_IMAGE_WIDTH, &world);
+    if world.agent.is_updated {
+        let agent_line_view: Vec<RGBAColor> = world.agent.get_view(MAIN_IMAGE_WIDTH, &world);
+        let mut agent_view: RGBACanvas = RGBACanvas::new(MAIN_IMAGE_WIDTH, FIRST_PERSON_VIEW_HEIGHT);
+    
+        for j in 0..FIRST_PERSON_VIEW_HEIGHT {
+            for i in 0..MAIN_IMAGE_WIDTH {
+                agent_view.put_pixel(i, j, agent_line_view[i as usize]);
+            }
+        }
+    
+        let image: RgbImage = unsafe { RgbImage::from_data(
+            &agent_view.data,
+            agent_view.width,
+            agent_view.height,
+            ColorDepth::Rgba8,
+        )
+        .unwrap() };
+    
+        first_person_view_frame.set_image(Some(image));
+        first_person_view_frame.redraw();
 
-    let image = unsafe { RgbImage::from_data(
-        &agent_view.data,
-        agent_view.width,
-        agent_view.height,
-        ColorDepth::Rgba8,
-    )
-    .unwrap() };
-
-    first_person_view_frame.set_image(Some(image));
-    first_person_view_frame.redraw();
+        world.agent.is_updated = false;
+    }
 }

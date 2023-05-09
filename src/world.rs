@@ -19,7 +19,7 @@ use crate::{
 pub struct World {
     pub width: f64, //world width
     pub height: f64, //world height
-    static_background: RGBACanvas, //contains all static objects pre-rendered
+    pub static_background: RGBACanvas, //contains all static objects pre-rendered
     pub lines: Vec<Line>,
     pub ellipses: Vec<Ellipse>,
     pub shapes: Vec<Polygon>,
@@ -49,26 +49,6 @@ impl World {
         new_world.create_static_background();
 
         return new_world;
-    }
-
-    pub fn get_rendered_view(&self) -> RGBACanvas {
-        let mut rendered_scene: RGBACanvas = self.static_background.clone();
-
-        for i in 0..self.lines.len() {
-            self.lines[i].draw(&mut rendered_scene);
-        }
-
-        for i in 0..self.shapes.len() {
-            self.shapes[i].draw(&mut rendered_scene);
-        }
-
-        for i in 0..self.ellipses.len() {
-            self.ellipses[i].draw_ellipse_raster(&mut rendered_scene, false, 20.0);
-        }
-
-        self.agent.draw(&mut rendered_scene);
-
-        return rendered_scene;
     }
 
 /////////////////////////////////////////////////////////
