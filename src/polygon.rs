@@ -1,6 +1,6 @@
 // this is a versatile structure that can be used to describe different closed shapes
 
-use crate::{common_structs::{Coord, Angle, RGBAColor}, line::Line, rgba_canvas::RGBACanvas};
+use crate::{common_structs::{Coord, Angle, RGBAColor}, line_seg::LineSeg, rgba_canvas::RGBACanvas};
 
 pub enum PType {
   Regular{n: usize, r: f32, pivot: Coord, color: RGBAColor},
@@ -18,7 +18,7 @@ pub struct Polygon {
   pub name: String,
   pub pivot: Coord, // global coordinates
   vertices: Vec<Coord>, // relative to pivot
-  pub sides: Vec<Line>, // lines defined in global coordinates 
+  pub sides: Vec<LineSeg>, // lines defined in global coordinates 
   pub angle: Angle, // relative to global x axis
 }
 
@@ -31,7 +31,7 @@ impl Polygon {
           } else {
             let delta_alpha: f32 = std::f32::consts::TAU / (n as f32);
             let mut vertices: Vec<Coord> = Vec::with_capacity(n);
-            let mut sides: Vec<Line> = Vec::with_capacity(n);
+            let mut sides: Vec<LineSeg> = Vec::with_capacity(n);
 
           for i in 0..n {
             vertices.push(Coord::new(
@@ -42,7 +42,7 @@ impl Polygon {
 
           for i in 0..n { 
           sides.push(
-            Line::new(
+            LineSeg::new(
               Coord::new(vertices[i].x() + pivot.x(), vertices[i].y() + pivot.y()),
               Coord::new(vertices[(i + 1) % n].x() + pivot.x(), vertices[(i + 1) % n].y() + pivot.y()), color)
             );
@@ -64,7 +64,7 @@ impl Polygon {
           return None;
         } else {
           let mut vertices: Vec<Coord> = Vec::with_capacity(4);
-          let mut sides: Vec<Line> = Vec::with_capacity(4);
+          let mut sides: Vec<LineSeg> = Vec::with_capacity(4);
 
           vertices.push(Coord::new(length / 2.0, width / 2.0));
           vertices.push(Coord::new(-length / 2.0, width / 2.0));
@@ -73,7 +73,7 @@ impl Polygon {
 
           for i in 0..4 { 
             sides.push(
-              Line::new(
+              LineSeg::new(
                 Coord::new(vertices[i].x() + pivot.x(), vertices[i].y() + pivot.y()),
                 Coord::new(vertices[(i + 1) % 4].x() + pivot.x(), vertices[(i + 1) % 4].y() + pivot.y()),
                 color,
@@ -100,7 +100,7 @@ impl Polygon {
           let sub_sector_angle: Angle = Angle::new_deg(5.0);
           let num_sub_sectors: usize = ((end_angle.get_deg() - start_angle.get_deg()) / 5.0) as usize;
           let mut vertices: Vec<Coord> = Vec::with_capacity(num_sub_sectors + 2);
-          let mut sides: Vec<Line> = Vec::with_capacity(num_sub_sectors + 2);
+          let mut sides: Vec<LineSeg> = Vec::with_capacity(num_sub_sectors + 2);
 
           vertices.push(Coord::new(0.0, 0.0));
           vertices.push(base_ray.new_rotated(start_angle));
@@ -112,7 +112,7 @@ impl Polygon {
 
           for s in 0..vertices.len() { 
             sides.push(
-              Line::new(
+              LineSeg::new(
                 Coord::new(vertices[s].x() + pivot.x(), vertices[s].y() + pivot.y()),
                 Coord::new(vertices[(s + 1) % 4].x() + pivot.x(), vertices[(s + 1) % 4].y() + pivot.y()), color)
             );
@@ -134,7 +134,7 @@ impl Polygon {
 
   pub fn new_rot_offset(&self, alpha: Angle, offset: Coord) -> Polygon {
     let mut new_vertices: Vec<Coord> = Vec::new();
-    let mut new_sides: Vec<Line> = Vec::new();
+    let mut new_sides: Vec<LineSeg> = Vec::new();
 
     for v in 0..self.vertices.len() {
       new_vertices.push(self.vertices[v]);
@@ -192,7 +192,9 @@ impl Polygon {
 
   pub fn draw(&self, canvas: &mut RGBACanvas) {
     for i in 0..self.sides.len() {
-      self.sides[i].draw(canvas);
+      // self.sides[i].draw(canvas);
+
+      self.sides[i].draw_line_p_v(canvas);
     }
   }
 }

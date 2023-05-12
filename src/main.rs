@@ -1,9 +1,36 @@
 // Main things to do:
-// make a first-person view for agent
+// make a first-person view for agent +
 // make main view scalable
 
+/* line textures...
 
-use common_structs::{Coord, Angle};
+procedural:
+- edge textures -> change brightness / color depending on distance to the line ends, are symmetric around middle
+  -- can be used to enchance or reduce corner visibility
+  
+- periodic -> anchored to the start of line, characterized by period and phase
+  -- can be adjusted to seamlesly wrap around a polygon
+  
+  
+  
+Moving Agent features to add (with no particular order):
+  
+  1) pan and zoom for top-view
+  2) move rendering (raster creation) of top-view and first-person view into separate threads
+  3) add smooth transitions for agent movements
+  4) add agent collisions with lines and polygons in world
+  5) make prettier agent
+  6) add textures to lines
+  7) create dot display modes i.e. display only polygon vertices:
+   -- 2d "wireframe",
+   -- 2d "wireframe with transparent surfaces"
+   -- 2d "occluded wireframe"
+  8) add stereo modes (parallel-eye/cross-eye and anaglyph)
+  9) world segmentation (this is to decrease computational load for collisions and renderings)
+  10) create 'vector_2d' type to use instead of 'line'
+  11) investigate openGL api */
+
+use common_structs::{Coord, Angle, RGBAColor};
 use fltk::{
     app::{self, App, MouseButton},
     enums::{self, ColorDepth, FrameType, Event},
@@ -15,10 +42,12 @@ use fltk::{
 use rgba_canvas::RGBACanvas;
 use world::World;
 
-use crate::{common_structs::RGBAColor, ellipse::Ellipse};
+use ellipse::Ellipse;
 
 mod common_structs;
-mod line;
+mod line_seg;
+mod vector_2d;
+mod linear_texture;
 mod rgba_canvas;
 mod ellipse;
 mod polygon;

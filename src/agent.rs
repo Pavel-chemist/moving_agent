@@ -5,9 +5,9 @@
 
 use crate::{
   common_structs::{
-    Coord, Dot, Angle, RGBAColor, Marker
+    Coord, Dot, Angle, RGBAColor, Marker, Palette
   },
-  line::Line,
+  line_seg::LineSeg,
   polygon::{
     Polygon,
     PType,
@@ -18,7 +18,7 @@ pub struct Agent {
   center: Coord,
   angle: Angle,
   dots: Vec<Dot>,
-  lines: Vec<Line>,
+  lines: Vec<LineSeg>,
   polygons: Vec<Polygon>,
   f_o_v: Angle, // field of view
   m_v_d: f32, // max view distance
@@ -29,13 +29,13 @@ pub struct Agent {
 impl Agent {
   pub fn new(init_coord: Coord, init_angle: Angle, f_o_v: Angle, m_v_d: f32) -> Agent {
     let mut dots: Vec<Dot> = Vec::new();
-    let mut lines: Vec<Line> = Vec::new();
+    let mut lines: Vec<LineSeg> = Vec::new();
     let mut polygons: Vec<Polygon> = Vec::new();
 
     dots.push(Dot::new(Coord::new_i(50, 20), RGBAColor::new_rgb(255, 0, 0), Marker::Disc(10)));
     dots.push(Dot::new(Coord::new_i(50, -20), RGBAColor::new_rgb(255, 0, 0), Marker::Disc(10)));
 
-    lines.push(Line::new(Coord::new_i(-10, 0), Coord::new_i(70, 0), RGBAColor::new_rgb(0, 0, 255)));
+    lines.push(LineSeg::new(Coord::new_i(-10, 0), Coord::new_i(70, 0), RGBAColor::new_rgb(0, 0, 255)));
 
     polygons.push(Polygon::new(PType::Rectangle{
       length: 140.0,
@@ -72,9 +72,9 @@ impl Agent {
       self.dots[d].new_rot_offset(self.angle, self.center).draw(canvas);
     }
 
-    let mut rot_offset_line: Line;
+    let mut rot_offset_line: LineSeg;
     for l in 0..self.lines.len() {
-      rot_offset_line = Line::new(
+      rot_offset_line = LineSeg::new(
         self.lines[l].start.new_rotated(self.angle).new_offset(self.center),
         self.lines[l].end.new_rotated(self.angle).new_offset(self.center),
         self.lines[l].color,
@@ -107,8 +107,8 @@ impl Agent {
   pub fn get_view(&self, size: i32, world: &World) -> Vec<RGBAColor> {
     let angle_between_rays: Angle = Angle::new_deg(self.f_o_v.get_deg() / size as f32);
     let mut view_line: Vec<RGBAColor> = Vec::with_capacity(size.abs() as usize);
-    let mut ray: Line;
-    let mut sweeping_ray: Line;
+    let mut ray: LineSeg;
+    let mut sweeping_ray: LineSeg;
     let mut intersections_list: Vec<Dot>;
     let mut shortest_distance: f32;
     let mut current_distance: f32;
@@ -118,7 +118,7 @@ impl Agent {
     for view_column in 0..size {
       intersections_list = Vec::new();
 
-      ray = Line::new(
+      ray = LineSeg::new(
         Coord::new_i(0 + 50, 0),
         Coord::new(self.m_v_d + 50.0, 0.0),
         RGBAColor::new_rgb(255,0,255),
@@ -127,7 +127,7 @@ impl Agent {
         self.polygons[1].pivot,
       );
   
-      sweeping_ray = Line::new(
+      sweeping_ray = LineSeg::new(
         ray.start.new_rotated(self.angle).new_offset(self.center),
         ray.end.new_rotated(self.angle).new_offset(self.center),
         ray.color,
@@ -143,10 +143,10 @@ impl Agent {
       }
 
       shortest_distance = self.m_v_d * 2.0;
-      column_color = RGBAColor::new_black();
+      column_color = RGBAColor::new_p(Palette::Black);
       if intersections_list.len() != 0 {
         for i in 0..intersections_list.len() {
-          current_distance = Line::new(sweeping_ray.start, intersections_list[i].coord, intersections_list[i].color).get_length();
+          current_distance = LineSeg::new(sweeping_ray.start, intersections_list[i].coord, intersections_list[i].color).get_length();
   
           if current_distance < shortest_distance {
             shortest_distance = current_distance;

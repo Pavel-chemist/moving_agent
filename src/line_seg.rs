@@ -1,15 +1,15 @@
-use crate::{common_structs::{Coord, RGBAColor, AlignedBox, Angle, Dot, Marker}, rgba_canvas::RGBACanvas};
+use crate::{common_structs::{Coord, RGBAColor, AlignedBox, Angle, Dot, Marker}, rgba_canvas::RGBACanvas, vector_2d::Vector2D};
 
 #[derive(Copy, Clone)]
-pub struct Line {
+pub struct LineSeg {
     pub start: Coord,
     pub end: Coord,
     pub color: RGBAColor,
 }
 
-impl Line {
-    pub fn new(start: Coord, end: Coord, color: RGBAColor) -> Line {
-        return Line{
+impl LineSeg {
+    pub fn new(start: Coord, end: Coord, color: RGBAColor) -> LineSeg {
+        return LineSeg{
             start,
             end,
             color,
@@ -54,6 +54,13 @@ impl Line {
 
             canvas.put_pixel(x, y, self.color);
         }
+    }
+
+    pub fn draw_line_p_v(&self, canvas: &mut RGBACanvas) {
+        // interim check for 
+        let new_vec: Vector2D = Vector2D::from_line_seg(self);
+
+        new_vec.draw_simple(canvas);
     }
 
     pub fn draw(&self, canvas: &mut RGBACanvas) {
@@ -155,7 +162,7 @@ impl Line {
         return AlignedBox{x_0, x_1, y_0, y_1};
     }
 
-    pub fn intersection(&self, other: &Line) -> Option<Dot> {
+    pub fn intersection(&self, other: &LineSeg) -> Option<Dot> {
         // this method will return coordinates of intersection point if there is an intersection between lines
 
         // if lines on top of each other, they share a continuous line segment, and
@@ -233,7 +240,7 @@ impl Line {
         }
     }
 
-    pub fn new_rot_offset_line(&self, alpha: Angle, offset: Coord) -> Line {
+    pub fn new_rot_offset_line(&self, alpha: Angle, offset: Coord) -> LineSeg {
         // rotation is about starting point
 
         let rot_endpoint: Coord = Coord::new(
@@ -241,7 +248,7 @@ impl Line {
             self.end.y() - self.start.y(),
         ).new_rotated(alpha);
 
-        return Line::new(
+        return LineSeg::new(
             self.start.new_offset(offset),
             rot_endpoint.new_offset(self.start).new_offset(offset),
             self.color,
@@ -261,7 +268,7 @@ struct LineCoeff {
 }
 
 impl LineCoeff {
-    pub fn get(line: &Line) -> LineCoeff {
+    pub fn get(line: &LineSeg) -> LineCoeff {
         let v: bool = line.end.x() - line.start.x() == 0.0;
         let a: f32;
         let b: f32;

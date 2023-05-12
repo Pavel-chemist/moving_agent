@@ -1,6 +1,6 @@
 // ellipse struct with its functions (methods)
 
-use crate::{common_structs::{Coord, Angle, RGBAColor}, rgba_canvas::RGBACanvas, line::Line};
+use crate::{common_structs::{Coord, Angle, RGBAColor}, rgba_canvas::RGBACanvas, line_seg::LineSeg};
 
 #[derive(Clone, Copy)]
 pub struct Ellipse {

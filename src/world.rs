@@ -6,7 +6,7 @@ use crate::{
         Coord, Angle,
     },
     ellipse::Ellipse,
-    line::Line,
+    line_seg::LineSeg,
     polygon::{
         Polygon,
         PType,
@@ -20,7 +20,7 @@ pub struct World {
     pub width: f32, //world width
     pub height: f32, //world height
     pub static_background: RGBACanvas, //contains all static objects pre-rendered
-    pub lines: Vec<Line>,
+    pub lines: Vec<LineSeg>,
     pub ellipses: Vec<Ellipse>,
     pub shapes: Vec<Polygon>,
     pub agent: Agent,
@@ -39,7 +39,7 @@ impl World {
             agent: Agent::new(
                 Coord::new_i(width / 2, height / 2),
                 Angle::new(),
-                Angle::new_deg(90.0),
+                Angle::new_deg(120.0),
                 512.0,
                 // 1024.0,
             ),
