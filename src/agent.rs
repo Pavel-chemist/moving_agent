@@ -21,13 +21,13 @@ pub struct Agent {
   lines: Vec<Line>,
   polygons: Vec<Polygon>,
   f_o_v: Angle, // field of view
-  m_v_d: f64, // max view distance
+  m_v_d: f32, // max view distance
   // view: Vec<RGBAColor>,
   pub is_updated: bool,
 }
 
 impl Agent {
-  pub fn new(init_coord: Coord, init_angle: Angle, f_o_v: Angle, m_v_d: f64) -> Agent {
+  pub fn new(init_coord: Coord, init_angle: Angle, f_o_v: Angle, m_v_d: f32) -> Agent {
     let mut dots: Vec<Dot> = Vec::new();
     let mut lines: Vec<Line> = Vec::new();
     let mut polygons: Vec<Polygon> = Vec::new();
@@ -88,30 +88,30 @@ impl Agent {
     }
   }
   
-  pub fn move_forward(&mut self, step_size: f64) {
+  pub fn move_forward(&mut self, step_size: f32) {
     let directed_step: Coord = Coord::new(step_size, 0.0).new_rotated(self.angle);
 
     self.center = self.center.new_offset(directed_step);
   }
 
-  pub fn move_sideways(&mut self, step_size: f64) {
+  pub fn move_sideways(&mut self, step_size: f32) {
     let directed_step: Coord = Coord::new(0.0, step_size).new_rotated(self.angle);
 
     self.center = self.center.new_offset(directed_step);
   }
 
-  pub fn turn_sideways(&mut self, degrees: f64) {
+  pub fn turn_sideways(&mut self, degrees: f32) {
     self.angle.turn_deg(degrees);
   }
 
   pub fn get_view(&self, size: i32, world: &World) -> Vec<RGBAColor> {
-    let angle_between_rays: Angle = Angle::new_deg(self.f_o_v.get_deg() / size as f64);
+    let angle_between_rays: Angle = Angle::new_deg(self.f_o_v.get_deg() / size as f32);
     let mut view_line: Vec<RGBAColor> = Vec::with_capacity(size.abs() as usize);
     let mut ray: Line;
     let mut sweeping_ray: Line;
     let mut intersections_list: Vec<Dot>;
-    let mut shortest_distance: f64;
-    let mut current_distance: f64;
+    let mut shortest_distance: f32;
+    let mut current_distance: f32;
     let mut current_dot_index: usize = 0;
     let mut column_color: RGBAColor;
 
@@ -123,7 +123,7 @@ impl Agent {
         Coord::new(self.m_v_d + 50.0, 0.0),
         RGBAColor::new_rgb(255,0,255),
       ).new_rot_offset_line(
-        Angle::new_rad(-self.f_o_v.get_rad() / 2.0 + angle_between_rays.get_rad() * (view_column as f64)),
+        Angle::new_rad(-self.f_o_v.get_rad() / 2.0 + angle_between_rays.get_rad() * (view_column as f32)),
         self.polygons[1].pivot,
       );
   
@@ -172,8 +172,8 @@ impl Agent {
   }
 }
 
-fn get_scaling_factor(dist: f64, max: f64) -> f64 {
-  let scaled_distance: f64 = dist / max;
+fn get_scaling_factor(dist: f32, max: f32) -> f32 {
+  let scaled_distance: f32 = dist / max;
 
   return (1.0 - scaled_distance) * (1.0 - scaled_distance);
 }

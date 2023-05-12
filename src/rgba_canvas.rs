@@ -62,7 +62,7 @@ impl RGBACanvas {
         };
     }
 
-    pub fn new_f(width: f64, height: f64) -> RGBACanvas {
+    pub fn new_f(width: f32, height: f32) -> RGBACanvas {
         let u_width: usize = if width >= 1.0 {width as usize} else {panic!("Canvas width should be a number bigger than 1.0")};
         let u_height: usize = if height >= 1.0 {height as usize} else {panic!("Canvas height should be a number bigger than 1.0")};
 

@@ -22,14 +22,14 @@ impl Line {
         let x_s: i32 = self.start.get_x_i();
         let y_s: i32 = self.start.get_y_i();
         
-        let delta_x: f64 = self.end.x() - self.start.x();
-        let delta_y: f64 = self.end.y() - self.start.y();
-        let mod_d_x: f64;
-        let mod_d_y: f64;
-        let mut t: f64;
+        let delta_x: f32 = self.end.x() - self.start.x();
+        let delta_y: f32 = self.end.y() - self.start.y();
+        let mod_d_x: f32;
+        let mod_d_y: f32;
+        let mut t: f32;
     
-        let step_x: f64;
-        let step_y: f64;
+        let step_x: f32;
+        let step_y: f32;
     
         let mut x: i32;
         let mut y: i32;
@@ -49,8 +49,8 @@ impl Line {
         step_y = delta_y / t;
     
         for t in 0..(t as usize + 1) {
-            x = x_s + (t as f64 * step_x) as i32;
-            y = y_s + (t as f64 * step_y) as i32;
+            x = x_s + (t as f32 * step_x) as i32;
+            y = y_s + (t as f32 * step_y) as i32;
 
             canvas.put_pixel(x, y, self.color);
         }
@@ -58,14 +58,14 @@ impl Line {
 
     pub fn draw(&self, canvas: &mut RGBACanvas) {
         // this should draw line using line equation
-        let a: f64;
-        let b: f64;
+        let a: f32;
+        let b: f32;
 
-        let mut x: f64;
-        let mut y: f64;
+        let mut x: f32;
+        let mut y: f32;
 
-        let incr_x: f64;
-        let incr_y: f64;
+        let incr_x: f32;
+        let incr_y: f32;
 
         let delta_x: i32;
         let delta_y: i32;
@@ -93,14 +93,14 @@ impl Line {
 
             if a >= -1.0 && a <= 1.0 {
                 for i in 0..(delta_x + 1) {
-                    x = self.start.x() + incr_x * i as f64;
+                    x = self.start.x() + incr_x * i as f32;
                     y = a * x + b;
 
                     canvas.put_pixel(x as i32, y as i32, self.color);
                 }
             } else {
                 for j in 0..(delta_y + 1) {
-                    y = self.start.y() + incr_y * j as f64;
+                    y = self.start.y() + incr_y * j as f32;
                     x = (y - b) / a;
 
                     canvas.put_pixel(x as i32, y as i32, self.color);
@@ -112,7 +112,7 @@ impl Line {
             x = self.start.x();
 
             for j in 0..(delta_y + 1) {
-                y = self.start.y() + incr_y * j as f64;
+                y = self.start.y() + incr_y * j as f32;
 
                 canvas.put_pixel(x as i32, y as i32, self.color);
             }
@@ -125,10 +125,10 @@ impl Line {
     }
 
     pub fn get_axis_aligned_box(&self) -> AlignedBox {
-        let x_0: f64;
-        let y_0: f64;
-        let x_1: f64;
-        let y_1: f64;
+        let x_0: f32;
+        let y_0: f32;
+        let x_1: f32;
+        let y_1: f32;
 
         if self.start.x() < self.end.x() {
             x_0 = self.start.x();
@@ -162,8 +162,8 @@ impl Line {
         //  there is no single intersection point -> take this as "no intersection", they are "just touching"
 
         let mut is_intersecting: bool;
-        let mut x_i: f64 = 0.0;
-        let mut y_i: f64 = 0.0;
+        let mut x_i: f32 = 0.0;
+        let mut y_i: f32 = 0.0;
 
         let coeff_1: LineCoeff = LineCoeff::get(self);
         let coeff_2: LineCoeff = LineCoeff::get(other);
@@ -248,23 +248,23 @@ impl Line {
         );
     }
 
-    pub fn get_length(&self) -> f64 {
-        return f64::sqrt((self.end.x() - self.start.x()) * (self.end.x() - self.start.x()) + 
+    pub fn get_length(&self) -> f32 {
+        return f32::sqrt((self.end.x() - self.start.x()) * (self.end.x() - self.start.x()) + 
                             (self.end.y() - self.start.y()) * (self.end.y() - self.start.y()));
     }
 }
 
 struct LineCoeff {
-    a: f64,
-    b: f64,
+    a: f32,
+    b: f32,
     v: bool,
 }
 
 impl LineCoeff {
     pub fn get(line: &Line) -> LineCoeff {
         let v: bool = line.end.x() - line.start.x() == 0.0;
-        let a: f64;
-        let b: f64;
+        let a: f32;
+        let b: f32;
 
         if v {
             a = line.start.x();

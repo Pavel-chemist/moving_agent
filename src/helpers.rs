@@ -20,30 +20,30 @@ pub fn radial_gradient(
   height: i32,
   x: i32,
   y: i32,
-  parameter: f64,
+  parameter: f32,
   color: common_structs::RGBColor,
 ) {
   let mut index_r: usize;
-  let mut squared_distance: f64;
-  let mut brightness: f64;
-  let mut r_br: f64;
-  let mut g_br: f64;
-  let mut b_br: f64;
+  let mut squared_distance: f32;
+  let mut brightness: f32;
+  let mut r_br: f32;
+  let mut g_br: f32;
+  let mut b_br: f32;
 
   for j in 0..height {
       for i in 0..width {
           index_r = (width * 3 * j + i * 3) as usize;
           squared_distance =
-              (((x - i) * (x - i) + (y - j) * (y - j)) as f64) / (parameter * parameter);
+              (((x - i) * (x - i) + (y - j) * (y - j)) as f32) / (parameter * parameter);
           if squared_distance <= 1.0 {
               brightness = 1.0;
           } else {
               brightness = 1.0 / squared_distance;
           }
 
-          r_br = brightness * (color.r as f64) + (image_data[index_r] as f64);
-          g_br = brightness * (color.g as f64) + (image_data[index_r + 1] as f64);
-          b_br = brightness * (color.b as f64) + (image_data[index_r + 2] as f64);
+          r_br = brightness * (color.r as f32) + (image_data[index_r] as f32);
+          g_br = brightness * (color.g as f32) + (image_data[index_r + 1] as f32);
+          b_br = brightness * (color.b as f32) + (image_data[index_r + 2] as f32);
 
           if r_br > 255.0 {
               r_br = 255.0;

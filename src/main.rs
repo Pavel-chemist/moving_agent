@@ -31,7 +31,7 @@ const WIND_LABEL: &str = "Moving Agent";
 /* const WIND_WIDTH: i32 = 1820;
 const WIND_HEIGHT: i32 = 1000;
 const MAIN_IMAGE_WIDTH: i32 = 1560;
-const MAIN_IMAGE_HEIGHT: i32 = 940; */
+const MAIN_IMAGE_HEIGHT: i32 = 800; */
 
 // small window consts
 const WIND_WIDTH: i32 = 1000;
@@ -191,7 +191,7 @@ fn main() {
 
                     /* if world.shapes.len() > 2 {
                         for i in 0..(world.shapes.len() - 2) {
-                            world.shapes[i].rotate(Angle::new_rad(0.05 / ((i+3) as f64)));
+                            world.shapes[i].rotate(Angle::new_rad(0.05 / ((i+3) as f32)));
                         }
                     }
 
@@ -204,7 +204,7 @@ fn main() {
 
                     /* if world.ellipses.len() == 0 {
                         let central_ellipse: Ellipse = Ellipse::new(
-                            Coord::new((world.width as f64) / 2.0, (world.height as f64) / 2.0),
+                            Coord::new((world.width as f32) / 2.0, (world.height as f32) / 2.0),
                             75.0,
                             50.0,
                             RGBAColor::new_rgb(255, 255, 0),

@@ -17,8 +17,8 @@ use crate::{
 
 
 pub struct World {
-    pub width: f64, //world width
-    pub height: f64, //world height
+    pub width: f32, //world width
+    pub height: f32, //world height
     pub static_background: RGBACanvas, //contains all static objects pre-rendered
     pub lines: Vec<Line>,
     pub ellipses: Vec<Ellipse>,
@@ -30,8 +30,8 @@ pub struct World {
 impl World {
     pub fn new(width: i32, height: i32) -> World {
         let mut new_world: World = World {
-            width: width as f64,
-            height: height as f64,
+            width: width as f32,
+            height: height as f32,
             static_background: RGBACanvas::new(width, height),
             lines: Vec::new(),
             ellipses: Vec::new(),
@@ -41,6 +41,7 @@ impl World {
                 Angle::new(),
                 Angle::new_deg(90.0),
                 512.0,
+                // 1024.0,
             ),
             is_updated: false,
         };
@@ -65,7 +66,7 @@ impl World {
                 Polygon::new(PType::Regular { 
                     n: i + 3,
                     r: 50.0,
-                    pivot: Coord::new(75.0 + 125.0 * i as f64, 100.0),
+                    pivot: Coord::new(75.0 + 125.0 * i as f32, 100.0),
                     color: RGBAColor::new_rand(),
                 }
             ).unwrap());

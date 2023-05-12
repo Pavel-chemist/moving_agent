@@ -48,16 +48,16 @@ impl RGBAColor {
         return new_color;
     }
 
-    pub fn new_scaled(&self, scaling_factor: f64) -> RGBAColor {
+    pub fn new_scaled(&self, scaling_factor: f32) -> RGBAColor {
         let new_color: RGBAColor;
 
         if scaling_factor <= 0.0 {
             new_color = RGBAColor::new_black();
         } else if scaling_factor > 0.0 && scaling_factor < 1.0 {
             new_color = RGBAColor::new_rgb(
-                (self.r as f64 * scaling_factor) as u8,
-                (self.g as f64 * scaling_factor) as u8,
-                (self.b as f64 * scaling_factor) as u8,
+                (self.r as f32 * scaling_factor) as u8,
+                (self.g as f32 * scaling_factor) as u8,
+                (self.b as f32 * scaling_factor) as u8,
             );
         } else {
             new_color = self.clone();
@@ -70,40 +70,40 @@ impl RGBAColor {
 
 #[derive(Copy, Clone)]
 pub struct Coord {
-    x: f64,
-    y: f64,
+    x: f32,
+    y: f32,
 }
 
 impl Coord {
-    pub fn new(x: f64, y: f64) -> Coord {
+    pub fn new(x: f32, y: f32) -> Coord {
         return Coord {x, y};
     }
 
     pub fn new_i(x: i32, y: i32) -> Coord {
         return Coord {
-            x: x as f64,
-            y: y as f64,
+            x: x as f32,
+            y: y as f32,
         };
     }
 
     pub fn set_i(&mut self, x: i32, y: i32) {
-        self.x = x as f64;
-        self.y = y as f64;
+        self.x = x as f32;
+        self.y = y as f32;
     }
 
-    pub fn set_x(&mut self, x: f64) {
+    pub fn set_x(&mut self, x: f32) {
         self.x = x;
     }
 
-    pub fn set_y(&mut self, y: f64) {
+    pub fn set_y(&mut self, y: f32) {
         self.y = y;
     }
 
-    pub fn x(&self) -> f64 {
+    pub fn x(&self) -> f32 {
         return self.x;
     }
 
-    pub fn y(&self) -> f64 {
+    pub fn y(&self) -> f32 {
         return self.y;
     }
 
@@ -115,18 +115,18 @@ impl Coord {
         return self.y as i32;
     }
 
-    pub fn move_x(&mut self, delta_x: f64) {
+    pub fn move_x(&mut self, delta_x: f32) {
         self.x += delta_x;
     }
 
-    pub fn move_y(&mut self, delta_y: f64) {
+    pub fn move_y(&mut self, delta_y: f32) {
         self.y += delta_y;
     }
 
     pub fn new_rotated(&self, alpha: Angle) -> Coord {
         return Coord::new(
-            f64::cos(alpha.a) * self.x - f64::sin(alpha.a) * self.y,
-            f64::sin(alpha.a) * self.x + f64::cos(alpha.a) * self.y,
+            f32::cos(alpha.a) * self.x - f32::sin(alpha.a) * self.y,
+            f32::sin(alpha.a) * self.x + f32::cos(alpha.a) * self.y,
         );
     }
 
@@ -178,7 +178,7 @@ impl Dot {
 
 #[derive(Clone, Copy)]
 pub struct Angle {
-    a: f64,
+    a: f32,
 }
 
 impl Angle {
@@ -186,12 +186,12 @@ impl Angle {
         return Angle{a: 0.0};
     }
 
-    pub fn new_rad(radians: f64) -> Angle {
+    pub fn new_rad(radians: f32) -> Angle {
         return Angle{ a: radians };
     }
 
-    pub fn new_deg(degrees: f64) -> Angle {
-        return Angle{ a: degrees * std::f64::consts::TAU / 360.0 };
+    pub fn new_deg(degrees: f32) -> Angle {
+        return Angle{ a: degrees * std::f32::consts::TAU / 360.0 };
     }
 
     pub fn turn(&mut self, alpha: Angle) {
@@ -200,47 +200,47 @@ impl Angle {
         self.normalize();
     }
 
-    pub fn turn_rad(&mut self, value: f64) {
+    pub fn turn_rad(&mut self, value: f32) {
 
         self.a += value;
         self.normalize();
     }
 
-    pub fn turn_deg(&mut self, degrees: f64) {
+    pub fn turn_deg(&mut self, degrees: f32) {
 
-        self.a += degrees * std::f64::consts::TAU / 360.0;
+        self.a += degrees * std::f32::consts::TAU / 360.0;
         self.normalize();
     }
 
-    pub fn get_rad(&self) -> f64 {
+    pub fn get_rad(&self) -> f32 {
         return self.a;
     }
 
-    pub fn get_deg(&self) -> f64 {
-        return self.a * 360.0 / std::f64::consts::TAU;
+    pub fn get_deg(&self) -> f32 {
+        return self.a * 360.0 / std::f32::consts::TAU;
     }
 
     fn normalize(&mut self) {
         // ensure that angle is in range [0..TAU) radians
 
-        if !(self.a >= 0.0 && self.a < std::f64::consts::TAU) {
+        if !(self.a >= 0.0 && self.a < std::f32::consts::TAU) {
 
-            self.a = self.a - std::f64::consts::TAU * (self.a / std::f64::consts::TAU).trunc();
+            self.a = self.a - std::f32::consts::TAU * (self.a / std::f32::consts::TAU).trunc();
         }
     }
 }
 
 #[derive(Clone, Copy)]
 struct LineSeg {
-    x_0: f64,
-    x_1: f64,
+    x_0: f32,
+    x_1: f32,
 }
 
 impl LineSeg {
-    pub fn linear_intersection(a_0: f64, a_1: f64, b_0: f64, b_1: f64) -> Option<LineSeg> {
+    pub fn linear_intersection(a_0: f32, a_1: f32, b_0: f32, b_1: f32) -> Option<LineSeg> {
         let is_intersected: bool;
-        let x_0: f64;
-        let x_1: f64;
+        let x_0: f32;
+        let x_1: f32;
 
         if a_1 < b_0 || a_0 > b_1 {
             // no intersection
@@ -279,10 +279,10 @@ impl LineSeg {
 
 #[derive(Clone, Copy)]
 pub struct AlignedBox {
-    pub x_0: f64,
-    pub y_0: f64,
-    pub x_1: f64,
-    pub y_1: f64,
+    pub x_0: f32,
+    pub y_0: f32,
+    pub x_1: f32,
+    pub y_1: f32,
 }
 
 impl  AlignedBox {

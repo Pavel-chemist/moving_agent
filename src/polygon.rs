@@ -3,10 +3,10 @@
 use crate::{common_structs::{Coord, Angle, RGBAColor}, line::Line, rgba_canvas::RGBACanvas};
 
 pub enum PType {
-  Regular{n: usize, r: f64, pivot: Coord, color: RGBAColor},
-  Rectangle{length: f64, width: f64, pivot: Coord, color: RGBAColor},
-  Sector{radius: f64, start_angle: Angle, end_angle: Angle, pivot: Coord, color: RGBAColor},
-  // RegElliptic{n: usize, length: f64, width: f64, pivot: Coord, color: RGBAColor},
+  Regular{n: usize, r: f32, pivot: Coord, color: RGBAColor},
+  Rectangle{length: f32, width: f32, pivot: Coord, color: RGBAColor},
+  Sector{radius: f32, start_angle: Angle, end_angle: Angle, pivot: Coord, color: RGBAColor},
+  // RegElliptic{n: usize, length: f32, width: f32, pivot: Coord, color: RGBAColor},
   // Convex{pivot: Coord, vertices: Vec<Coord>, color: RGBAColor},
   // Random{pivot: Coord, vertices: Vec<Coord>, color: RGBAColor},
 }
@@ -29,14 +29,14 @@ impl Polygon {
           if n < 3 && r <= 0.0 {
             return None;
           } else {
-            let delta_alpha: f64 = std::f64::consts::TAU / (n as f64);
+            let delta_alpha: f32 = std::f32::consts::TAU / (n as f32);
             let mut vertices: Vec<Coord> = Vec::with_capacity(n);
             let mut sides: Vec<Line> = Vec::with_capacity(n);
 
           for i in 0..n {
             vertices.push(Coord::new(
-              f64::cos(delta_alpha * (i as f64)) * r,
-              f64::sin(delta_alpha * (i as f64)) * r,
+              f32::cos(delta_alpha * (i as f32)) * r,
+              f32::sin(delta_alpha * (i as f32)) * r,
             ));
           }
 
