@@ -2,6 +2,22 @@ use rand::{Rng, rngs::ThreadRng};
 
 use crate::rgba_canvas::RGBACanvas;
 
+pub enum Palette {
+    Black,
+    White,
+    Red,
+    Green,
+    Blue,
+    Yellow,
+    Cyan,
+    Magenta,
+    DarkRed,
+    DarkGreen,
+    DarkBlue,
+    Orange,
+    Grass,
+}
+
 #[derive(Copy, Clone)]
 pub struct RGBAColor {
     pub r: u8,
@@ -21,8 +37,22 @@ impl RGBAColor {
         return RGBAColor{r: rng.gen_range(128..255), g: rng.gen_range(128..255), b: rng.gen_range(128..255), a: 255};
     }
 
-    pub fn new_black() -> RGBAColor {
-        return RGBAColor{r: 0, g: 0, b: 0, a: 255};
+    pub fn new_p(c: Palette) -> RGBAColor {
+        match c {
+            Palette::Black => {RGBAColor{r: 0, g: 0, b: 0, a: 255}}
+            Palette::White => {RGBAColor{r: 255, g: 255, b: 255, a: 255}}
+            Palette::Red => {RGBAColor{r: 255, g: 0, b: 0, a: 255}}
+            Palette::DarkRed => {RGBAColor{r: 127, g: 0, b: 0, a: 255}}
+            Palette::Orange => {RGBAColor{r: 255, g: 127, b: 0, a: 255}}
+            Palette::Yellow => {RGBAColor{r: 255, g: 255, b: 0, a: 255}}
+            Palette::Grass => {RGBAColor{r: 127, g: 255, b: 0, a: 255}}
+            Palette::Green => {RGBAColor{r: 0, g: 255, b: 0, a: 255}}
+            Palette::DarkGreen => {RGBAColor{r: 0, g: 127, b: 0, a: 255}}
+            Palette::Cyan => {RGBAColor{r: 0, g: 255, b: 255, a: 255}}
+            Palette::Blue => {RGBAColor{r: 0, g: 0, b: 255, a: 255}}
+            Palette::DarkBlue => {RGBAColor{r: 0, g: 0, b: 127, a: 255}}
+            Palette::Magenta => {RGBAColor{r: 255, g: 0, b: 255, a: 255}}
+        }
     }
 
     pub fn new_rgba(r: u8, g: u8, b: u8, a: u8) -> RGBAColor {
@@ -52,7 +82,7 @@ impl RGBAColor {
         let new_color: RGBAColor;
 
         if scaling_factor <= 0.0 {
-            new_color = RGBAColor::new_black();
+            new_color = RGBAColor::new_p(Palette::Black);
         } else if scaling_factor > 0.0 && scaling_factor < 1.0 {
             new_color = RGBAColor::new_rgb(
                 (self.r as f32 * scaling_factor) as u8,
