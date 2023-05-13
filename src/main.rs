@@ -220,11 +220,12 @@ fn main() {
 
                     /* if world.shapes.len() > 2 {
                         for i in 0..(world.shapes.len() - 2) {
-                            world.shapes[i].rotate(Angle::new_rad(0.05 / ((i+3) as f32)));
+                            world.shapes[i].rotate(Angle::new_deg(1.0 / ((i+3) as f32)));
                         }
                     }
 
-                    world.is_updated = true; */
+                    world.is_updated = true;
+                    world.agent.is_updated = true; */
                     redraw_image(&mut world, &mut top_view_frame);
                     draw_fisrt_person_view(&mut world, &mut first_person_view_frame);
                 }
@@ -272,13 +273,13 @@ fn main() {
                         }
                         'e' => {
                             // rotate right
-                            world.agent.turn_sideways(5.0);
+                            world.agent.turn_sideways(1.0);
                             world.is_updated = true;
                             world.agent.is_updated = true;
                         }
                         'q' => {
                             // rotate left
-                            world.agent.turn_sideways(-5.0);
+                            world.agent.turn_sideways(-1.0);
                             world.is_updated = true;
                             world.agent.is_updated = true;
                         }

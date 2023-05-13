@@ -3,3 +3,8 @@
 
 // the shape is collection of vectors, plus some parameters pertaining to shape as whole
 //
+
+pub struct Shape {
+  name: String,
+  
+}

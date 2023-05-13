@@ -11,7 +11,7 @@ use crate::{
   polygon::{
     Polygon,
     PType,
-  }, rgba_canvas::RGBACanvas, world::World
+  }, rgba_canvas::RGBACanvas, world::World, vector_2d::Vector2D, linear_texture::{TextType, TransType}
 };
 
 pub struct Agent {
@@ -54,6 +54,8 @@ impl Agent {
     }).unwrap());
 
     polygons[1].move_pivot(Coord::new(-50.0, 0.0));
+
+    lines.push(LineSeg::new(Coord::new_i(50, 0), Coord::new(50.0 + m_v_d, 0.0), RGBAColor::new_p(Palette::Magenta)));
 
     return Agent{
       center: init_coord,
@@ -109,14 +111,21 @@ impl Agent {
     let mut view_line: Vec<RGBAColor> = Vec::with_capacity(size.abs() as usize);
     let mut ray: LineSeg;
     let mut sweeping_ray: LineSeg;
-    let mut intersections_list: Vec<Dot>;
+    let mut intersections_list_v: Vec<Vector2D>;
     let mut shortest_distance: f32;
     let mut current_distance: f32;
     let mut current_dot_index: usize = 0;
     let mut column_color: RGBAColor;
+    let mut is_center_column: bool = false;
 
     for view_column in 0..size {
-      intersections_list = Vec::new();
+      if view_column == size / 2 {
+        is_center_column = true;
+      } else {
+        is_center_column = false;
+      }
+
+      intersections_list_v = Vec::new();
 
       ray = LineSeg::new(
         Coord::new_i(0 + 50, 0),
@@ -133,39 +142,70 @@ impl Agent {
         ray.color,
       );
 
+      let sweeping_ray_vec: Vector2D = Vector2D::from_line_seg(&sweeping_ray);
+      /* if is_center_column {
+        println!("+---------------------------------+");
+        println!("---------------------------------");
+      } */
+
       for j in 0..world.shapes.len() {
         for i in 0..world.shapes[j].sides.len() {
-          match sweeping_ray.intersection(&world.shapes[j].sides[i]) {
-            Some(point) => {intersections_list.push(point)}
+          let mut vector_from_line: Vector2D = Vector2D::from_line_seg(&world.shapes[j].sides[i]);
+
+          vector_from_line.texture.add_periodic_texture(
+              RGBAColor::new_p(Palette::Blue),
+              40.0,
+              0.3,
+              TextType::Step(0.2),
+          );
+
+          vector_from_line.texture.add_edges(
+              RGBAColor::new_p(Palette::White),
+              5.0,
+              TransType::Lin,
+          );
+
+          match sweeping_ray_vec.intersect(&vector_from_line, is_center_column) {
+            Some(int_vec) => {
+              intersections_list_v.push(int_vec);
+            }
             None => {}
-          };
+          }
         }
       }
 
+      /* if is_center_column {
+        println!("----------");
+      } */
+
       shortest_distance = self.m_v_d * 2.0;
       column_color = RGBAColor::new_p(Palette::Black);
-      if intersections_list.len() != 0 {
-        for i in 0..intersections_list.len() {
-          current_distance = LineSeg::new(sweeping_ray.start, intersections_list[i].coord, intersections_list[i].color).get_length();
-  
+      if intersections_list_v.len() != 0 {
+
+        for i in 0..intersections_list_v.len() {
+
+          current_distance = intersections_list_v[i].length();
+
           if current_distance < shortest_distance {
             shortest_distance = current_distance;
             current_dot_index = i;
           }
         }
-  
-        column_color = intersections_list[current_dot_index].color.new_scaled(get_scaling_factor(shortest_distance, self.m_v_d));
+
+        column_color = intersections_list_v[current_dot_index].texture.get_color(0.0, 0.0).new_scaled(get_scaling_factor(intersections_list_v[current_dot_index].length(), self.m_v_d));
+
+        /* if is_center_column {
+          println!("------");
+          println!("Se");
+        } */
+
       }
 
-      view_line.push(column_color);
-
-      /* for i in view.height/2..view.height/2+1 {
-        view.put_pixel(
-          view_column,
-          i,
-          column_color,
-        );
+      /* if is_center_column {
+        println!("++----------++------------++");
       } */
+
+      view_line.push(column_color);
     }
     
     return view_line;

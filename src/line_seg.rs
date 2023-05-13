@@ -1,4 +1,4 @@
-use crate::{common_structs::{Coord, RGBAColor, AlignedBox, Angle, Dot, Marker}, rgba_canvas::RGBACanvas, vector_2d::Vector2D};
+use crate::{common_structs::{Coord, RGBAColor, AlignedBox, Angle, Dot, Marker, Palette}, rgba_canvas::RGBACanvas, vector_2d::Vector2D, linear_texture::{TransType, TextType}};
 
 #[derive(Copy, Clone)]
 pub struct LineSeg {
@@ -57,8 +57,21 @@ impl LineSeg {
     }
 
     pub fn draw_line_p_v(&self, canvas: &mut RGBACanvas) {
-        // interim check for 
-        let new_vec: Vector2D = Vector2D::from_line_seg(self);
+        // interim check for Vector2D::draw_simple()
+        let mut new_vec: Vector2D = Vector2D::from_line_seg(self);
+
+        new_vec.texture.add_periodic_texture(
+            RGBAColor::new_p(Palette::Blue),
+            40.0,
+            0.3,
+            TextType::Step(0.2),
+        );
+
+        new_vec.texture.add_edges(
+            RGBAColor::new_p(Palette::White),
+            5.0,
+            TransType::Step,
+        );
 
         new_vec.draw_simple(canvas);
     }

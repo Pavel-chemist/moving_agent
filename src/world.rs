@@ -3,7 +3,7 @@
 use crate::{
     common_structs::{
         RGBAColor,
-        Coord, Angle,
+        Coord, Angle, Palette,
     },
     ellipse::Ellipse,
     line_seg::LineSeg,
@@ -37,10 +37,11 @@ impl World {
             ellipses: Vec::new(),
             shapes: Vec::new(),
             agent: Agent::new(
-                Coord::new_i(width / 2, height / 2),
-                Angle::new(),
+                // Coord::new_i(width / 2, height / 2),
+                Coord::new_i(100, 350),
+                Angle::new_deg(270.0),
                 Angle::new_deg(120.0),
-                512.0,
+                1000.0,
                 // 1024.0,
             ),
             is_updated: false,
@@ -54,7 +55,15 @@ impl World {
 
 /////////////////////////////////////////////////////////
     fn create_static_background(&mut self) {
-        let background: RGBACanvas = RGBACanvas::new_f(self.width, self.height);
+        let mut background: RGBACanvas = RGBACanvas::new_f(self.width, self.height);
+        let grid_color: RGBAColor = RGBAColor::new_p(Palette::DarkGrey);
+        for j in 0..background.height {
+            for i in 0..background.width {
+                if j % 100 == 0 || i % 100 == 0 {
+                    background.put_pixel(i, j, grid_color);
+                }
+            }
+        }
 
         self.static_background = background;
         self.is_updated = true;
@@ -74,6 +83,33 @@ impl World {
 
         self.shapes[4].move_pivot(Coord::new(30.0, 10.0));
 
+        self.shapes.push(Polygon::new(
+            PType::Rectangle { 
+                length: 100.0,
+                width: 100.0,
+                pivot: Coord::new(400.0, 300.0),
+                color: RGBAColor::new_p(Palette::Orange),
+            }
+        ).unwrap());
+
+        self.shapes.push(Polygon::new(
+            PType::Rectangle { 
+                length: 100.0,
+                width: 100.0,
+                pivot: Coord::new(100.0, 200.0),
+                color: RGBAColor::new_p(Palette::Yellow),
+            }
+        ).unwrap());
+
+        self.shapes.push(Polygon::new(
+            PType::Rectangle { 
+                length: 100.0,
+                width: 100.0,
+                pivot: Coord::new(169.0, 75.0),
+                color: RGBAColor::new_p(Palette::Grass),
+            }
+        ).unwrap());
+
         self.shapes.push(Polygon::new(PType::Rectangle { 
                 length: 700.0,
                 width: 10.0,
@@ -89,6 +125,11 @@ impl World {
                 color: RGBAColor::new_rgb(255, 127, 0),
             }
         ).unwrap());
+
+        for i in 0..self.shapes.len() {
+            self.shapes[i].rotate(Angle::new_deg(0.01));
+        }
+        
     }
     
 }

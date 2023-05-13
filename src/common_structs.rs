@@ -4,6 +4,9 @@ use crate::rgba_canvas::RGBACanvas;
 
 pub enum Palette {
     Black,
+    DarkGrey,
+    Grey,
+    LightGrey,
     White,
     Red,
     Green,
@@ -40,6 +43,9 @@ impl RGBAColor {
     pub fn new_p(c: Palette) -> RGBAColor {
         match c {
             Palette::Black => {RGBAColor{r: 0, g: 0, b: 0, a: 255}}
+            Palette::DarkGrey => {RGBAColor{r: 63, g: 63, b: 63, a: 255}}
+            Palette::Grey => {RGBAColor{r: 127, g: 127, b: 127, a: 255}}
+            Palette::LightGrey => {RGBAColor{r: 191, g: 191, b: 191, a: 255}}
             Palette::White => {RGBAColor{r: 255, g: 255, b: 255, a: 255}}
             Palette::Red => {RGBAColor{r: 255, g: 0, b: 0, a: 255}}
             Palette::DarkRed => {RGBAColor{r: 127, g: 0, b: 0, a: 255}}
@@ -61,6 +67,15 @@ impl RGBAColor {
 
     pub fn new_rgb(r: u8, g: u8, b: u8) -> RGBAColor {
         return RGBAColor{r, g, b, a: 255};
+    }
+
+    pub fn change_transparency(&self, a: u8) -> RGBAColor {
+        return RGBAColor{
+            r: self.r,
+            g: self.g,
+            b: self.b,
+            a,
+        };
     }
 
     pub fn mix_colors(foreground: RGBAColor, background: RGBAColor) -> RGBAColor {
@@ -224,6 +239,13 @@ impl Angle {
         return Angle{ a: degrees * std::f32::consts::TAU / 360.0 };
     }
 
+    pub fn new_turned_rad(&self, radians: f32) -> Angle {
+        let mut angle: Angle = Angle{ a: self.a + radians };
+        angle.normalize();
+
+        return angle;
+    }
+
     pub fn turn(&mut self, alpha: Angle) {
 
         self.a += alpha.a;
@@ -251,9 +273,9 @@ impl Angle {
     }
 
     fn normalize(&mut self) {
-        // ensure that angle is in range [0..TAU) radians
+        // ensure that angle is in range (-Pi..Pi] radians
 
-        if !(self.a >= 0.0 && self.a < std::f32::consts::TAU) {
+        if !(self.a > -std::f32::consts::PI && self.a <= std::f32::consts::PI) {
 
             self.a = self.a - std::f32::consts::TAU * (self.a / std::f32::consts::TAU).trunc();
         }
