@@ -38,11 +38,10 @@ impl World {
             shapes: Vec::new(),
             agent: Agent::new(
                 // Coord::new_i(width / 2, height / 2),
-                Coord::new_i(100, 350),
-                Angle::new_deg(270.0),
+                Coord::new_i(200, 310),
+                Angle::new_deg(0.0),
                 Angle::new_deg(120.0),
-                1000.0,
-                // 1024.0,
+                500.0,
             ),
             is_updated: false,
         };
@@ -126,9 +125,9 @@ impl World {
             }
         ).unwrap());
 
-        for i in 0..self.shapes.len() {
+        /* for i in 0..self.shapes.len() {
             self.shapes[i].rotate(Angle::new_deg(0.01));
-        }
+        } */
         
     }
     

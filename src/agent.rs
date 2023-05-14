@@ -116,14 +116,8 @@ impl Agent {
     let mut current_distance: f32;
     let mut current_dot_index: usize = 0;
     let mut column_color: RGBAColor;
-    let mut is_center_column: bool = false;
 
     for view_column in 0..size {
-      if view_column == size / 2 {
-        is_center_column = true;
-      } else {
-        is_center_column = false;
-      }
 
       intersections_list_v = Vec::new();
 
@@ -143,10 +137,6 @@ impl Agent {
       );
 
       let sweeping_ray_vec: Vector2D = Vector2D::from_line_seg(&sweeping_ray);
-      /* if is_center_column {
-        println!("+---------------------------------+");
-        println!("---------------------------------");
-      } */
 
       for j in 0..world.shapes.len() {
         for i in 0..world.shapes[j].sides.len() {
@@ -165,7 +155,7 @@ impl Agent {
               TransType::Lin,
           );
 
-          match sweeping_ray_vec.intersect(&vector_from_line, is_center_column) {
+          match sweeping_ray_vec.intersect(&vector_from_line) {
             Some(int_vec) => {
               intersections_list_v.push(int_vec);
             }
@@ -173,10 +163,6 @@ impl Agent {
           }
         }
       }
-
-      /* if is_center_column {
-        println!("----------");
-      } */
 
       shortest_distance = self.m_v_d * 2.0;
       column_color = RGBAColor::new_p(Palette::Black);
@@ -193,17 +179,7 @@ impl Agent {
         }
 
         column_color = intersections_list_v[current_dot_index].texture.get_color(0.0, 0.0).new_scaled(get_scaling_factor(intersections_list_v[current_dot_index].length(), self.m_v_d));
-
-        /* if is_center_column {
-          println!("------");
-          println!("Se");
-        } */
-
       }
-
-      /* if is_center_column {
-        println!("++----------++------------++");
-      } */
 
       view_line.push(column_color);
     }
