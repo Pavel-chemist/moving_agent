@@ -3,8 +3,8 @@ use crate::common_structs::RGBAColor;
 #[derive(Copy, Clone)]
 pub enum TextType {
   Sin,
-  Lin(f32), // number in range 0.0..1.0
-  Step(f32), // number in range 0.0..1.0
+  Lin, // number in range 0.0..1.0
+  Step, // number in range 0.0..1.0
 }
 
 #[derive(Copy, Clone)]
@@ -24,6 +24,7 @@ pub struct LinearTexture {
   period_length: f32,
   period_start_phase: f32,
   period_type: TextType,
+  period_fraction: f32, // 0..1.0
 }
 
 impl LinearTexture {
@@ -36,6 +37,7 @@ impl LinearTexture {
     period_length: f32,
     period_start_phase: f32,
     period_type: TextType,
+    period_fraction: f32,
   ) -> LinearTexture {
     return LinearTexture {
       main_color,
@@ -46,6 +48,7 @@ impl LinearTexture {
       period_length,
       period_start_phase,
       period_type,
+      period_fraction,
     };
   }
 
@@ -58,8 +61,16 @@ impl LinearTexture {
       periodic_color: color,
       period_length: 0.0,
       period_start_phase: 0.0,
-      period_type: TextType::Step(0.0),
+      period_type: TextType::Step,
+      period_fraction: 0.0,
     };
+  }
+
+  pub fn new_shifted_phase(&self, shift: f32) -> LinearTexture {
+    let mut updated_texture = *self;
+
+    updated_texture.period_start_phase = (updated_texture.period_start_phase + shift).fract();
+    return updated_texture;
   }
 
   pub fn add_edges(&mut self, color: RGBAColor, width: f32, transition: TransType) {
@@ -76,7 +87,8 @@ impl LinearTexture {
   }
 
   pub fn get_color(&self, length: f32, position: f32) -> RGBAColor {
-    // length of whole vector, position along this vector
+    // length of whole vector,
+    // position along this vector
     let mut color: RGBAColor = self.main_color;
     let opaqueness: u8;
     let is_edge: bool;
@@ -101,9 +113,12 @@ impl LinearTexture {
   
       if self.period_length > 0.0 {
         match self.period_type {
-          TextType::Step(fraction) => {
-            let pos_fraction: f32 = ((position - self.period_length * self.period_start_phase) / self.period_length).fract();
-            if pos_fraction < fraction {
+          TextType::Step => {
+
+            let pos_fraction: f32 = ((position + self.period_length * self.period_start_phase) / self.period_length).fract();
+
+
+            if pos_fraction < self.period_fraction {
               color = self.periodic_color;
             }
           }

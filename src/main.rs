@@ -20,14 +20,12 @@ Moving Agent features to add (with no particular order):
   3) add smooth transitions for agent movements
   4) add agent collisions with lines and polygons in world
   5) make prettier agent
-  6) add textures to lines
   7) create dot display modes i.e. display only polygon vertices:
    -- 2d "wireframe",
    -- 2d "wireframe with transparent surfaces"
    -- 2d "occluded wireframe"
   8) add stereo modes (parallel-eye/cross-eye and anaglyph)
   9) world segmentation (this is to decrease computational load for collisions and renderings)
-  10) create 'vector_2d' type to use instead of 'line'
   11) investigate openGL api */
 
 use common_structs::{Coord, Angle, RGBAColor};
@@ -51,6 +49,7 @@ mod linear_texture;
 mod rgba_canvas;
 mod ellipse;
 mod polygon;
+mod shape;
 mod agent;
 mod world;
 
@@ -273,13 +272,13 @@ fn main() {
                         }
                         'e' => {
                             // rotate right
-                            world.agent.turn_sideways(1.0);
+                            world.agent.turn_sideways(5.0);
                             world.is_updated = true;
                             world.agent.is_updated = true;
                         }
                         'q' => {
                             // rotate left
-                            world.agent.turn_sideways(-1.0);
+                            world.agent.turn_sideways(-5.0);
                             world.is_updated = true;
                             world.agent.is_updated = true;
                         }
@@ -305,12 +304,18 @@ fn redraw_image(world: &mut World, top_view_frame: &mut frame::Frame) {
             world.lines[i].draw(&mut rendered_scene);
         }
 
-        for i in 0..world.shapes.len() {
-            world.shapes[i].draw(&mut rendered_scene);
+        for i in 0..world.polygons.len() {
+            world.polygons[i].draw(&mut rendered_scene);
         }
 
         for i in 0..world.ellipses.len() {
             world.ellipses[i].draw_ellipse_raster(&mut rendered_scene, false, 20.0);
+        }
+
+        for i in 0..world.shapes.len() {
+            world.shapes[i].draw(&mut rendered_scene);
+        } {
+            
         }
 
         world.agent.draw(&mut rendered_scene);

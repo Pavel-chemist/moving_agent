@@ -138,24 +138,22 @@ impl Agent {
 
       let sweeping_ray_vec: Vector2D = Vector2D::from_line_seg(&sweeping_ray);
 
-      for j in 0..world.shapes.len() {
-        for i in 0..world.shapes[j].sides.len() {
-          let mut vector_from_line: Vector2D = Vector2D::from_line_seg(&world.shapes[j].sides[i]);
-
-          vector_from_line.texture.add_periodic_texture(
-              RGBAColor::new_p(Palette::Blue),
-              40.0,
-              0.3,
-              TextType::Step(0.2),
-          );
-
-          vector_from_line.texture.add_edges(
-              RGBAColor::new_p(Palette::White),
-              5.0,
-              TransType::Lin,
-          );
+      for j in 0..world.polygons.len() {
+        for i in 0..world.polygons[j].sides.len() {
+          let mut vector_from_line: Vector2D = Vector2D::from_line_seg(&world.polygons[j].sides[i]);
 
           match sweeping_ray_vec.intersect(&vector_from_line) {
+            Some(int_vec) => {
+              intersections_list_v.push(int_vec);
+            }
+            None => {}
+          }
+        }
+      }
+
+      for j in 0..world.shapes.len() {
+        for i in 0..world.shapes[j].elements.len() {
+          match sweeping_ray_vec.intersect(&world.shapes[j].elements[i].new_shifted(world.shapes[j].anchor)) {
             Some(int_vec) => {
               intersections_list_v.push(int_vec);
             }

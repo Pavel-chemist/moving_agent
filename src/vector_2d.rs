@@ -275,7 +275,7 @@ impl Vector2D {
       return Quad::TL;
     } else if self.tip.x() >= 0.0 && self.tip.y() < 0.0 {
       return Quad::BR;
-    } else /* if self.tip.x() < 0.0 && self.tip.y() < 0.0 */ {
+    } else {
       return Quad::BL;
     }
   }

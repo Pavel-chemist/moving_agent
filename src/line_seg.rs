@@ -58,20 +58,7 @@ impl LineSeg {
 
     pub fn draw_line_p_v(&self, canvas: &mut RGBACanvas) {
         // interim check for Vector2D::draw_simple()
-        let mut new_vec: Vector2D = Vector2D::from_line_seg(self);
-
-        new_vec.texture.add_periodic_texture(
-            RGBAColor::new_p(Palette::Blue),
-            40.0,
-            0.3,
-            TextType::Step(0.2),
-        );
-
-        new_vec.texture.add_edges(
-            RGBAColor::new_p(Palette::White),
-            5.0,
-            TransType::Step,
-        );
+        let new_vec: Vector2D = Vector2D::from_line_seg(self);
 
         new_vec.draw_simple(canvas);
     }

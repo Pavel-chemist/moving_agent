@@ -12,7 +12,7 @@ use crate::{
         PType,
     },
     rgba_canvas::RGBACanvas,
-    agent::Agent,
+    agent::Agent, shape::Shape, linear_texture::{LinearTexture, TransType, TextType},
 };
 
 
@@ -22,7 +22,8 @@ pub struct World {
     pub static_background: RGBACanvas, //contains all static objects pre-rendered
     pub lines: Vec<LineSeg>,
     pub ellipses: Vec<Ellipse>,
-    pub shapes: Vec<Polygon>,
+    pub polygons: Vec<Polygon>,
+    pub shapes: Vec<Shape>,
     pub agent: Agent,
     pub is_updated: bool,
 }
@@ -35,6 +36,7 @@ impl World {
             static_background: RGBACanvas::new(width, height),
             lines: Vec::new(),
             ellipses: Vec::new(),
+            polygons: Vec::new(),
             shapes: Vec::new(),
             agent: Agent::new(
                 // Coord::new_i(width / 2, height / 2),
@@ -69,8 +71,8 @@ impl World {
     }
 
     fn add_shapes(&mut self) {
-        for i in 0..6 {
-            self.shapes.push(
+        /* for i in 0..6 {
+            self.polygons.push(
                 Polygon::new(PType::Regular { 
                     n: i + 3,
                     r: 50.0,
@@ -80,9 +82,9 @@ impl World {
             ).unwrap());
         }
 
-        self.shapes[4].move_pivot(Coord::new(30.0, 10.0));
+        self.polygons[4].move_pivot(Coord::new(30.0, 10.0));
 
-        self.shapes.push(Polygon::new(
+        self.polygons.push(Polygon::new(
             PType::Rectangle { 
                 length: 100.0,
                 width: 100.0,
@@ -91,7 +93,7 @@ impl World {
             }
         ).unwrap());
 
-        self.shapes.push(Polygon::new(
+        self.polygons.push(Polygon::new(
             PType::Rectangle { 
                 length: 100.0,
                 width: 100.0,
@@ -100,16 +102,16 @@ impl World {
             }
         ).unwrap());
 
-        self.shapes.push(Polygon::new(
+        self.polygons.push(Polygon::new(
             PType::Rectangle { 
                 length: 100.0,
                 width: 100.0,
                 pivot: Coord::new(169.0, 75.0),
                 color: RGBAColor::new_p(Palette::Grass),
             }
-        ).unwrap());
+        ).unwrap()); */
 
-        self.shapes.push(Polygon::new(PType::Rectangle { 
+        self.polygons.push(Polygon::new(PType::Rectangle { 
                 length: 700.0,
                 width: 10.0,
                 pivot: Coord::new(400.0, 500.0),
@@ -117,7 +119,7 @@ impl World {
             }
         ).unwrap());
 
-        self.shapes.push(Polygon::new(PType::Rectangle { 
+        self.polygons.push(Polygon::new(PType::Rectangle { 
                 length: 50.0,
                 width: 50.0,
                 pivot: Coord::new(100.0, 450.0),
@@ -125,9 +127,24 @@ impl World {
             }
         ).unwrap());
 
-        /* for i in 0..self.shapes.len() {
-            self.shapes[i].rotate(Angle::new_deg(0.01));
-        } */
+        self.shapes.push(Shape::new_box(
+            String::from("Shape of new type"),
+            100.0,
+            200.0,
+            LinearTexture::new(
+                RGBAColor::new_p(Palette::Grass),
+                RGBAColor::new_p(Palette::White),
+                10.0,
+                TransType::Lin,
+                RGBAColor::new_p(Palette::DarkGreen),
+                70.0,
+                0.0,
+                TextType::Step,
+                0.2,
+            ),
+        ));
+
+        self.shapes[0].shift(Coord::new(500.0, 300.0))
         
     }
     
