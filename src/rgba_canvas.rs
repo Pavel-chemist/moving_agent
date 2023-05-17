@@ -130,6 +130,8 @@ impl RGBACanvas {
         // else just ignore pixels outside of canvas borders
     }
 
+    // pb fn
+
     pub fn put_square(&mut self, x: i32, y: i32, size: i32, color: RGBAColor) {
         for j in (y - size)..(y + size + 1) {
             for i in (x - size)..(x + size + 1) {

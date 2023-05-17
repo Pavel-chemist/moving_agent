@@ -120,6 +120,10 @@ impl Vector2D {
     self.base = self.base.new_offset(shift);
   }
 
+  pub fn shange_base(&mut self, new_base: Coord) {
+    self.base = new_base;
+  }
+
   pub fn add(&self, addend: Vector2D) -> Vector2D {
     // vector addition, creates a new vector
     // base and texture are inherited from first vector
@@ -154,6 +158,18 @@ impl Vector2D {
     };
   }
 
+  pub fn reverse(&self) -> Vector2D {
+    let reversed_tip: Coord = Coord::new(-self.tip.x(), -self.tip.y());
+
+    return Vector2D {
+      base: self.base,
+      tip: reversed_tip,
+      texture: self.texture,
+      length: self.length,
+      phi: self.phi.new_turned_rad(std::f32::consts::PI),
+    };
+  }
+
   pub fn get_unit_vector(&self) -> Vector2D {
     // returns vector of unit size, with the same base
     let tip: Coord = Coord::new(f32::cos(self.phi.get_rad()), f32::sin(self.phi.get_rad()));
@@ -168,15 +184,18 @@ impl Vector2D {
   }
 
   pub fn get_normal(&self) -> Vector2D {
-    // returns orthogonal vector of unit size, with the same base
+    // returns orthogonal vector of same size, with the same base
     let phi: Angle = self.phi.new_turned_rad(std::f32::consts::FRAC_PI_2);
-    let tip: Coord = Coord::new(f32::cos(phi.get_rad()), f32::sin(phi.get_rad()));
+    let tip: Coord = Coord::new(
+      -self.tip.y(),
+      self.tip.x(),
+    );
 
     return Vector2D {
       base: self.base,
       tip,
       texture: self.texture,
-      length: 1.0,
+      length: self.length,
       phi,
     };
   }
@@ -186,8 +205,8 @@ impl Vector2D {
   }
 
   pub fn intersect(&self, other: &Vector2D) -> Option<Vector2D> {
-    let t: f32;
-    let u: f32;
+    let t: f32; // parameter along self 0.0..1.0
+    let u: f32; // parameter along other 0.0..1.0
     let det: f32 = self.tip.x() * other.tip.y() - self.tip.y() * other.tip.x();
     let d_b_x: f32;
     let d_b_y: f32;
@@ -217,10 +236,25 @@ impl Vector2D {
 
   pub fn get_distance(&self, point: Coord) -> Option<f32> {
     // find a point at which self intersects with normal going through a given coordinate
-    let normal_is_interscting: bool = false;
+    // get normal throught the point
+    // calculate intersection
 
-    if normal_is_interscting {
-      return Some(0.0);
+    //calculate distance from point to self
+
+
+    let mut nvtp: Vector2D = self.get_normal(); // normal vector through point
+    nvtp.base = point;
+
+    let det: f32 = self.tip.y() * point.x() - self.tip.x() * point.y();
+    let d_b_x: f32 = point.x() - self.base.x();
+    let d_b_y: f32 = point.y() - self.base.y();
+    
+    let t: f32 = (d_b_y * self.tip.x() - d_b_x * self.tip.y()) / det;
+    let u: f32 = (d_b_y * point.x() - d_b_x * point.y()) / det;
+
+    if t > -1.0 && t < 1.0 {
+      // normal is intersecing somewhere
+      return Some(t.abs() * nvtp.length);
     } else {
       return None;
     }
@@ -266,9 +300,60 @@ impl Vector2D {
 
   pub fn draw_smooth(&self, canvas: &mut RGBACanvas) {
     // draw smooth line on canvas
+    // inefficient variant:
+    // get axis aligned box
+    // iterate through it, with little padding
+    // for each point, find distance to line (the normal is needed)
+    // if less than 1.0, get color, and scale it with 1.0 - distance,
+    // and put on canvas
+
+    let placeholder_color: RGBAColor = RGBAColor::new_p(Palette::White);
+
+    if self.tip.x() >= 0.0 && self.tip.y() >= 0.0 {
+      for j in (self.base.y() as i32)..((self.base.y() + self.tip.y()) as i32) {
+        for i in (self.base.x() as i32)..((self.base.x() + self.tip.x()) as i32) {
+          let dist = self.get_distance(Coord::new_i(i, j)).unwrap_or_default();
+
+          if dist <= 1.0 {
+            canvas.put_pixel(i, j, placeholder_color.new_scaled(1.0 - dist));
+          }
+        }
+      }
+    } else if self.tip.x() < 0.0 && self.tip.y() >= 0.0 {
+      for j in (self.base.y() as i32)..((self.base.y() + self.tip.y()) as i32) {
+        for i in ((self.base.x() + self.tip.x()) as i32)..(self.base.x() as i32) {
+          let dist = self.get_distance(Coord::new_i(i, j)).unwrap_or_default();
+
+          if dist <= 1.0 {
+            canvas.put_pixel(i, j, placeholder_color.new_scaled(1.0 - dist));
+          }
+        }
+      }
+    } else if self.tip.x() >= 0.0 && self.tip.y() < 0.0 {
+      for j in ((self.base.y() + self.tip.y()) as i32)..(self.base.y() as i32) {
+        for i in (self.base.x() as i32)..((self.base.x() + self.tip.x()) as i32) {
+          let dist = self.get_distance(Coord::new_i(i, j)).unwrap_or_default();
+
+          if dist <= 1.0 {
+            canvas.put_pixel(i, j, placeholder_color.new_scaled(1.0 - dist));
+          }
+        }
+      }
+    } else /* if self.tip.x() < 0.0 && self.tip.y() < 0.0 */ {
+      for j in ((self.base.y() + self.tip.y()) as i32)..(self.base.y() as i32) {
+        for i in ((self.base.x() + self.tip.x()) as i32)..(self.base.x() as i32) {
+          let dist = self.get_distance(Coord::new_i(i, j)).unwrap_or_default();
+
+          if dist <= 1.0 {
+            canvas.put_pixel(i, j, placeholder_color.new_scaled(1.0 - dist));
+          }
+        }
+      }
+    }
+
   }
 
-  pub fn get_quad(&self) -> Quad {
+  /* pub fn get_quad(&self) -> Quad {
     if self.tip.x() >= 0.0 && self.tip.y() >= 0.0 {
       return Quad::TR;
     } else if self.tip.x() < 0.0 && self.tip.y() >= 0.0 {
@@ -278,13 +363,13 @@ impl Vector2D {
     } else {
       return Quad::BL;
     }
-  }
+  } */
 }
 
-pub enum Quad {
+/* pub enum Quad {
   TR, //top right
   TL, //top left
   BR, // bottom right
   BL, // bottom left
-}
+} */
 

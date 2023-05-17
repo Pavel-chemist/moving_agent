@@ -20,9 +20,9 @@ pub struct World {
     pub width: f32, //world width
     pub height: f32, //world height
     pub static_background: RGBACanvas, //contains all static objects pre-rendered
-    pub lines: Vec<LineSeg>,
-    pub ellipses: Vec<Ellipse>,
-    pub polygons: Vec<Polygon>,
+    // pub lines: Vec<LineSeg>,
+    // pub ellipses: Vec<Ellipse>,
+    // pub polygons: Vec<Polygon>,
     pub shapes: Vec<Shape>,
     pub agent: Agent,
     pub is_updated: bool,
@@ -34,9 +34,9 @@ impl World {
             width: width as f32,
             height: height as f32,
             static_background: RGBACanvas::new(width, height),
-            lines: Vec::new(),
-            ellipses: Vec::new(),
-            polygons: Vec::new(),
+            // lines: Vec::new(),
+            // ellipses: Vec::new(),
+            // polygons: Vec::new(),
             shapes: Vec::new(),
             agent: Agent::new(
                 // Coord::new_i(width / 2, height / 2),
@@ -71,64 +71,8 @@ impl World {
     }
 
     fn add_shapes(&mut self) {
-        /* for i in 0..6 {
-            self.polygons.push(
-                Polygon::new(PType::Regular { 
-                    n: i + 3,
-                    r: 50.0,
-                    pivot: Coord::new(75.0 + 125.0 * i as f32, 100.0),
-                    color: RGBAColor::new_rand(),
-                }
-            ).unwrap());
-        }
-
-        self.polygons[4].move_pivot(Coord::new(30.0, 10.0));
-
-        self.polygons.push(Polygon::new(
-            PType::Rectangle { 
-                length: 100.0,
-                width: 100.0,
-                pivot: Coord::new(400.0, 300.0),
-                color: RGBAColor::new_p(Palette::Orange),
-            }
-        ).unwrap());
-
-        self.polygons.push(Polygon::new(
-            PType::Rectangle { 
-                length: 100.0,
-                width: 100.0,
-                pivot: Coord::new(100.0, 200.0),
-                color: RGBAColor::new_p(Palette::Yellow),
-            }
-        ).unwrap());
-
-        self.polygons.push(Polygon::new(
-            PType::Rectangle { 
-                length: 100.0,
-                width: 100.0,
-                pivot: Coord::new(169.0, 75.0),
-                color: RGBAColor::new_p(Palette::Grass),
-            }
-        ).unwrap()); */
-
-        self.polygons.push(Polygon::new(PType::Rectangle { 
-                length: 700.0,
-                width: 10.0,
-                pivot: Coord::new(400.0, 500.0),
-                color: RGBAColor::new_rgb(255, 255, 0),
-            }
-        ).unwrap());
-
-        self.polygons.push(Polygon::new(PType::Rectangle { 
-                length: 50.0,
-                width: 50.0,
-                pivot: Coord::new(100.0, 450.0),
-                color: RGBAColor::new_rgb(255, 127, 0),
-            }
-        ).unwrap());
-
         self.shapes.push(Shape::new_box(
-            String::from("Shape of new type"),
+            String::from("Box shape"),
             100.0,
             200.0,
             LinearTexture::new(
@@ -142,10 +86,102 @@ impl World {
                 TextType::Step,
                 0.2,
             ),
-        ));
-
-        self.shapes[0].shift(Coord::new(500.0, 300.0))
+        ).unwrap());
+        self.shapes[0].shift(Coord::new(500.0, 300.0));
+        self.shapes[0].rotate(Angle::new_deg(11.0));
         
+        self.shapes.push(Shape::new_regular_polygon(
+            String::from("Triangle shape"),
+            100.0,
+            3,
+            LinearTexture::new(
+                RGBAColor::new_p(Palette::Red),
+                RGBAColor::new_p(Palette::Yellow),
+                10.0,
+                TransType::Quad,
+                RGBAColor::new_p(Palette::DarkRed),
+                20.0,
+                0.0,
+                TextType::Step,
+                0.3333,
+            ),
+        ).unwrap());
+        self.shapes[1].shift(Coord::new(100.0, 100.0));
+        self.shapes[1].rotate(Angle::new_deg(-11.0));
+
+
+        self.shapes.push(Shape::new_box(
+            String::from("Top wall"),
+            800.0,
+            20.0,
+            LinearTexture::new(
+                RGBAColor::new_p(Palette::Yellow),
+                RGBAColor::new_p(Palette::White),
+                10.0,
+                TransType::Lin,
+                RGBAColor::new_p(Palette::Orange),
+                50.0,
+                0.0,
+                TextType::Step,
+                0.2,
+            ),
+        ).unwrap());
+        self.shapes[2].shift(Coord::new(400.0, 10.0));
+
+        self.shapes.push(Shape::new_box(
+            String::from("Bottom wall"),
+            800.0,
+            20.0,
+            LinearTexture::new(
+                RGBAColor::new_p(Palette::Cyan),
+                RGBAColor::new_p(Palette::White),
+                10.0,
+                TransType::Lin,
+                RGBAColor::new_p(Palette::Blue),
+                50.0,
+                0.0,
+                TextType::Step,
+                0.2,
+            ),
+        ).unwrap());
+        self.shapes[3].shift(Coord::new(400.0, 510.0));
+
+        self.shapes.push(Shape::new_box(
+            String::from("Left wall"),
+            20.0,
+            520.0,
+            LinearTexture::new(
+                RGBAColor::new_p(Palette::Orange),
+                RGBAColor::new_p(Palette::White),
+                10.0,
+                TransType::Lin,
+                RGBAColor::new_p(Palette::Red),
+                50.0,
+                0.0,
+                TextType::Step,
+                0.2,
+            ),
+        ).unwrap());
+        self.shapes[4].shift(Coord::new(10.0, 260.0));
+
+        self.shapes.push(Shape::new_box(
+            String::from("Left wall"),
+            20.0,
+            520.0,
+            LinearTexture::new(
+                RGBAColor::new_p(Palette::Green),
+                RGBAColor::new_p(Palette::White),
+                10.0,
+                TransType::Lin,
+                RGBAColor::new_p(Palette::DarkGreen),
+                50.0,
+                0.0,
+                TextType::Step,
+                0.2,
+            ),
+        ).unwrap());
+        self.shapes[5].shift(Coord::new(770.0, 260.0));
+
     }
     
 }

@@ -217,8 +217,8 @@ fn main() {
                 }
                 Message::Tick => {
 
-                    /* if world.shapes.len() > 2 {
-                        for i in 0..(world.shapes.len() - 2) {
+                    /* if world.shapes.len() > 0 {
+                        for i in 0..(world.shapes.len()) {
                             world.shapes[i].rotate(Angle::new_deg(1.0 / ((i+3) as f32)));
                         }
                     }
@@ -300,7 +300,7 @@ fn redraw_image(world: &mut World, top_view_frame: &mut frame::Frame) {
     if world.is_updated {
         let mut rendered_scene: RGBACanvas = world.static_background.clone();
 
-        for i in 0..world.lines.len() {
+        /* for i in 0..world.lines.len() {
             world.lines[i].draw(&mut rendered_scene);
         }
 
@@ -310,12 +310,10 @@ fn redraw_image(world: &mut World, top_view_frame: &mut frame::Frame) {
 
         for i in 0..world.ellipses.len() {
             world.ellipses[i].draw_ellipse_raster(&mut rendered_scene, false, 20.0);
-        }
+        } */
 
         for i in 0..world.shapes.len() {
             world.shapes[i].draw(&mut rendered_scene);
-        } {
-            
         }
 
         world.agent.draw(&mut rendered_scene);

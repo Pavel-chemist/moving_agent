@@ -1,5 +1,6 @@
 // struct agent
 // a collection of polygons, lines and dots(?)
+// polygons, lines and dots are to be replaced by more generic shape
 // has orientation
 // moves are relative to its current orientation
 
@@ -11,58 +12,41 @@ use crate::{
   polygon::{
     Polygon,
     PType,
-  }, rgba_canvas::RGBACanvas, world::World, vector_2d::Vector2D, linear_texture::{TextType, TransType}
+  }, rgba_canvas::RGBACanvas, world::World, vector_2d::Vector2D, linear_texture::{TextType, TransType, LinearTexture}, shape::Shape
 };
 
 pub struct Agent {
   center: Coord,
   angle: Angle,
-  dots: Vec<Dot>,
-  lines: Vec<LineSeg>,
-  polygons: Vec<Polygon>,
+  shape: Shape,
   f_o_v: Angle, // field of view
   m_v_d: f32, // max view distance
-  // view: Vec<RGBAColor>,
   pub is_updated: bool,
 }
 
 impl Agent {
   pub fn new(init_coord: Coord, init_angle: Angle, f_o_v: Angle, m_v_d: f32) -> Agent {
-    let mut dots: Vec<Dot> = Vec::new();
-    let mut lines: Vec<LineSeg> = Vec::new();
-    let mut polygons: Vec<Polygon> = Vec::new();
+    let mut shape: Shape = Shape::new_box(
+      String::from("Agent's shape"),
+      50.0,
+      40.0,
+      LinearTexture::new_plain(RGBAColor::new_p(Palette::Green)),
+    ).unwrap();
+    let inner_shape: Shape = Shape::new_regular_polygon(
+      String::from("Agent's inner shape"),
+      20.0,
+      3,
+      LinearTexture::new_plain(RGBAColor::new_p(Palette::Red)),
+    ).unwrap();
+    shape.add_shape(inner_shape);
+    shape.shift(init_coord);
+    shape.rotate(init_angle);
 
-    dots.push(Dot::new(Coord::new_i(50, 20), RGBAColor::new_rgb(255, 0, 0), Marker::Disc(10)));
-    dots.push(Dot::new(Coord::new_i(50, -20), RGBAColor::new_rgb(255, 0, 0), Marker::Disc(10)));
-
-    lines.push(LineSeg::new(Coord::new_i(-10, 0), Coord::new_i(70, 0), RGBAColor::new_rgb(0, 0, 255)));
-
-    polygons.push(Polygon::new(PType::Rectangle{
-      length: 140.0,
-      width: 70.0,
-      pivot: Coord::new_i(0, 0),
-      color: RGBAColor::new_rgb(0, 255, 0),
-    }).unwrap());
-
-    // field of view
-    polygons.push(Polygon::new(PType::Sector{
-      radius: m_v_d,
-      start_angle: Angle::new_deg(-(f_o_v.get_deg() / 2.0)),
-      end_angle: Angle::new_deg((f_o_v.get_deg() / 2.0)),
-      pivot: Coord::new_i(0, 0),
-      color: RGBAColor::new_rgba(255, 255, 255, 127),
-    }).unwrap());
-
-    polygons[1].move_pivot(Coord::new(-50.0, 0.0));
-
-    lines.push(LineSeg::new(Coord::new_i(50, 0), Coord::new(50.0 + m_v_d, 0.0), RGBAColor::new_p(Palette::Magenta)));
 
     return Agent{
       center: init_coord,
       angle: init_angle,
-      dots,
-      lines,
-      polygons,
+      shape,
       f_o_v,
       m_v_d,
       is_updated: true,
@@ -70,90 +54,55 @@ impl Agent {
   }
 
   pub fn draw(&self, canvas: &mut RGBACanvas) {
-    for d in 0..self.dots.len() {
-      self.dots[d].new_rot_offset(self.angle, self.center).draw(canvas);
-    }
-
-    let mut rot_offset_line: LineSeg;
-    for l in 0..self.lines.len() {
-      rot_offset_line = LineSeg::new(
-        self.lines[l].start.new_rotated(self.angle).new_offset(self.center),
-        self.lines[l].end.new_rotated(self.angle).new_offset(self.center),
-        self.lines[l].color,
-      );
-
-      rot_offset_line.draw(canvas);
-    }
-
-    for p in 0..self.polygons.len() {
-      self.polygons[p].new_rot_offset(self.angle, self.center).draw(canvas);
-    }
+    self.shape.draw(canvas);
   }
   
   pub fn move_forward(&mut self, step_size: f32) {
     let directed_step: Coord = Coord::new(step_size, 0.0).new_rotated(self.angle);
 
     self.center = self.center.new_offset(directed_step);
+    self.shape.shift(directed_step);
   }
 
   pub fn move_sideways(&mut self, step_size: f32) {
     let directed_step: Coord = Coord::new(0.0, step_size).new_rotated(self.angle);
 
     self.center = self.center.new_offset(directed_step);
+    self.shape.shift(directed_step);
   }
 
   pub fn turn_sideways(&mut self, degrees: f32) {
     self.angle.turn_deg(degrees);
+    self.shape.rotate(Angle::new_deg(degrees));
   }
 
   pub fn get_view(&self, size: i32, world: &World) -> Vec<RGBAColor> {
     let angle_between_rays: Angle = Angle::new_deg(self.f_o_v.get_deg() / size as f32);
     let mut view_line: Vec<RGBAColor> = Vec::with_capacity(size.abs() as usize);
-    let mut ray: LineSeg;
-    let mut sweeping_ray: LineSeg;
+
+    let mut ray1: Vector2D;
+
     let mut intersections_list_v: Vec<Vector2D>;
     let mut shortest_distance: f32;
     let mut current_distance: f32;
     let mut current_dot_index: usize = 0;
     let mut column_color: RGBAColor;
 
+    ray1 = Vector2D::new(
+      self.shape.anchor,
+      Coord::new(self.m_v_d, 0.0),
+      LinearTexture::new_plain(RGBAColor::new_rgba(0, 0, 0, 0)),
+    );
+    ray1.rotate(self.angle);
+    ray1.rotate(Angle::new_rad(-self.f_o_v.get_rad()/2.0));
+
     for view_column in 0..size {
 
       intersections_list_v = Vec::new();
 
-      ray = LineSeg::new(
-        Coord::new_i(0 + 50, 0),
-        Coord::new(self.m_v_d + 50.0, 0.0),
-        RGBAColor::new_rgb(255,0,255),
-      ).new_rot_offset_line(
-        Angle::new_rad(-self.f_o_v.get_rad() / 2.0 + angle_between_rays.get_rad() * (view_column as f32)),
-        self.polygons[1].pivot,
-      );
-  
-      sweeping_ray = LineSeg::new(
-        ray.start.new_rotated(self.angle).new_offset(self.center),
-        ray.end.new_rotated(self.angle).new_offset(self.center),
-        ray.color,
-      );
-
-      let sweeping_ray_vec: Vector2D = Vector2D::from_line_seg(&sweeping_ray);
-
-      for j in 0..world.polygons.len() {
-        for i in 0..world.polygons[j].sides.len() {
-          let mut vector_from_line: Vector2D = Vector2D::from_line_seg(&world.polygons[j].sides[i]);
-
-          match sweeping_ray_vec.intersect(&vector_from_line) {
-            Some(int_vec) => {
-              intersections_list_v.push(int_vec);
-            }
-            None => {}
-          }
-        }
-      }
-
       for j in 0..world.shapes.len() {
         for i in 0..world.shapes[j].elements.len() {
-          match sweeping_ray_vec.intersect(&world.shapes[j].elements[i].new_shifted(world.shapes[j].anchor)) {
+          match ray1.new_rotated(Angle::new_rad(angle_between_rays.get_rad() * view_column as f32)).intersect(&world.shapes[j].elements[i].new_shifted(world.shapes[j].anchor)) {
             Some(int_vec) => {
               intersections_list_v.push(int_vec);
             }

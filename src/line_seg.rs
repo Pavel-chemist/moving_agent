@@ -127,33 +127,29 @@ impl LineSeg {
         }
     }
 
-    pub fn draw_smooth(&self, canvas: &mut RGBACanvas) {
-        // this should draw smooth line using line equation(?)
-    }
-
     pub fn get_axis_aligned_box(&self) -> AlignedBox {
         let x_0: f32;
         let y_0: f32;
         let x_1: f32;
         let y_1: f32;
 
-        if self.start.x() < self.end.x() {
+        if self.start.x() <= self.end.x() {
             x_0 = self.start.x();
             x_1 = self.end.x();
-        } else if self.start.x() == self.end.x() {
+        /* } else if self.start.x() == self.end.x() {
             x_0 = self.start.x() - 0.1;
-            x_1 = self.end.x() + 0.1;
+            x_1 = self.end.x() + 0.1; */
         } else {
             x_0 = self.end.x();
             x_1 = self.start.x();
         }
 
-        if self.start.y() < self.end.y() {
+        if self.start.y() <= self.end.y() {
             y_0 = self.start.y();
             y_1 = self.end.y();
-        } else if self.start.y() == self.end.y() {
+        /* } else if self.start.y() == self.end.y() {
             y_0 = self.start.y() - 0.1;
-            y_1 = self.end.y() + 0.1;
+            y_1 = self.end.y() + 0.1; */
         } else {
             y_0 = self.end.y();
             y_1 = self.start.y();
