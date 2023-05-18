@@ -5,24 +5,21 @@ use crate::{
         RGBAColor,
         Coord, Angle, Palette,
     },
-    ellipse::Ellipse,
-    line_seg::LineSeg,
-    polygon::{
-        Polygon,
-        PType,
-    },
     rgba_canvas::RGBACanvas,
-    agent::Agent, shape::Shape, linear_texture::{LinearTexture, TransType, TextType},
+    agent::Agent,
+    shape::Shape,
+    linear_texture::{
+        LinearTexture,
+        TransType,
+        TextType,
+    },
 };
 
 
 pub struct World {
     pub width: f32, //world width
     pub height: f32, //world height
-    pub static_background: RGBACanvas, //contains all static objects pre-rendered
-    // pub lines: Vec<LineSeg>,
-    // pub ellipses: Vec<Ellipse>,
-    // pub polygons: Vec<Polygon>,
+    pub static_background: RGBACanvas, //contains all static objects pre-rendered(?) or just a backdrop
     pub shapes: Vec<Shape>,
     pub agent: Agent,
     pub is_updated: bool,
@@ -34,16 +31,13 @@ impl World {
             width: width as f32,
             height: height as f32,
             static_background: RGBACanvas::new(width, height),
-            // lines: Vec::new(),
-            // ellipses: Vec::new(),
-            // polygons: Vec::new(),
             shapes: Vec::new(),
             agent: Agent::new(
                 // Coord::new_i(width / 2, height / 2),
                 Coord::new_i(200, 310),
                 Angle::new_deg(0.0),
                 Angle::new_deg(120.0),
-                500.0,
+                1000.0,
             ),
             is_updated: false,
         };

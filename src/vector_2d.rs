@@ -1,6 +1,17 @@
 // this is to be an improvement and replacement of struct Line
 
-use crate::{common_structs::{Coord, RGBAColor, Angle, Dot, Marker, Palette}, line_seg::LineSeg, linear_texture::LinearTexture, rgba_canvas::RGBACanvas};
+use crate::{
+  common_structs::{
+    Coord,
+    RGBAColor,
+    Angle,
+    Dot,
+    Marker,
+    Palette,
+  },
+  linear_texture::LinearTexture,
+  rgba_canvas::RGBACanvas,
+};
 
 #[derive(Copy, Clone)]
 pub struct Vector2D {
@@ -42,7 +53,7 @@ impl Vector2D {
     };
   }
 
-  pub fn from_line_seg(segment: &LineSeg) -> Vector2D {
+  /* pub fn from_line_seg(segment: &LineSeg) -> Vector2D {
     let tip: Coord = Coord::new(
       segment.end.x() - segment.start.x(),
       segment.end.y() - segment.start.y(),
@@ -58,7 +69,7 @@ impl Vector2D {
       length,
       phi,
     };
-  }
+  } */
 
   pub fn new_scaled(&self, scale_factor: f32) -> Vector2D {
     let v: Coord = Coord::new(

@@ -28,7 +28,11 @@ Moving Agent features to add (with no particular order):
   9) world segmentation (this is to decrease computational load for collisions and renderings)
   11) investigate openGL api */
 
-use common_structs::{Coord, Angle, RGBAColor};
+use common_structs::{
+    Coord,
+    Angle,
+    RGBAColor,
+};
 use fltk::{
     app::{self, App, MouseButton},
     enums::{self, ColorDepth, FrameType, Event},
@@ -43,12 +47,10 @@ use world::World;
 use ellipse::Ellipse;
 
 mod common_structs;
-mod line_seg;
 mod vector_2d;
 mod linear_texture;
 mod rgba_canvas;
 mod ellipse;
-mod polygon;
 mod shape;
 mod agent;
 mod world;

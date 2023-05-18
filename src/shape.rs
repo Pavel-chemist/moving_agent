@@ -143,6 +143,49 @@ impl Shape {
     }
   }
 
+  /* PType::Sector { radius, start_angle, end_angle, pivot, color } => { 
+    if radius <= 0.0 && start_angle.get_rad() >= end_angle.get_rad() {
+      return None;
+    } else {
+      let base_ray: Coord = Coord::new(radius, 0.0);
+      let sub_sector_angle: Angle = Angle::new_deg(5.0);
+      let num_sub_sectors: usize = ((end_angle.get_deg() - start_angle.get_deg()) / 5.0) as usize;
+      let mut vertices: Vec<Coord> = Vec::with_capacity(num_sub_sectors + 2);
+      let mut sides: Vec<LineSeg> = Vec::with_capacity(num_sub_sectors + 2);
+
+      vertices.push(Coord::new(0.0, 0.0));
+      vertices.push(base_ray.new_rotated(start_angle));
+      for v in 2..(num_sub_sectors + 1) {
+        vertices.push(vertices[v-1].new_rotated(sub_sector_angle));
+      }
+      vertices.push(base_ray.new_rotated(end_angle));
+
+
+      for s in 0..vertices.len() { 
+        sides.push(
+          LineSeg::new(
+            Coord::new(vertices[s].x() + pivot.x(), vertices[s].y() + pivot.y()),
+            Coord::new(vertices[(s + 1) % 4].x() + pivot.x(), vertices[(s + 1) % 4].y() + pivot.y()), color)
+        );
+      }
+
+      let new_polygon = Polygon {
+        name: String::from("Sector"),
+        pivot,
+        vertices,
+        sides,
+        angle: Angle::new(),
+      };
+
+      return Some(new_polygon);
+    }
+  } */
+
+  
+}
+
+// just for grouping methods by category
+impl Shape {
   pub fn add_shape(&mut self, added_shape: Shape) {
     for i in 0..added_shape.elements.len() {
       self.elements.push(added_shape.elements[i]);
@@ -169,5 +212,5 @@ impl Shape {
       self.elements[i].base = self.elements[i].base.new_rotated(alpha);
       self.elements[i].tip = self.elements[i].tip.new_rotated(alpha);
     }
-  }
+  }  
 }

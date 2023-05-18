@@ -6,13 +6,21 @@
 
 use crate::{
   common_structs::{
-    Coord, Dot, Angle, RGBAColor, Marker, Palette
+    Coord,
+    Angle,
+    RGBAColor,
+    Marker,
+    Palette,
   },
-  line_seg::LineSeg,
-  polygon::{
-    Polygon,
-    PType,
-  }, rgba_canvas::RGBACanvas, world::World, vector_2d::Vector2D, linear_texture::{TextType, TransType, LinearTexture}, shape::Shape
+  rgba_canvas::RGBACanvas,
+  world::World,
+  vector_2d::Vector2D,
+  linear_texture::{
+    TextType,
+    TransType,
+    LinearTexture,
+  },
+  shape::Shape,
 };
 
 pub struct Agent {
