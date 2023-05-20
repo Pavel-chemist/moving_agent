@@ -32,7 +32,7 @@ use agent::Agent;
 use common_structs::{
     Coord,
     Angle,
-    RGBAColor,
+    RGBAColor, Palette,
 };
 use fltk::{
     app::{self, App, MouseButton},
@@ -42,7 +42,9 @@ use fltk::{
     *,
 };
 
+use linear_texture::{LinearTexture, TransType, TextType};
 use rgba_canvas::RGBACanvas;
+use shape::Shape;
 use world::World;
 
 use ellipse::Ellipse;
@@ -90,6 +92,7 @@ enum Message {
 
 fn main() {
     let mut world: World = world::World::new(MAIN_IMAGE_WIDTH, MAIN_IMAGE_HEIGHT);
+    add_walls_to_world(&mut world);
     let mut agent: Agent = Agent::new(
         // Coord::new_i(width / 2, height / 2),
         Coord::new_i(200, 310),
@@ -311,9 +314,9 @@ fn redraw_image(world: &mut World, agent: &Agent, top_view_frame: &mut frame::Fr
         let mut rendered_scene: RGBACanvas = world.static_background.clone();
 
 
-        for i in 0..world.shapes.len() {
+        /* for i in 0..world.shapes.len() {
             world.shapes[i].draw(&mut rendered_scene);
-        }
+        } */
 
         // world.collide_agent();
 
@@ -336,7 +339,7 @@ fn redraw_image(world: &mut World, agent: &Agent, top_view_frame: &mut frame::Fr
 
 fn draw_fisrt_person_view(agent: &mut Agent, world: &World, first_person_view_frame: &mut frame::Frame) {
     if agent.is_updated {
-        let agent_line_view: Vec<RGBAColor> = agent.get_view(MAIN_IMAGE_WIDTH, world);
+        let agent_line_view: Vec<RGBAColor> = agent.get_view(MAIN_IMAGE_WIDTH, &world.walls);
         let mut agent_view: RGBACanvas = RGBACanvas::new(MAIN_IMAGE_WIDTH, FIRST_PERSON_VIEW_HEIGHT);
     
         for j in 0..FIRST_PERSON_VIEW_HEIGHT {
@@ -358,4 +361,139 @@ fn draw_fisrt_person_view(agent: &mut Agent, world: &World, first_person_view_fr
 
         agent.is_updated = false;
     }
+}
+
+fn add_walls_to_world(world: &mut World) {
+    let mut shapes: Vec<Shape> = Vec::new();
+
+    shapes.push(Shape::new_box(
+        String::from("Box shape"),
+        100.0,
+        200.0,
+        LinearTexture::new(
+            RGBAColor::new_p(Palette::Grass),
+            RGBAColor::new_p(Palette::White),
+            10.0,
+            TransType::Lin,
+            RGBAColor::new_p(Palette::DarkGreen),
+            70.0,
+            0.0,
+            TextType::Step,
+            0.2,
+        ),
+    ).unwrap());
+    shapes[0].shift(Coord::new(500.0, 300.0));
+    shapes[0].rotate(Angle::new_deg(11.0));
+    
+    shapes.push(Shape::new_regular_polygon(
+        String::from("Pentagon shape"),
+        100.0,
+        5,
+        LinearTexture::new(
+            RGBAColor::new_p(Palette::Red),
+            RGBAColor::new_p(Palette::Yellow),
+            10.0,
+            TransType::Quad,
+            RGBAColor::new_p(Palette::DarkRed),
+            20.0,
+            0.0,
+            TextType::Step,
+            0.3333,
+        ),
+    ).unwrap());
+    shapes[1].shift(Coord::new(150.0, 200.0));
+    shapes[1].rotate(Angle::new_deg(-11.0));
+
+
+    shapes.push(Shape::new_box(
+        String::from("Top wall"),
+        800.0,
+        20.0,
+        LinearTexture::new(
+            RGBAColor::new_p(Palette::Yellow),
+            RGBAColor::new_p(Palette::White),
+            10.0,
+            TransType::Lin,
+            RGBAColor::new_p(Palette::Orange),
+            50.0,
+            0.0,
+            TextType::Step,
+            0.2,
+        ),
+    ).unwrap());
+    shapes[2].shift(Coord::new(400.0, 10.0));
+
+    shapes.push(Shape::new_box(
+        String::from("Bottom wall"),
+        800.0,
+        20.0,
+        LinearTexture::new(
+            RGBAColor::new_p(Palette::Cyan),
+            RGBAColor::new_p(Palette::White),
+            10.0,
+            TransType::Lin,
+            RGBAColor::new_p(Palette::Blue),
+            50.0,
+            0.0,
+            TextType::Step,
+            0.2,
+        ),
+    ).unwrap());
+    shapes[3].shift(Coord::new(400.0, 510.0));
+
+    shapes.push(Shape::new_box(
+        String::from("Left wall"),
+        20.0,
+        520.0,
+        LinearTexture::new(
+            RGBAColor::new_p(Palette::Orange),
+            RGBAColor::new_p(Palette::White),
+            10.0,
+            TransType::Lin,
+            RGBAColor::new_p(Palette::Red),
+            50.0,
+            0.0,
+            TextType::Step,
+            0.2,
+        ),
+    ).unwrap());
+    shapes[4].shift(Coord::new(10.0, 260.0));
+
+    shapes.push(Shape::new_box(
+        String::from("Left wall"),
+        20.0,
+        520.0,
+        LinearTexture::new(
+            RGBAColor::new_p(Palette::Green),
+            RGBAColor::new_p(Palette::White),
+            10.0,
+            TransType::Lin,
+            RGBAColor::new_p(Palette::DarkGreen),
+            50.0,
+            0.0,
+            TextType::Step,
+            0.2,
+        ),
+    ).unwrap());
+    shapes[5].shift(Coord::new(770.0, 260.0));
+
+    shapes.push(Shape::new_box(
+        String::from("Middle wall"),
+        20.0,
+        400.0,
+        LinearTexture::new(
+            RGBAColor::new_p(Palette::LightGrey),
+            RGBAColor::new_p(Palette::White),
+            10.0,
+            TransType::Lin,
+            RGBAColor::new_p(Palette::DarkGrey),
+            40.0,
+            0.0,
+            TextType::Step,
+            0.25,
+        ),
+    ).unwrap());
+    shapes[6].shift(Coord::new(350.0, 320.0));
+
+    world.add_shapes_as_walls(&shapes);
 }

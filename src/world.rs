@@ -6,13 +6,13 @@ use crate::{
         Coord, Angle, Palette,
     },
     rgba_canvas::RGBACanvas,
-    agent::Agent,
     shape::Shape,
     linear_texture::{
         LinearTexture,
         TransType,
         TextType,
     },
+    vector_2d::Vector2D,
 };
 
 
@@ -21,7 +21,7 @@ pub struct World {
     pub height: f32, //world height
     pub static_background: RGBACanvas, //contains all static objects pre-rendered(?) or just a backdrop
     pub shapes: Vec<Shape>,
-    // pub agent: Agent,
+    pub walls: Vec<Vector2D>,
     pub is_updated: bool,
 }
 
@@ -32,6 +32,7 @@ impl World {
             height: height as f32,
             static_background: RGBACanvas::new(width, height),
             shapes: Vec::new(),
+            walls: Vec::new(),
             is_updated: false,
         };
 
@@ -59,140 +60,44 @@ impl World {
             }
         }
 
+        for i in 0..self.walls.len() {
+            self.walls[i].draw_simple(&mut background);
+        }
         self.static_background = background;
         self.is_updated = true;
     }
 
     fn add_shapes(&mut self) {
-        self.shapes.push(Shape::new_box(
-            String::from("Box shape"),
-            100.0,
-            200.0,
-            LinearTexture::new(
-                RGBAColor::new_p(Palette::Grass),
-                RGBAColor::new_p(Palette::White),
-                10.0,
-                TransType::Lin,
-                RGBAColor::new_p(Palette::DarkGreen),
-                70.0,
-                0.0,
-                TextType::Step,
-                0.2,
-            ),
-        ).unwrap());
-        self.shapes[0].shift(Coord::new(500.0, 300.0));
-        self.shapes[0].rotate(Angle::new_deg(11.0));
+        // maybe for dynamic objects
+
+    }
+    
+
+    pub fn add_shapes_as_walls(&mut self, shapes: &Vec<Shape>) {
+        // redo adding shapes:
+        // for static objects it is better to have them as flat array of Vector2D's
+        // this will then be simpler for collisions
+
+        for j in 0..shapes.len() {
+            for i in 0..shapes[j].elements.len() {
+                self.walls.push(shapes[j].elements[i].new_shifted(shapes[j].anchor));
+            }
+        }
         
-        self.shapes.push(Shape::new_regular_polygon(
-            String::from("Pentagon shape"),
-            100.0,
-            5,
-            LinearTexture::new(
-                RGBAColor::new_p(Palette::Red),
-                RGBAColor::new_p(Palette::Yellow),
-                10.0,
-                TransType::Quad,
-                RGBAColor::new_p(Palette::DarkRed),
-                20.0,
-                0.0,
-                TextType::Step,
-                0.3333,
-            ),
-        ).unwrap());
-        self.shapes[1].shift(Coord::new(150.0, 200.0));
-        self.shapes[1].rotate(Angle::new_deg(-11.0));
+        self.create_static_background();
+    }
+
+    pub fn get_local_walls(&self, location: Coord, range: f32) -> Vec<Vector2D> {
+        // this function is supposed to return only walls that are local to a point,
+        // that is, theoretically visible to agent
+        // get all walls that have bases or tips in the provided range
+        // so that invisible walls are not checked for intersection with sweeping ray
 
 
-        self.shapes.push(Shape::new_box(
-            String::from("Top wall"),
-            800.0,
-            20.0,
-            LinearTexture::new(
-                RGBAColor::new_p(Palette::Yellow),
-                RGBAColor::new_p(Palette::White),
-                10.0,
-                TransType::Lin,
-                RGBAColor::new_p(Palette::Orange),
-                50.0,
-                0.0,
-                TextType::Step,
-                0.2,
-            ),
-        ).unwrap());
-        self.shapes[2].shift(Coord::new(400.0, 10.0));
+        let local_walls: Vec<Vector2D> = Vec::new();
 
-        self.shapes.push(Shape::new_box(
-            String::from("Bottom wall"),
-            800.0,
-            20.0,
-            LinearTexture::new(
-                RGBAColor::new_p(Palette::Cyan),
-                RGBAColor::new_p(Palette::White),
-                10.0,
-                TransType::Lin,
-                RGBAColor::new_p(Palette::Blue),
-                50.0,
-                0.0,
-                TextType::Step,
-                0.2,
-            ),
-        ).unwrap());
-        self.shapes[3].shift(Coord::new(400.0, 510.0));
 
-        self.shapes.push(Shape::new_box(
-            String::from("Left wall"),
-            20.0,
-            520.0,
-            LinearTexture::new(
-                RGBAColor::new_p(Palette::Orange),
-                RGBAColor::new_p(Palette::White),
-                10.0,
-                TransType::Lin,
-                RGBAColor::new_p(Palette::Red),
-                50.0,
-                0.0,
-                TextType::Step,
-                0.2,
-            ),
-        ).unwrap());
-        self.shapes[4].shift(Coord::new(10.0, 260.0));
-
-        self.shapes.push(Shape::new_box(
-            String::from("Left wall"),
-            20.0,
-            520.0,
-            LinearTexture::new(
-                RGBAColor::new_p(Palette::Green),
-                RGBAColor::new_p(Palette::White),
-                10.0,
-                TransType::Lin,
-                RGBAColor::new_p(Palette::DarkGreen),
-                50.0,
-                0.0,
-                TextType::Step,
-                0.2,
-            ),
-        ).unwrap());
-        self.shapes[5].shift(Coord::new(770.0, 260.0));
-
-        self.shapes.push(Shape::new_box(
-            String::from("Middle wall"),
-            20.0,
-            400.0,
-            LinearTexture::new(
-                RGBAColor::new_p(Palette::LightGrey),
-                RGBAColor::new_p(Palette::White),
-                10.0,
-                TransType::Lin,
-                RGBAColor::new_p(Palette::DarkGrey),
-                40.0,
-                0.0,
-                TextType::Step,
-                0.25,
-            ),
-        ).unwrap());
-        self.shapes[6].shift(Coord::new(350.0, 320.0));
-
+        return local_walls;
     }
     
 }

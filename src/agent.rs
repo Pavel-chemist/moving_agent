@@ -85,7 +85,7 @@ impl Agent {
     self.shape.rotate(Angle::new_deg(degrees));
   }
 
-  pub fn get_view(&self, size: i32, world: &World) -> Vec<RGBAColor> {
+  pub fn get_view(&self, size: i32, walls: &Vec<Vector2D>) -> Vec<RGBAColor> {
     let angle_between_rays: Angle = Angle::new_deg(self.f_o_v.get_deg() / size as f32);
     let mut view_line: Vec<RGBAColor> = Vec::with_capacity(size.abs() as usize);
 
@@ -109,16 +109,16 @@ impl Agent {
 
       intersections_list_v = Vec::new();
 
-      for j in 0..world.shapes.len() {
-        for i in 0..world.shapes[j].elements.len() {
-          match ray1.new_rotated(Angle::new_rad(angle_between_rays.get_rad() * view_column as f32)).intersect(&world.shapes[j].elements[i].new_shifted(world.shapes[j].anchor)) {
-            Some(int_vec) => {
-              intersections_list_v.push(int_vec);
-            }
-            None => {}
+      
+      for i in 0..walls.len() {
+        match ray1.new_rotated(Angle::new_rad(angle_between_rays.get_rad() * view_column as f32)).intersect(&walls[i]) {
+          Some(int_vec) => {
+            intersections_list_v.push(int_vec);
           }
+          None => {}
         }
       }
+      
 
       shortest_distance = self.m_v_d * 2.0;
       column_color = RGBAColor::new_p(Palette::Black);
@@ -134,7 +134,19 @@ impl Agent {
           }
         }
 
-        column_color = intersections_list_v[current_dot_index].texture.get_color(0.0, 0.0).new_scaled(get_scaling_factor(intersections_list_v[current_dot_index].length(), self.m_v_d));
+        column_color = 
+          intersections_list_v[current_dot_index]
+            .texture
+            .get_color(
+              0.0,
+              0.0,
+            )
+            .new_scaled(
+              get_scaling_factor(
+                intersections_list_v[current_dot_index].length(),
+                self.m_v_d,
+              )
+            );
       }
 
       view_line.push(column_color);
