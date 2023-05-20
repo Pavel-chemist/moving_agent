@@ -21,7 +21,7 @@ pub struct World {
     pub height: f32, //world height
     pub static_background: RGBACanvas, //contains all static objects pre-rendered(?) or just a backdrop
     pub shapes: Vec<Shape>,
-    pub agent: Agent,
+    // pub agent: Agent,
     pub is_updated: bool,
 }
 
@@ -32,13 +32,6 @@ impl World {
             height: height as f32,
             static_background: RGBACanvas::new(width, height),
             shapes: Vec::new(),
-            agent: Agent::new(
-                // Coord::new_i(width / 2, height / 2),
-                Coord::new_i(200, 310),
-                Angle::new_deg(0.0),
-                Angle::new_deg(120.0),
-                1000.0,
-            ),
             is_updated: false,
         };
 
@@ -49,6 +42,12 @@ impl World {
     }
 
 /////////////////////////////////////////////////////////
+
+    /* pub fn collide_agent(&mut self) {
+        let distance_from_top_wall: f32 = self.shapes[2].elements[1].new_shifted(self.shapes[2].anchor).get_distance(self.agent.center).unwrap_or_default();
+        println!("distance to top wall is: {:.1}", distance_from_top_wall);
+    } */
+
     fn create_static_background(&mut self) {
         let mut background: RGBACanvas = RGBACanvas::new_f(self.width, self.height);
         let grid_color: RGBAColor = RGBAColor::new_p(Palette::DarkGrey);
@@ -85,9 +84,9 @@ impl World {
         self.shapes[0].rotate(Angle::new_deg(11.0));
         
         self.shapes.push(Shape::new_regular_polygon(
-            String::from("Triangle shape"),
+            String::from("Pentagon shape"),
             100.0,
-            3,
+            5,
             LinearTexture::new(
                 RGBAColor::new_p(Palette::Red),
                 RGBAColor::new_p(Palette::Yellow),
@@ -100,7 +99,7 @@ impl World {
                 0.3333,
             ),
         ).unwrap());
-        self.shapes[1].shift(Coord::new(100.0, 100.0));
+        self.shapes[1].shift(Coord::new(150.0, 200.0));
         self.shapes[1].rotate(Angle::new_deg(-11.0));
 
 
@@ -175,6 +174,24 @@ impl World {
             ),
         ).unwrap());
         self.shapes[5].shift(Coord::new(770.0, 260.0));
+
+        self.shapes.push(Shape::new_box(
+            String::from("Middle wall"),
+            20.0,
+            400.0,
+            LinearTexture::new(
+                RGBAColor::new_p(Palette::LightGrey),
+                RGBAColor::new_p(Palette::White),
+                10.0,
+                TransType::Lin,
+                RGBAColor::new_p(Palette::DarkGrey),
+                40.0,
+                0.0,
+                TextType::Step,
+                0.25,
+            ),
+        ).unwrap());
+        self.shapes[6].shift(Coord::new(350.0, 320.0));
 
     }
     

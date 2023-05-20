@@ -13,7 +13,7 @@ use crate::{
     Palette,
   },
   rgba_canvas::RGBACanvas,
-  world::World,
+  world::{World, self},
   vector_2d::Vector2D,
   linear_texture::{
     TextType,
@@ -24,7 +24,7 @@ use crate::{
 };
 
 pub struct Agent {
-  center: Coord,
+  pub center: Coord,
   angle: Angle,
   shape: Shape,
   f_o_v: Angle, // field of view
@@ -69,6 +69,7 @@ impl Agent {
     let directed_step: Coord = Coord::new(step_size, 0.0).new_rotated(self.angle);
 
     self.center = self.center.new_offset(directed_step);
+
     self.shape.shift(directed_step);
   }
 
@@ -99,7 +100,7 @@ impl Agent {
     ray1 = Vector2D::new(
       self.shape.anchor,
       Coord::new(self.m_v_d, 0.0),
-      LinearTexture::new_plain(RGBAColor::new_rgba(0, 0, 0, 0)),
+      LinearTexture::new_plain(RGBAColor::new()),
     );
     ray1.rotate(self.angle);
     ray1.rotate(Angle::new_rad(-self.f_o_v.get_rad()/2.0));

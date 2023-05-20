@@ -53,24 +53,6 @@ impl Vector2D {
     };
   }
 
-  /* pub fn from_line_seg(segment: &LineSeg) -> Vector2D {
-    let tip: Coord = Coord::new(
-      segment.end.x() - segment.start.x(),
-      segment.end.y() - segment.start.y(),
-    );
-
-    let length: f32 = f32::sqrt(tip.x() * tip.x() + tip.y() * tip.y());
-    let phi: Angle = Angle::new_rad(f32::atan2(tip.y(), tip.x()));
-
-    return Vector2D {
-      base: segment.start,
-      tip,
-      texture: LinearTexture::new_plain(segment.color),
-      length,
-      phi,
-    };
-  } */
-
   pub fn new_scaled(&self, scale_factor: f32) -> Vector2D {
     let v: Coord = Coord::new(
       self.tip.x() * scale_factor,
@@ -219,8 +201,8 @@ impl Vector2D {
     let t: f32; // parameter along self 0.0..1.0
     let u: f32; // parameter along other 0.0..1.0
     let det: f32 = self.tip.x() * other.tip.y() - self.tip.y() * other.tip.x();
-    let d_b_x: f32;
-    let d_b_y: f32;
+    let d_b_x: f32; // difference between x coordinates of bases
+    let d_b_y: f32; // difference between y coordinates of bases
 
     if det != 0.0 {
       d_b_x = self.base.x() - other.base.x();
@@ -250,22 +232,26 @@ impl Vector2D {
     // get normal throught the point
     // calculate intersection
 
-    //calculate distance from point to self
+    // get distance from point to self
 
 
     let mut nvtp: Vector2D = self.get_normal(); // normal vector through point
     nvtp.base = point;
 
-    let det: f32 = self.tip.y() * point.x() - self.tip.x() * point.y();
-    let d_b_x: f32 = point.x() - self.base.x();
-    let d_b_y: f32 = point.y() - self.base.y();
-    
-    let t: f32 = (d_b_y * self.tip.x() - d_b_x * self.tip.y()) / det;
-    let u: f32 = (d_b_y * point.x() - d_b_x * point.y()) / det;
+    let t: f32; // parameter along self 0.0..1.0
+    let u: f32; // parameter along other 0.0..1.0 (other is normal going from given point)
+    let det: f32 = self.tip.x() * nvtp.tip.y() - self.tip.y() * nvtp.tip.x();
 
-    if t > -1.0 && t < 1.0 {
-      // normal is intersecing somewhere
-      return Some(t.abs() * nvtp.length);
+    let d_b_x: f32 = self.base.x() - nvtp.base.x();
+    let d_b_y: f32 = self.base.y() - nvtp.base.y();
+
+    t = (d_b_y * nvtp.tip.x() - d_b_x * nvtp.tip.y()) / det;
+    u = (d_b_y * self.tip.x() - d_b_x * self.tip.y()) / det;
+
+
+    if t > 0.0 && t < 1.0 {
+      // normal is intersecing somewhere along self
+      return Some(u.abs() * nvtp.length);
     } else {
       return None;
     }

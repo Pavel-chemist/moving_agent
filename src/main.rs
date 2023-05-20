@@ -28,6 +28,7 @@ Moving Agent features to add (with no particular order):
   9) world segmentation (this is to decrease computational load for collisions and renderings)
   11) investigate openGL api */
 
+use agent::Agent;
 use common_structs::{
     Coord,
     Angle,
@@ -89,6 +90,13 @@ enum Message {
 
 fn main() {
     let mut world: World = world::World::new(MAIN_IMAGE_WIDTH, MAIN_IMAGE_HEIGHT);
+    let mut agent: Agent = Agent::new(
+        // Coord::new_i(width / 2, height / 2),
+        Coord::new_i(200, 310),
+        Angle::new_deg(0.0),
+        Angle::new_deg(120.0),
+        1000.0,
+    );
 
     let application: App = app::App::default();
 
@@ -227,8 +235,8 @@ fn main() {
 
                     world.is_updated = true;
                     world.agent.is_updated = true; */
-                    redraw_image(&mut world, &mut top_view_frame);
-                    draw_fisrt_person_view(&mut world, &mut first_person_view_frame);
+                    redraw_image(&mut world, &agent, &mut top_view_frame);
+                    draw_fisrt_person_view(&mut agent, &world, &mut first_person_view_frame);
                 }
                 Message::MouseDown(x, y, button) => {
                     println!("The image was clicked at coordinates x={}, y={}", x, y);
@@ -250,39 +258,39 @@ fn main() {
                     match key_char {
                         'w' => {
                             // move forward
-                            world.agent.move_forward(5.0);
+                            agent.move_forward(5.0);
                             world.is_updated = true;
-                            world.agent.is_updated = true;
+                            agent.is_updated = true;
                         }
                         's' => {
                             // move backward
-                            world.agent.move_forward(-5.0);
+                            agent.move_forward(-5.0);
                             world.is_updated = true;
-                            world.agent.is_updated = true;
+                            agent.is_updated = true;
                         }
                         'd' => {
                             // move right
-                            world.agent.move_sideways(5.0);
+                            agent.move_sideways(5.0);
                             world.is_updated = true;
-                            world.agent.is_updated = true;
+                            agent.is_updated = true;
                         }
                         'a' => {
                             // move left
-                            world.agent.move_sideways(-5.0);
+                            agent.move_sideways(-5.0);
                             world.is_updated = true;
-                            world.agent.is_updated = true;
+                            agent.is_updated = true;
                         }
                         'e' => {
                             // rotate right
-                            world.agent.turn_sideways(5.0);
+                            agent.turn_sideways(5.0);
                             world.is_updated = true;
-                            world.agent.is_updated = true;
+                            agent.is_updated = true;
                         }
                         'q' => {
                             // rotate left
-                            world.agent.turn_sideways(-5.0);
+                            agent.turn_sideways(-5.0);
                             world.is_updated = true;
-                            world.agent.is_updated = true;
+                            agent.is_updated = true;
                         }
                         _ => {}
                     }
@@ -298,27 +306,18 @@ fn main() {
 }
 
 
-fn redraw_image(world: &mut World, top_view_frame: &mut frame::Frame) {
+fn redraw_image(world: &mut World, agent: &Agent, top_view_frame: &mut frame::Frame) {
     if world.is_updated {
         let mut rendered_scene: RGBACanvas = world.static_background.clone();
 
-        /* for i in 0..world.lines.len() {
-            world.lines[i].draw(&mut rendered_scene);
-        }
-
-        for i in 0..world.polygons.len() {
-            world.polygons[i].draw(&mut rendered_scene);
-        }
-
-        for i in 0..world.ellipses.len() {
-            world.ellipses[i].draw_ellipse_raster(&mut rendered_scene, false, 20.0);
-        } */
 
         for i in 0..world.shapes.len() {
             world.shapes[i].draw(&mut rendered_scene);
         }
 
-        world.agent.draw(&mut rendered_scene);
+        // world.collide_agent();
+
+        agent.draw(&mut rendered_scene);
 
         let image = unsafe { RgbImage::from_data(
             &rendered_scene.data,
@@ -335,9 +334,9 @@ fn redraw_image(world: &mut World, top_view_frame: &mut frame::Frame) {
     }
 }
 
-fn draw_fisrt_person_view(world: &mut World, first_person_view_frame: &mut frame::Frame) {
-    if world.agent.is_updated {
-        let agent_line_view: Vec<RGBAColor> = world.agent.get_view(MAIN_IMAGE_WIDTH, &world);
+fn draw_fisrt_person_view(agent: &mut Agent, world: &World, first_person_view_frame: &mut frame::Frame) {
+    if agent.is_updated {
+        let agent_line_view: Vec<RGBAColor> = agent.get_view(MAIN_IMAGE_WIDTH, world);
         let mut agent_view: RGBACanvas = RGBACanvas::new(MAIN_IMAGE_WIDTH, FIRST_PERSON_VIEW_HEIGHT);
     
         for j in 0..FIRST_PERSON_VIEW_HEIGHT {
@@ -357,6 +356,6 @@ fn draw_fisrt_person_view(world: &mut World, first_person_view_frame: &mut frame
         first_person_view_frame.set_image(Some(image));
         first_person_view_frame.redraw();
 
-        world.agent.is_updated = false;
+        agent.is_updated = false;
     }
 }
