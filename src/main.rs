@@ -35,7 +35,7 @@ use common_structs::{
     RGBAColor, Palette,
 };
 use fltk::{
-    app::{self, App, MouseButton},
+    app::{self, App, MouseButton, MouseWheel},
     enums::{self, ColorDepth, FrameType, Event},
     image::RgbImage,
     prelude::*,
@@ -84,7 +84,7 @@ enum Message {
     Quit,
     MouseDown(i32, i32, MouseButton),
     MouseDrag(i32, i32),
-    MouseMove(i32, i32),
+    MouseMove(i32),
     MouseReleased(i32, i32, MouseButton),
     Tick,
     KeyPress(char),
@@ -93,6 +93,7 @@ enum Message {
 fn main() {
     let mut world: World = world::World::new(MAIN_IMAGE_WIDTH, MAIN_IMAGE_HEIGHT);
     add_walls_to_world(&mut world);
+
     let mut agent: Agent = Agent::new(
         // Coord::new_i(width / 2, height / 2),
         Coord::new_i(200, 310),
@@ -100,10 +101,14 @@ fn main() {
         Angle::new_deg(120.0),
         1000.0,
     );
+    agent.update_visible_walls(world.walls.clone());
 
     let application: App = app::App::default();
 
     let (s, r) = app::channel();
+
+    let mut mouse_x: i32 = -1;
+    let mut mouse_dx: i32 = 0;
 
     let mut wind = window::Window::new(0, 0, WIND_WIDTH, WIND_HEIGHT, WIND_LABEL);
 
@@ -155,19 +160,55 @@ fn main() {
 
     // intercept keyboard events on the window
     let key_interceptor_sender =s.clone();
+    let mut chars_vec: Vec<char> = Vec::new();
     wind.handle(move |_, event| match event {
         Event::KeyDown => {
             match app::event_key().to_char() {
                 Some(char) => {
+                    // println!("Key pressed: {:?}", char);
                     key_interceptor_sender.send(Message::KeyPress(char));
+                    chars_vec.push(char);
                 }
                 None => {
                     // nothing
                 }
             };
-            // println!("Key '{:?}' was pressed.", app::event_key().to_char().unwrap());
             false
         }
+        Event::KeyUp => {
+            match app::event_key().to_char() {
+                Some(char) => {
+                    // key_interceptor_sender.send(Message::KeyPress(char));
+                    // println!("Key released: {:?}", char);
+                }
+                None => {
+                    // nothing
+                }
+            };
+            false
+        }
+        Event::Move => {
+            // let mut x = app::event_x() - MAIN_IMAGE_X_POS - MAIN_IMAGE_FRAME_THICKNESS;
+            // let mut y = app::event_y() - MAIN_IMAGE_Y_POS - MAIN_IMAGE_FRAME_THICKNESS - MENU_HEIGHT;
+            // let d_x = app::event_dx();
+            // let d_y = app::event_dy();
+
+            let current_x = app::event_x();
+
+
+            // println!("d_x: {:?}; d_y: {:?}", d_x, d_y);
+
+            // if x < 0 { x = 0 }
+            // if y < 0 { y = 0 }
+
+            // if x >= MAIN_IMAGE_WIDTH { x = MAIN_IMAGE_WIDTH - 1 }
+            // if y >= MAIN_IMAGE_HEIGHT { y = MAIN_IMAGE_HEIGHT - 1 }
+
+            key_interceptor_sender.send(Message::MouseMove(current_x));
+
+            true
+        }
+
         _ => false,
     });
 
@@ -205,14 +246,24 @@ fn main() {
                 top_view_frame_handle_sender.send(Message::MouseReleased(x, y, button));
                 true
             }
-            Event::Move => {
-                let x = app::event_x() - MAIN_IMAGE_X_POS - MAIN_IMAGE_FRAME_THICKNESS;
-                let y = app::event_y() - MAIN_IMAGE_Y_POS - MAIN_IMAGE_FRAME_THICKNESS - MENU_HEIGHT;
-                if x >= 0 && x < MAIN_IMAGE_WIDTH && y >= 0 && y < MAIN_IMAGE_HEIGHT {
-                    top_view_frame_handle_sender.send(Message::MouseMove(x, y));
-                }
+            /* Event::Move => {
+                let mut x = app::event_x() - MAIN_IMAGE_X_POS - MAIN_IMAGE_FRAME_THICKNESS;
+                let mut y = app::event_y() - MAIN_IMAGE_Y_POS - MAIN_IMAGE_FRAME_THICKNESS - MENU_HEIGHT;
+                let d_x = app::event_dx();
+                let d_y = app::event_dy();
+
+                // println!("d_x: {:?}; d_y: {:?}", d_x, d_y);
+
+                if x < 0 { x = 0 }
+                if y < 0 { y = 0 }
+
+                if x >= MAIN_IMAGE_WIDTH { x = MAIN_IMAGE_WIDTH - 1 }
+                if y >= MAIN_IMAGE_HEIGHT { y = MAIN_IMAGE_HEIGHT - 1 }
+
+                top_view_frame_handle_sender.send(Message::MouseMove(x, y, d_x, d_y));
+
                 true
-            }
+            } */
             _ => false,
         }
     });
@@ -229,6 +280,7 @@ fn main() {
                     fltk::app::quit();
                 }
                 Message::Tick => {
+                    // 
 
                     /* if world.shapes.len() > 0 {
                         for i in 0..(world.shapes.len()) {
@@ -257,11 +309,27 @@ fn main() {
 
                     world.is_updated = true;
                 }
+                Message::MouseMove(current_x) => {
+                    if mouse_x != -1 {
+                        mouse_dx = current_x - mouse_x;
+                    }
+                    mouse_x = current_x;
+
+                    if mouse_dx != 0 {
+                        // println!("Mouse moved sideways: {}", mouse_dx);
+
+                        /* agent.turn_sideways((mouse_dx as f32) / 3.0);
+                        world.is_updated = true;
+                        agent.is_updated = true; */
+                    }
+                    
+                }
                 Message::KeyPress(key_char) => {
                     match key_char {
                         'w' => {
                             // move forward
                             agent.move_forward(5.0);
+
                             world.is_updated = true;
                             agent.is_updated = true;
                         }
@@ -313,13 +381,6 @@ fn redraw_image(world: &mut World, agent: &Agent, top_view_frame: &mut frame::Fr
     if world.is_updated {
         let mut rendered_scene: RGBACanvas = world.static_background.clone();
 
-
-        /* for i in 0..world.shapes.len() {
-            world.shapes[i].draw(&mut rendered_scene);
-        } */
-
-        // world.collide_agent();
-
         agent.draw(&mut rendered_scene);
 
         let image = unsafe { RgbImage::from_data(
@@ -339,7 +400,7 @@ fn redraw_image(world: &mut World, agent: &Agent, top_view_frame: &mut frame::Fr
 
 fn draw_fisrt_person_view(agent: &mut Agent, world: &World, first_person_view_frame: &mut frame::Frame) {
     if agent.is_updated {
-        let agent_line_view: Vec<RGBAColor> = agent.get_view(MAIN_IMAGE_WIDTH, &world.walls);
+        let agent_line_view: Vec<RGBAColor> = agent.get_view(MAIN_IMAGE_WIDTH/* , &world.walls */);
         let mut agent_view: RGBACanvas = RGBACanvas::new(MAIN_IMAGE_WIDTH, FIRST_PERSON_VIEW_HEIGHT);
     
         for j in 0..FIRST_PERSON_VIEW_HEIGHT {
@@ -487,10 +548,10 @@ fn add_walls_to_world(world: &mut World) {
             10.0,
             TransType::Lin,
             RGBAColor::new_p(Palette::DarkGrey),
-            40.0,
+            30.0,
             0.0,
             TextType::Step,
-            0.25,
+            0.3333,
         ),
     ).unwrap());
     shapes[6].shift(Coord::new(350.0, 320.0));

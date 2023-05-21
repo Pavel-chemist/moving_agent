@@ -29,6 +29,7 @@ pub struct Agent {
   shape: Shape,
   f_o_v: Angle, // field of view
   m_v_d: f32, // max view distance
+  visible_walls: Vec<Vector2D>,
   pub is_updated: bool,
 }
 
@@ -57,6 +58,7 @@ impl Agent {
       shape,
       f_o_v,
       m_v_d,
+      visible_walls: Vec::new(),
       is_updated: true,
     };
   }
@@ -71,6 +73,8 @@ impl Agent {
     self.center = self.center.new_offset(directed_step);
 
     self.shape.shift(directed_step);
+
+    self.collide();
   }
 
   pub fn move_sideways(&mut self, step_size: f32) {
@@ -78,6 +82,8 @@ impl Agent {
 
     self.center = self.center.new_offset(directed_step);
     self.shape.shift(directed_step);
+
+    self.collide();
   }
 
   pub fn turn_sideways(&mut self, degrees: f32) {
@@ -85,7 +91,11 @@ impl Agent {
     self.shape.rotate(Angle::new_deg(degrees));
   }
 
-  pub fn get_view(&self, size: i32, walls: &Vec<Vector2D>) -> Vec<RGBAColor> {
+  pub fn update_visible_walls(&mut self, walls: Vec<Vector2D>) {
+    self.visible_walls = walls;
+  }
+
+  pub fn get_view(&self, size: i32/* , walls: &Vec<Vector2D> */) -> Vec<RGBAColor> {
     let angle_between_rays: Angle = Angle::new_deg(self.f_o_v.get_deg() / size as f32);
     let mut view_line: Vec<RGBAColor> = Vec::with_capacity(size.abs() as usize);
 
@@ -110,8 +120,8 @@ impl Agent {
       intersections_list_v = Vec::new();
 
       
-      for i in 0..walls.len() {
-        match ray1.new_rotated(Angle::new_rad(angle_between_rays.get_rad() * view_column as f32)).intersect(&walls[i]) {
+      for i in 0..self.visible_walls.len() {
+        match ray1.new_rotated(Angle::new_rad(angle_between_rays.get_rad() * view_column as f32)).intersect(&self.visible_walls[i]) {
           Some(int_vec) => {
             intersections_list_v.push(int_vec);
           }
@@ -153,6 +163,69 @@ impl Agent {
     }
     
     return view_line;
+  }
+
+  fn collide(&mut self) {
+    // simplest -- the agent collider is a circle
+    // check if distance to any Vector2D is less than a radius
+    // if true
+    //   move agent by difference
+    // else
+    // check distances to wall ends to eliminate weirdness around corners
+
+    let mut is_collided_to_wall: bool = false;
+
+    for i in 0..self.visible_walls.len() {
+      match self.visible_walls[i].new_orthogonal_from_point(self.center) {
+        Some(vec_to_wall) => {
+          if vec_to_wall.length() < self.shape.radius {
+            // println!("too close to the wall! dx={:.1}, dy={:.1}", vec_to_wall.tip.x(), vec_to_wall.tip.y());
+
+            let dt: f32 = 1.0 - vec_to_wall.length() / self.shape.radius;
+
+            self.center = self.center.new_offset(Coord::new(
+              -dt * vec_to_wall.tip.x(),
+              -dt * vec_to_wall.tip.y(),
+            ));
+
+            self.shape.shift(Coord::new(
+              -dt * vec_to_wall.tip.x(),
+              -dt * vec_to_wall.tip.y(),
+            ));
+
+            is_collided_to_wall = true;
+          }
+        }
+        None => {}
+      }
+    }
+
+    if !is_collided_to_wall {
+      // check if in the vicinity of corner
+      for i in 0..self.visible_walls.len() {
+        let vec_to_corner: Vector2D = Vector2D::from_coord(
+          Coord::new(
+            self.visible_walls[i].base.x() - self.center.x(),
+            self.visible_walls[i].base.y() - self.center.y(),
+          ),
+          LinearTexture::new_plain(RGBAColor::new()),
+        );
+
+        if vec_to_corner.length() < self.shape.radius {
+          let dt: f32 = 1.0 - vec_to_corner.length() / self.shape.radius;
+
+            self.center = self.center.new_offset(Coord::new(
+              -dt * vec_to_corner.tip.x(),
+              -dt * vec_to_corner.tip.y(),
+            ));
+
+            self.shape.shift(Coord::new(
+              -dt * vec_to_corner.tip.x(),
+              -dt * vec_to_corner.tip.y(),
+            ));
+        }
+      }
+    }
   }
 }
 

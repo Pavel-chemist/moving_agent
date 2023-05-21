@@ -12,7 +12,7 @@ pub struct Shape {
   name: String,
   pub elements: Vec<Vector2D>,
   c_o_m: Coord, // center of mass, relative to anchor -- a point in the center of shape for collision detections
-  radius: f32, // distance from c_o_m to most distant point of the shape
+  pub radius: f32, // distance from c_o_m to most distant point of the shape
   pub anchor: Coord, // point for rotations and translations
   // alpha: Ang
 }
@@ -56,7 +56,7 @@ impl Shape {
       let mut elements: Vec<Vector2D> = Vec::with_capacity(4);
       let c_o_m: Coord = Coord::new(0.0, 0.0);
       let anchor: Coord = Coord::new(0.0, 0.0);
-      let radius: f32 = f32::sqrt(width * width + height * height);
+      let radius: f32 = f32::sqrt(width * width + height * height) / 2.0;
   
       // right side
       elements.push(Vector2D::new(

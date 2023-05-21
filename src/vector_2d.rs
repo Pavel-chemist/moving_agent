@@ -227,13 +227,11 @@ impl Vector2D {
     return None;
   }
 
-  pub fn get_distance(&self, point: Coord) -> Option<f32> {
+  pub fn new_orthogonal_from_point(&self, point: Coord) -> Option<Vector2D> {
     // find a point at which self intersects with normal going through a given coordinate
     // get normal throught the point
     // calculate intersection
-
-    // get distance from point to self
-
+    // 
 
     let mut nvtp: Vector2D = self.get_normal(); // normal vector through point
     nvtp.base = point;
@@ -251,7 +249,16 @@ impl Vector2D {
 
     if t > 0.0 && t < 1.0 {
       // normal is intersecing somewhere along self
-      return Some(u.abs() * nvtp.length);
+      return Some(Vector2D::new(
+        point,
+        Coord::new(
+          u * nvtp.tip.x(),
+          u * nvtp.tip.y(),
+        ),
+        LinearTexture::new_plain(
+          RGBAColor::new(),
+        ),
+      ));
     } else {
       return None;
     }
@@ -295,7 +302,7 @@ impl Vector2D {
     }
   }
 
-  pub fn draw_smooth(&self, canvas: &mut RGBACanvas) {
+  /* pub fn draw_smooth(&self, canvas: &mut RGBACanvas) {
     // draw smooth line on canvas
     // inefficient variant:
     // get axis aligned box
@@ -348,7 +355,7 @@ impl Vector2D {
       }
     }
 
-  }
+  } */
 
   /* pub fn get_quad(&self) -> Quad {
     if self.tip.x() >= 0.0 && self.tip.y() >= 0.0 {
