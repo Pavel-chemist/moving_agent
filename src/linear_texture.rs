@@ -3,8 +3,8 @@ use crate::common_structs::RGBAColor;
 #[derive(Copy, Clone)]
 pub enum TextType {
   Sin,
-  Lin, // number in range 0.0..1.0
-  Step, // number in range 0.0..1.0
+  Lin,
+  Step,
 }
 
 #[derive(Copy, Clone)]
@@ -22,9 +22,9 @@ pub struct LinearTexture {
   edge_transition_type: TransType,
   periodic_color: RGBAColor,
   period_length: f32,
-  period_start_phase: f32,
+  period_start_phase: f32, // 0.0..1.0
   period_type: TextType,
-  period_fraction: f32, // 0..1.0
+  period_fraction: f32, // 0.0..1.0
 }
 
 impl LinearTexture {
@@ -69,7 +69,7 @@ impl LinearTexture {
   pub fn new_shifted_phase(&self, shift: f32) -> LinearTexture {
     let mut updated_texture = *self;
 
-    updated_texture.period_start_phase = (updated_texture.period_start_phase + shift).fract();
+    updated_texture.period_start_phase = (updated_texture.period_start_phase + shift / updated_texture.period_length).fract();
     return updated_texture;
   }
 
@@ -90,7 +90,7 @@ impl LinearTexture {
     // length of whole vector,
     // position along this vector
     let mut color: RGBAColor = self.main_color;
-    let opaqueness: u8;
+    let mut opaqueness: u8;
     let is_edge: bool;
     let edge_fraction: f32;
 
@@ -112,17 +112,36 @@ impl LinearTexture {
       }
   
       if self.period_length > 0.0 {
+        let pos_fraction: f32 = ((position / self.period_length) + self.period_start_phase).fract();
+
         match self.period_type {
           TextType::Step => {
-
-            let pos_fraction: f32 = ((position + self.period_length * self.period_start_phase) / self.period_length).fract();
-
-
             if pos_fraction < self.period_fraction {
               color = self.periodic_color;
             }
           }
-          _ => {}
+          TextType::Lin => {
+            if pos_fraction < self.period_fraction {
+              opaqueness = (255.0 * pos_fraction / self.period_fraction ) as u8;
+              color = RGBAColor::mix_colors(
+                self.periodic_color.change_transparency(opaqueness),
+                color,
+              );
+            } else {
+              opaqueness = (255.0 * (1.0 - pos_fraction) / (1.0 - self.period_fraction) ) as u8;
+              color = RGBAColor::mix_colors(
+                self.periodic_color.change_transparency(opaqueness),
+                color,
+              );
+            }
+          }
+          TextType::Sin => {
+            opaqueness = ((f32::sin(pos_fraction * std::f32::consts::TAU) + 1.0) * 127.5) as u8;
+            color = RGBAColor::mix_colors(
+              self.periodic_color.change_transparency(opaqueness),
+              color,
+            );
+          }
         }
       }
   
@@ -145,8 +164,6 @@ impl LinearTexture {
     } else {
       // no color modification if length is set to zero
     }
-    
-
 
     return color;
   }

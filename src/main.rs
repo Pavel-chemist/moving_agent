@@ -437,10 +437,10 @@ fn add_walls_to_world(world: &mut World) {
             10.0,
             TransType::Lin,
             RGBAColor::new_p(Palette::DarkGreen),
-            70.0,
+            50.0,
             0.0,
-            TextType::Step,
-            0.2,
+            TextType::Lin,
+            0.5,
         ),
     ).unwrap());
     shapes[0].shift(Coord::new(500.0, 300.0));
@@ -521,7 +521,7 @@ fn add_walls_to_world(world: &mut World) {
     shapes[4].shift(Coord::new(10.0, 260.0));
 
     shapes.push(Shape::new_box(
-        String::from("Left wall"),
+        String::from("Right wall"),
         20.0,
         520.0,
         LinearTexture::new(
@@ -548,10 +548,10 @@ fn add_walls_to_world(world: &mut World) {
             10.0,
             TransType::Lin,
             RGBAColor::new_p(Palette::DarkGrey),
-            30.0,
+            40.0,
             0.0,
-            TextType::Step,
-            0.3333,
+            TextType::Sin,
+            0.0,
         ),
     ).unwrap());
     shapes[6].shift(Coord::new(350.0, 320.0));

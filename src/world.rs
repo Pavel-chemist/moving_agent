@@ -92,6 +92,9 @@ impl World {
         // that is, theoretically visible to agent
         // get all walls that have bases or tips in the provided range
         // so that invisible walls are not checked for intersection with sweeping ray
+        //
+        // 
+        //
 
 
         let local_walls: Vec<Vector2D> = Vec::new();
