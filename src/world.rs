@@ -44,11 +44,6 @@ impl World {
 
 /////////////////////////////////////////////////////////
 
-    /* pub fn collide_agent(&mut self) {
-        let distance_from_top_wall: f32 = self.shapes[2].elements[1].new_shifted(self.shapes[2].anchor).get_distance(self.agent.center).unwrap_or_default();
-        println!("distance to top wall is: {:.1}", distance_from_top_wall);
-    } */
-
     fn create_static_background(&mut self) {
         let mut background: RGBACanvas = RGBACanvas::new_f(self.width, self.height);
         let grid_color: RGBAColor = RGBAColor::new_p(Palette::DarkGrey);
@@ -61,7 +56,8 @@ impl World {
         }
 
         for i in 0..self.walls.len() {
-            self.walls[i].draw_simple(&mut background);
+            // self.walls[i].draw_simple(&mut background);
+            self.walls[i].draw_smooth(&mut background);
         }
         self.static_background = background;
         self.is_updated = true;

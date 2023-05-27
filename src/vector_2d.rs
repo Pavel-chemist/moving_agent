@@ -247,7 +247,7 @@ impl Vector2D {
     u = (d_b_y * self.tip.x() - d_b_x * self.tip.y()) / det;
 
 
-    if t > 0.0 && t < 1.0 {
+    if t >= 0.0 && t <= 1.0 {
       // normal is intersecing somewhere along self
       return Some(Vector2D::new(
         point,
@@ -256,7 +256,7 @@ impl Vector2D {
           u * nvtp.tip.y(),
         ),
         LinearTexture::new_plain(
-          RGBAColor::new(),
+          self.texture.get_color(self.length, t * self.length),
         ),
       ));
     } else {
@@ -290,7 +290,6 @@ impl Vector2D {
 
     let delta_x: f32 = self.tip.x() / self.length;
     let delta_y: f32 = self.tip.y() / self.length;
-    // let delta_r: f32 = 
     let mut current_pos: Coord = self.base;
 
     // canvas.put_pixel(current_pos.get_x_i(), current_pos.get_y_i(), self.texture.main_color);
@@ -302,7 +301,7 @@ impl Vector2D {
     }
   }
 
-  /* pub fn draw_smooth(&self, canvas: &mut RGBACanvas) {
+  pub fn draw_smooth(&self, canvas: &mut RGBACanvas) {
     // draw smooth line on canvas
     // inefficient variant:
     // get axis aligned box
@@ -311,51 +310,61 @@ impl Vector2D {
     // if less than 1.0, get color, and scale it with 1.0 - distance,
     // and put on canvas
 
-    let placeholder_color: RGBAColor = RGBAColor::new_p(Palette::White);
-
     if self.tip.x() >= 0.0 && self.tip.y() >= 0.0 {
-      for j in (self.base.y() as i32)..((self.base.y() + self.tip.y()) as i32) {
-        for i in (self.base.x() as i32)..((self.base.x() + self.tip.x()) as i32) {
-          let dist = self.get_distance(Coord::new_i(i, j)).unwrap_or_default();
-
-          if dist <= 1.0 {
-            canvas.put_pixel(i, j, placeholder_color.new_scaled(1.0 - dist));
-          }
+      for j in (self.base.y() as i32 - 1)..((self.base.y() + self.tip.y()) as i32 + 2) {
+        for i in (self.base.x() as i32 - 1)..((self.base.x() + self.tip.x()) as i32 + 2) {
+          match self.new_orthogonal_from_point(Coord::new_i(i, j)) {
+            Some(orth) => {
+              if orth.length < 1.0 {
+                canvas.put_pixel(i, j, orth.texture.get_color(0.0, 0.0).new_scaled(1.0 - orth.length));
+              }
+            }
+            None => {}
+          };
         }
       }
     } else if self.tip.x() < 0.0 && self.tip.y() >= 0.0 {
-      for j in (self.base.y() as i32)..((self.base.y() + self.tip.y()) as i32) {
-        for i in ((self.base.x() + self.tip.x()) as i32)..(self.base.x() as i32) {
-          let dist = self.get_distance(Coord::new_i(i, j)).unwrap_or_default();
-
-          if dist <= 1.0 {
-            canvas.put_pixel(i, j, placeholder_color.new_scaled(1.0 - dist));
-          }
+      for j in (self.base.y() as i32 - 1)..((self.base.y() + self.tip.y()) as i32 + 2) {
+        for i in ((self.base.x() + self.tip.x()) as i32 - 1)..(self.base.x() as i32 + 2) {
+          match self.new_orthogonal_from_point(Coord::new_i(i, j)) {
+            Some(orth) => {
+              if orth.length < 1.0 {
+                canvas.put_pixel(i, j, orth.texture.get_color(0.0, 0.0).new_scaled(1.0 - orth.length));
+              }
+            }
+            None => {}
+          };
         }
       }
     } else if self.tip.x() >= 0.0 && self.tip.y() < 0.0 {
-      for j in ((self.base.y() + self.tip.y()) as i32)..(self.base.y() as i32) {
-        for i in (self.base.x() as i32)..((self.base.x() + self.tip.x()) as i32) {
-          let dist = self.get_distance(Coord::new_i(i, j)).unwrap_or_default();
-
-          if dist <= 1.0 {
-            canvas.put_pixel(i, j, placeholder_color.new_scaled(1.0 - dist));
-          }
+      for j in ((self.base.y() + self.tip.y()) as i32 - 1)..(self.base.y() as i32 + 2) {
+        for i in (self.base.x() as i32 - 1)..((self.base.x() + self.tip.x()) as i32 + 2) {
+          match self.new_orthogonal_from_point(Coord::new_i(i, j)) {
+            Some(orth) => {
+              if orth.length < 1.0 {
+                canvas.put_pixel(i, j, orth.texture.get_color(0.0, 0.0).new_scaled(1.0 - orth.length));
+              }
+            }
+            None => {}
+          };
         }
       }
     } else /* if self.tip.x() < 0.0 && self.tip.y() < 0.0 */ {
-      for j in ((self.base.y() + self.tip.y()) as i32)..(self.base.y() as i32) {
-        for i in ((self.base.x() + self.tip.x()) as i32)..(self.base.x() as i32) {
-          let dist = self.get_distance(Coord::new_i(i, j)).unwrap_or_default();
-
-          if dist <= 1.0 {
-            canvas.put_pixel(i, j, placeholder_color.new_scaled(1.0 - dist));
-          }
+      for j in ((self.base.y() + self.tip.y()) as i32 - 1)..(self.base.y() as i32 + 2) {
+        for i in ((self.base.x() + self.tip.x()) as i32 - 1)..(self.base.x() as i32 + 2) {
+          match self.new_orthogonal_from_point(Coord::new_i(i, j)) {
+            Some(orth) => {
+              if orth.length < 1.0 {
+                canvas.put_pixel(i, j, orth.texture.get_color(0.0, 0.0).new_scaled(1.0 - orth.length));
+              }
+            }
+            None => {}
+          };
         }
       }
     }
 
-  } */
+  }
 
   /* pub fn get_quad(&self) -> Quad {
     if self.tip.x() >= 0.0 && self.tip.y() >= 0.0 {

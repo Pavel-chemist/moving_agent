@@ -194,8 +194,8 @@ impl Shape {
 
   pub fn draw(&self, canvas: &mut RGBACanvas) {
     for i in 0..self.elements.len() {
-      self.elements[i].new_shifted(self.anchor).draw_simple(canvas);
-      // self.elements[i].new_shifted(self.anchor).draw_smooth(canvas);
+      // self.elements[i].new_shifted(self.anchor).draw_simple(canvas);
+      self.elements[i].new_shifted(self.anchor).draw_smooth(canvas);
     }
   }
 
