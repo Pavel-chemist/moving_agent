@@ -292,12 +292,32 @@ impl Vector2D {
     let delta_y: f32 = self.tip.y() / self.length;
     let mut current_pos: Coord = self.base;
 
-    // canvas.put_pixel(current_pos.get_x_i(), current_pos.get_y_i(), self.texture.main_color);
     for t in 0..(self.length as usize + 0) {
       current_pos.move_x(delta_x);
       current_pos.move_y(delta_y);
 
       canvas.put_pixel(current_pos.get_x_i(), current_pos.get_y_i(), self.texture.get_color(self.length, t as f32));
+    }
+  }
+
+  pub fn draw_simple_s(&self, canvas: &mut RGBACanvas, shift: Coord, scale: f32) {
+    // parametric drawing on canvas, with scaling and shifting
+    // scaling: the bigger number, the bigger sizes on screen -> step is smaller
+    // shifting: just shift to given coord
+    
+
+    let delta_x: f32 = self.tip.x() / (self.length * scale);
+    let delta_y: f32 = self.tip.y() / (self.length * scale);
+    let mut current_pos: Coord = self.base.new_offset(shift);
+
+    for t in 0..((self.length * scale) as usize + 0) {
+      current_pos.move_x(delta_x);
+      current_pos.move_y(delta_y);
+
+      canvas.put_pixel(
+        (current_pos.x() * scale) as i32,
+        (current_pos.y() * scale) as i32,
+        self.texture.get_color(self.length, (t as f32) / scale));
     }
   }
 

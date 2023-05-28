@@ -131,6 +131,13 @@ impl Coord {
         };
     }
 
+    pub fn new_scaled(self, scale: f32) -> Coord {
+        return Coord {
+            x: self.x * scale,
+            y: self.y * scale,
+        };
+    }
+
     pub fn set_i(&mut self, x: i32, y: i32) {
         self.x = x as f32;
         self.y = y as f32;

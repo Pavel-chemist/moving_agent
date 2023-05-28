@@ -26,7 +26,7 @@ use crate::{
 pub struct Agent {
   pub center: Coord,
   angle: Angle,
-  shape: Shape,
+  pub shape: Shape,
   f_o_v: Angle, // field of view
   m_v_d: f32, // max view distance
   visible_walls: Vec<Vector2D>,

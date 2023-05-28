@@ -7,12 +7,7 @@ use crate::{
     },
     rgba_canvas::RGBACanvas,
     shape::Shape,
-    linear_texture::{
-        LinearTexture,
-        TransType,
-        TextType,
-    },
-    vector_2d::Vector2D,
+    vector_2d::Vector2D, agent::Agent,
 };
 
 
@@ -61,6 +56,32 @@ impl World {
         }
         self.static_background = background;
         self.is_updated = true;
+    }
+
+    pub fn render_top_view(&self, agent_shape: &Shape, center: Coord, scale: f32, canvas_width: i32, canvas_height: i32) -> RGBACanvas{
+        // create top view for the world that is scaled and shifted
+        //
+        // centering:
+        // center coord should be mapped to the center of canvas
+        // somewhat roundabout way: having center coordinate, the dimentions of canvas and scale
+        // find coordinate of old origin relative to new origin
+
+        let mut rendered_view: RGBACanvas = RGBACanvas::new_black(canvas_width, canvas_height);
+        let new_origin: Coord = Coord::new(
+            -(center.x() - ((canvas_width / 2) as f32) / scale),
+            -(center.y() - ((canvas_height / 2) as f32) / scale),
+        );
+
+        for i in 0..self.walls.len() {
+            self.walls[i].draw_simple_s(&mut rendered_view, new_origin, scale);
+            // self.walls[i].draw_smooth(&mut rendered_view);
+        }
+
+        for i in 0..agent_shape.elements.len() {
+            agent_shape.elements[i].new_shifted(agent_shape.anchor).draw_simple_s(&mut rendered_view, new_origin, scale);   
+        }
+
+        return rendered_view;
     }
 
     fn add_shapes(&mut self) {

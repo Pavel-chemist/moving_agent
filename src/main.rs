@@ -379,9 +379,16 @@ fn main() {
 
 fn redraw_image(world: &mut World, agent: &Agent, top_view_frame: &mut frame::Frame) {
     if world.is_updated {
-        let mut rendered_scene: RGBACanvas = world.static_background.clone();
+        // let mut rendered_scene: RGBACanvas = world.static_background.clone();
+        let rendered_scene: RGBACanvas = world.render_top_view(
+            &agent.shape,
+            agent.center,
+            2.0,
+            MAIN_IMAGE_WIDTH,
+            MAIN_IMAGE_HEIGHT,
+        );
 
-        agent.draw(&mut rendered_scene);
+        // agent.draw(&mut rendered_scene);
 
         let image = unsafe { RgbImage::from_data(
             &rendered_scene.data,
