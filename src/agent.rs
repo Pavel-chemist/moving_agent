@@ -95,7 +95,7 @@ impl Agent {
     self.visible_walls = walls;
   }
 
-  pub fn get_view(&self, size: i32/* , walls: &Vec<Vector2D> */) -> Vec<RGBAColor> {
+  pub fn get_view(&self, size: i32) -> Vec<RGBAColor> {
     let angle_between_rays: Angle = Angle::new_deg(self.f_o_v.get_deg() / size as f32);
     let mut view_line: Vec<RGBAColor> = Vec::with_capacity(size.abs() as usize);
 
@@ -128,7 +128,6 @@ impl Agent {
           None => {}
         }
       }
-      
 
       shortest_distance = self.m_v_d * 2.0;
       column_color = RGBAColor::new_p(Palette::Black);
@@ -174,12 +173,13 @@ impl Agent {
     // check distances to wall ends to eliminate weirdness around corners
 
     let mut is_collided_to_wall: bool = false;
+    // let mut collisions_count: i32 = 0;
 
     for i in 0..self.visible_walls.len() {
       match self.visible_walls[i].new_orthogonal_from_point(self.center) {
         Some(vec_to_wall) => {
           if vec_to_wall.length() < self.shape.radius {
-            // println!("too close to the wall! dx={:.1}, dy={:.1}", vec_to_wall.tip.x(), vec_to_wall.tip.y());
+            // collisions_count += 1;
 
             let dt: f32 = 1.0 - vec_to_wall.length() / self.shape.radius;
 
@@ -212,6 +212,7 @@ impl Agent {
         );
 
         if vec_to_corner.length() < self.shape.radius {
+          // collisions_count += 1;
           let dt: f32 = 1.0 - vec_to_corner.length() / self.shape.radius;
 
             self.center = self.center.new_offset(Coord::new(
@@ -226,6 +227,8 @@ impl Agent {
         }
       }
     }
+
+    // println!("Collided to {} walls", collisions_count);
   }
 }
 

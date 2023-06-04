@@ -280,18 +280,8 @@ fn main() {
                     fltk::app::quit();
                 }
                 Message::Tick => {
-                    // 
-
-                    /* if world.shapes.len() > 0 {
-                        for i in 0..(world.shapes.len()) {
-                            world.shapes[i].rotate(Angle::new_deg(1.0 / ((i+3) as f32)));
-                        }
-                    }
-
-                    world.is_updated = true;
-                    world.agent.is_updated = true; */
                     redraw_image(&mut world, &agent, &mut top_view_frame);
-                    draw_fisrt_person_view(&mut agent, &world, &mut first_person_view_frame);
+                    draw_fisrt_person_view(&mut agent, &mut first_person_view_frame);
                 }
                 Message::MouseDown(x, y, button) => {
                     println!("The image was clicked at coordinates x={}, y={}", x, y);
@@ -379,7 +369,6 @@ fn main() {
 
 fn redraw_image(world: &mut World, agent: &Agent, top_view_frame: &mut frame::Frame) {
     if world.is_updated {
-        // let mut rendered_scene: RGBACanvas = world.static_background.clone();
         let rendered_scene: RGBACanvas = world.render_top_view(
             &agent.shape,
             agent.center,
@@ -387,8 +376,6 @@ fn redraw_image(world: &mut World, agent: &Agent, top_view_frame: &mut frame::Fr
             MAIN_IMAGE_WIDTH,
             MAIN_IMAGE_HEIGHT,
         );
-
-        // agent.draw(&mut rendered_scene);
 
         let image = unsafe { RgbImage::from_data(
             &rendered_scene.data,
@@ -405,9 +392,9 @@ fn redraw_image(world: &mut World, agent: &Agent, top_view_frame: &mut frame::Fr
     }
 }
 
-fn draw_fisrt_person_view(agent: &mut Agent, world: &World, first_person_view_frame: &mut frame::Frame) {
+fn draw_fisrt_person_view(agent: &mut Agent, first_person_view_frame: &mut frame::Frame) {
     if agent.is_updated {
-        let agent_line_view: Vec<RGBAColor> = agent.get_view(MAIN_IMAGE_WIDTH/* , &world.walls */);
+        let agent_line_view: Vec<RGBAColor> = agent.get_view(MAIN_IMAGE_WIDTH);
         let mut agent_view: RGBACanvas = RGBACanvas::new(MAIN_IMAGE_WIDTH, FIRST_PERSON_VIEW_HEIGHT);
     
         for j in 0..FIRST_PERSON_VIEW_HEIGHT {
