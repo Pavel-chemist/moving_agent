@@ -28,6 +28,9 @@ Moving Agent features to add (with no particular order):
   9) world segmentation (this is to decrease computational load for collisions and renderings)
   11) investigate openGL api */
 
+use std::{path::Path, fs::File, io::Read};
+
+use serde::{Serialize, Deserialize};
 use agent::Agent;
 use common_structs::{
     Coord,
@@ -42,12 +45,14 @@ use fltk::{
     *,
 };
 
-use linear_texture::{LinearTexture, TransType, TextType};
+use linear_texture::{LinearTexture, TextureEdgeType, TextureBodyType};
 use rgba_canvas::RGBACanvas;
 use shape::Shape;
 use world::World;
 
 use ellipse::Ellipse;
+
+use crate::shape::ShapeDescription;
 
 mod common_structs;
 mod vector_2d;
@@ -372,7 +377,7 @@ fn redraw_image(world: &mut World, agent: &Agent, top_view_frame: &mut frame::Fr
         let rendered_scene: RGBACanvas = world.render_top_view(
             &agent.shape,
             agent.center,
-            2.0,
+            0.80,
             MAIN_IMAGE_WIDTH,
             MAIN_IMAGE_HEIGHT,
         );
@@ -421,157 +426,36 @@ fn draw_fisrt_person_view(agent: &mut Agent, first_person_view_frame: &mut frame
 fn add_walls_to_world(world: &mut World) {
     let mut shapes: Vec<Shape> = Vec::new();
 
-    shapes.push(Shape::new_box(
-        String::from("Box shape"),
-        100.0,
-        200.0,
-        LinearTexture::new(
-            RGBAColor::new_p(Palette::Grass),
-            RGBAColor::new_p(Palette::White),
-            10.0,
-            TransType::Lin,
-            RGBAColor::new_p(Palette::DarkGreen),
-            50.0,
-            0.0,
-            TextType::Lin,
-            0.5,
-        ),
-    ).unwrap());
-    shapes[0].shift(Coord::new(500.0, 300.0));
-    shapes[0].rotate(Angle::new_deg(11.0));
-    
-    /* shapes.push(Shape::new_regular_polygon(
-        String::from("Pentagon shape"),
-        100.0,
-        5,
-        LinearTexture::new(
-            RGBAColor::new_p(Palette::Red),
-            RGBAColor::new_p(Palette::Yellow),
-            10.0,
-            TransType::Quad,
-            RGBAColor::new_p(Palette::DarkRed),
-            20.0,
-            0.0,
-            TextType::Step,
-            0.3333,
-        ),
-    ).unwrap());
-    shapes[1].shift(Coord::new(150.0, 200.0));
-    shapes[1].rotate(Angle::new_deg(-11.0)); */
+    // Create a path to the desired file
+    let path = Path::new("data/world-shapes.ron");
+    let display = path.display();
 
-    shapes.push(Shape::from_coord_list(
-        String::from("Random Shape"),
-        vec![
-            Coord::new(0.0, 0.0),
-            Coord::new(100.0, 0.0),
-            Coord::new(80.0, 70.0),
-            Coord::new(10.0, 90.0),
-        ],
-        LinearTexture::new(
-            RGBAColor::new_p(Palette::Red),
-            RGBAColor::new_p(Palette::Yellow),
-            10.0,
-            TransType::Quad,
-            RGBAColor::new_p(Palette::Grass),
-            20.0,
-            0.0,
-            TextType::Step,
-            0.3333,
-        ),
-    ).unwrap());
+    // Open the path in read-only mode, returns `io::Result<File>`
+    let mut file = match File::open(&path) {
+        Err(why) => panic!("couldn't open {}: {}", display, why),
+        Ok(file) => file,
+    };
 
-    shapes[1].shift(Coord::new(150.0, 200.0));
-    // shapes[1].rotate(Angle::new_deg(-11.0));
+    // Read the file contents into a string, returns `io::Result<usize>`
+    let mut s = String::new();
+    match file.read_to_string(&mut s) {
+        Err(why) => panic!("couldn't read {}: {}", display, why),
+        Ok(_) => {
+            // print!("{} contains:\n{}", display, s);
 
-    shapes.push(Shape::new_box(
-        String::from("Top wall"),
-        800.0,
-        20.0,
-        LinearTexture::new(
-            RGBAColor::new_p(Palette::Yellow),
-            RGBAColor::new_p(Palette::White),
-            10.0,
-            TransType::Lin,
-            RGBAColor::new_p(Palette::Orange),
-            50.0,
-            0.0,
-            TextType::Step,
-            0.2,
-        ),
-    ).unwrap());
-    shapes[2].shift(Coord::new(400.0, 10.0));
+            let shape_descriptions: Vec<ShapeDescription> = ron::from_str(&s).unwrap();
 
-    shapes.push(Shape::new_box(
-        String::from("Bottom wall"),
-        800.0,
-        20.0,
-        LinearTexture::new(
-            RGBAColor::new_p(Palette::Cyan),
-            RGBAColor::new_p(Palette::White),
-            10.0,
-            TransType::Lin,
-            RGBAColor::new_p(Palette::Blue),
-            50.0,
-            0.0,
-            TextType::Step,
-            0.2,
-        ),
-    ).unwrap());
-    shapes[3].shift(Coord::new(400.0, 510.0));
+            for i in 0..shape_descriptions.len() {
+                shapes.push(Shape::from_coord_list(
+                    String::from(&shape_descriptions[i].name),
+                    shape_descriptions[i].vertices.clone(),
+                    shape_descriptions[i].texture,
+                ).unwrap());
 
-    shapes.push(Shape::new_box(
-        String::from("Left wall"),
-        20.0,
-        520.0,
-        LinearTexture::new(
-            RGBAColor::new_p(Palette::Orange),
-            RGBAColor::new_p(Palette::White),
-            10.0,
-            TransType::Lin,
-            RGBAColor::new_p(Palette::Red),
-            50.0,
-            0.0,
-            TextType::Step,
-            0.2,
-        ),
-    ).unwrap());
-    shapes[4].shift(Coord::new(10.0, 260.0));
-
-    shapes.push(Shape::new_box(
-        String::from("Right wall"),
-        20.0,
-        520.0,
-        LinearTexture::new(
-            RGBAColor::new_p(Palette::Green),
-            RGBAColor::new_p(Palette::White),
-            10.0,
-            TransType::Lin,
-            RGBAColor::new_p(Palette::DarkGreen),
-            50.0,
-            0.0,
-            TextType::Step,
-            0.2,
-        ),
-    ).unwrap());
-    shapes[5].shift(Coord::new(770.0, 260.0));
-
-    shapes.push(Shape::new_box(
-        String::from("Middle wall"),
-        20.0,
-        400.0,
-        LinearTexture::new(
-            RGBAColor::new_p(Palette::LightGrey),
-            RGBAColor::new_p(Palette::White),
-            10.0,
-            TransType::Lin,
-            RGBAColor::new_p(Palette::DarkGrey),
-            40.0,
-            0.0,
-            TextType::Sin,
-            0.0,
-        ),
-    ).unwrap());
-    shapes[6].shift(Coord::new(350.0, 320.0));
+                shapes[i].shift(shape_descriptions[i].anchor);
+            }
+        },
+    }
 
     world.add_shapes_as_walls(&shapes);
 }

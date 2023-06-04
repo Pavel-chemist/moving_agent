@@ -1,29 +1,33 @@
+use serde::{Deserialize, Serialize};
+
 use crate::common_structs::RGBAColor;
 
-#[derive(Copy, Clone)]
-pub enum TextType {
+#[derive(Copy, Clone, Deserialize, Serialize)]
+pub enum TextureBodyType {
   Sin,
   Lin,
   Step,
+  None,
 }
 
-#[derive(Copy, Clone)]
-pub enum TransType {
+#[derive(Copy, Clone, Deserialize, Serialize)]
+pub enum TextureEdgeType {
   Step,
   Lin,
   Quad,
+  None,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Deserialize, Serialize)]
 pub struct LinearTexture {
   main_color: RGBAColor,
   edge_color: RGBAColor,
   edge_width: f32,
-  edge_transition_type: TransType,
+  edge_transition_type: TextureEdgeType,
   periodic_color: RGBAColor,
   period_length: f32,
   period_start_phase: f32, // 0.0..1.0
-  period_type: TextType,
+  period_type: TextureBodyType,
   period_fraction: f32, // 0.0..1.0
 }
 
@@ -32,11 +36,11 @@ impl LinearTexture {
     main_color: RGBAColor,
     edge_color: RGBAColor,
     edge_width: f32,
-    edge_transition_type: TransType,
+    edge_transition_type: TextureEdgeType,
     periodic_color: RGBAColor,
     period_length: f32,
     period_start_phase: f32,
-    period_type: TextType,
+    period_type: TextureBodyType,
     period_fraction: f32,
   ) -> LinearTexture {
     return LinearTexture {
@@ -57,11 +61,11 @@ impl LinearTexture {
       main_color: color,
       edge_color: color,
       edge_width: 0.0,
-      edge_transition_type: TransType::Step,
+      edge_transition_type: TextureEdgeType::Step,
       periodic_color: color,
       period_length: 0.0,
       period_start_phase: 0.0,
-      period_type: TextType::Step,
+      period_type: TextureBodyType::Step,
       period_fraction: 0.0,
     };
   }
@@ -73,13 +77,13 @@ impl LinearTexture {
     return updated_texture;
   }
 
-  pub fn add_edges(&mut self, color: RGBAColor, width: f32, transition: TransType) {
+  pub fn add_edges(&mut self, color: RGBAColor, width: f32, transition: TextureEdgeType) {
     self.edge_width = if width > 0.0 {width} else {0.0};
     self.edge_color = color;
     self.edge_transition_type = transition;
   }
 
-  pub fn add_periodic_texture(&mut self, color: RGBAColor, length: f32, start_phase: f32, texture_type: TextType) {
+  pub fn add_periodic_texture(&mut self, color: RGBAColor, length: f32, start_phase: f32, texture_type: TextureBodyType) {
     self.periodic_color = color;
     self.period_length = length;
     self.period_start_phase = start_phase;
@@ -115,12 +119,12 @@ impl LinearTexture {
         let pos_fraction: f32 = ((position / self.period_length) + self.period_start_phase).fract();
 
         match self.period_type {
-          TextType::Step => {
+          TextureBodyType::Step => {
             if pos_fraction < self.period_fraction {
               color = self.periodic_color;
             }
           }
-          TextType::Lin => {
+          TextureBodyType::Lin => {
             if pos_fraction < self.period_fraction {
               opaqueness = (255.0 * pos_fraction / self.period_fraction ) as u8;
               color = RGBAColor::mix_colors(
@@ -135,34 +139,37 @@ impl LinearTexture {
               );
             }
           }
-          TextType::Sin => {
+          TextureBodyType::Sin => {
             opaqueness = ((f32::sin(pos_fraction * std::f32::consts::TAU) + 1.0) * 127.5) as u8;
             color = RGBAColor::mix_colors(
               self.periodic_color.change_transparency(opaqueness),
               color,
             );
           }
+          TextureBodyType::None => {}
         }
       }
   
       // edges are added last to be visible always
       if is_edge {
         match self.edge_transition_type {
-          TransType::Step => {
+          TextureEdgeType::Step => {
             color = self.edge_color;
           }
-          TransType::Lin => {
+          TextureEdgeType::Lin => {
             opaqueness = (255.0 * edge_fraction) as u8;
             color = RGBAColor::mix_colors(self.edge_color.change_transparency(opaqueness), color);
           }
-          TransType::Quad => {
+          TextureEdgeType::Quad => {
             opaqueness = (255.0 * edge_fraction * edge_fraction) as u8;
             color = RGBAColor::mix_colors(self.edge_color.change_transparency(opaqueness), color);
           }
+          TextureEdgeType::None => {}
         }
       }
     } else {
       // no color modification if length is set to zero
+      // same
     }
 
     return color;

@@ -16,8 +16,8 @@ use crate::{
   world::{World, self},
   vector_2d::Vector2D,
   linear_texture::{
-    TextType,
-    TransType,
+    TextureBodyType,
+    TextureEdgeType,
     LinearTexture,
   },
   shape::Shape,

@@ -5,12 +5,16 @@
 // it does not need to be closed
 // can
 
+use serde::{Deserialize, Serialize};
+
 use crate::{common_structs::{Coord, Angle}, vector_2d::Vector2D, linear_texture::LinearTexture, rgba_canvas::RGBACanvas};
 
+#[derive(Deserialize, Serialize)]
 pub struct ShapeDescription {
-  name: String,
-  vertices: Vec<Coord>,
-  texture: LinearTexture,
+  pub name: String,
+  pub anchor: Coord,
+  pub vertices: Vec<Coord>,
+  pub texture: LinearTexture,
 }
 
 #[derive(Clone)]
@@ -20,7 +24,6 @@ pub struct Shape {
   // c_o_m: Coord, // center of mass, relative to anchor -- a point in the center of shape for collision detections
   pub radius: f32, // distance from c_o_m to most distant point of the shape
   pub anchor: Coord, // point for rotations and translations
-  // alpha: Ang
 }
 
 impl Shape {
@@ -253,6 +256,24 @@ impl Shape {
   } */
 
   
+}
+
+impl Shape {
+  pub fn to_descr(&self) -> ShapeDescription {
+    let mut vertices: Vec<Coord> = Vec::new();
+
+    for i in 0..self.elements.len() {
+      vertices.push(self.elements[i].base);
+    }
+
+    return ShapeDescription{
+      name: String::from(&self.name),
+      anchor: self.anchor,
+      vertices,
+      texture: self.elements[0].texture,
+    };
+  }
+    
 }
 
 // just for grouping methods by category

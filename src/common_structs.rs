@@ -1,4 +1,5 @@
 use rand::{Rng, rngs::ThreadRng};
+use serde::{Deserialize, Serialize};
 
 use crate::rgba_canvas::RGBACanvas;
 
@@ -21,7 +22,7 @@ pub enum Palette {
     Grass,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Deserialize, Serialize)]
 pub struct RGBAColor {
     pub r: u8,
     pub g: u8,
@@ -113,7 +114,7 @@ impl RGBAColor {
 }
 
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Deserialize, Serialize)]
 pub struct Coord {
     x: f32,
     y: f32,
