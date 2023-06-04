@@ -440,7 +440,7 @@ fn add_walls_to_world(world: &mut World) {
     shapes[0].shift(Coord::new(500.0, 300.0));
     shapes[0].rotate(Angle::new_deg(11.0));
     
-    shapes.push(Shape::new_regular_polygon(
+    /* shapes.push(Shape::new_regular_polygon(
         String::from("Pentagon shape"),
         100.0,
         5,
@@ -457,8 +457,31 @@ fn add_walls_to_world(world: &mut World) {
         ),
     ).unwrap());
     shapes[1].shift(Coord::new(150.0, 200.0));
-    shapes[1].rotate(Angle::new_deg(-11.0));
+    shapes[1].rotate(Angle::new_deg(-11.0)); */
 
+    shapes.push(Shape::from_coord_list(
+        String::from("Random Shape"),
+        vec![
+            Coord::new(0.0, 0.0),
+            Coord::new(100.0, 0.0),
+            Coord::new(80.0, 70.0),
+            Coord::new(10.0, 90.0),
+        ],
+        LinearTexture::new(
+            RGBAColor::new_p(Palette::Red),
+            RGBAColor::new_p(Palette::Yellow),
+            10.0,
+            TransType::Quad,
+            RGBAColor::new_p(Palette::Grass),
+            20.0,
+            0.0,
+            TextType::Step,
+            0.3333,
+        ),
+    ).unwrap());
+
+    shapes[1].shift(Coord::new(150.0, 200.0));
+    // shapes[1].rotate(Angle::new_deg(-11.0));
 
     shapes.push(Shape::new_box(
         String::from("Top wall"),

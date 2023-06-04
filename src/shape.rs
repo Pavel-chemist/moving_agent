@@ -7,20 +7,91 @@
 
 use crate::{common_structs::{Coord, Angle}, vector_2d::Vector2D, linear_texture::LinearTexture, rgba_canvas::RGBACanvas};
 
+pub struct ShapeDescription {
+  name: String,
+  vertices: Vec<Coord>,
+  texture: LinearTexture,
+}
+
 #[derive(Clone)]
 pub struct Shape {
   name: String,
   pub elements: Vec<Vector2D>,
-  c_o_m: Coord, // center of mass, relative to anchor -- a point in the center of shape for collision detections
+  // c_o_m: Coord, // center of mass, relative to anchor -- a point in the center of shape for collision detections
   pub radius: f32, // distance from c_o_m to most distant point of the shape
   pub anchor: Coord, // point for rotations and translations
   // alpha: Ang
 }
 
 impl Shape {
-  /* pub fn from_coord_array(name: String, vertices: Vec<Coord>, texture: LinearTexture) -> Shape {
+  pub fn from_coord_list(name: String, coords: Vec<Coord>, texture: LinearTexture) -> Option<Shape> {
+    // given list of coordinates, builds a closed shape using coords as vertices,
+    // applying continuous texture
 
-  } */
+    if coords.len() > 1 {
+      // proceed
+      // let mut sum_x: f32 = 0.0;
+      // let mut sum_y: f32 = 0.0;
+
+      let mut elements: Vec<Vector2D> = Vec::new();
+      // let c_o_m: Coord; // = Coord::new(0.0, 0.0);
+      let anchor: Coord = Coord::new(0.0, 0.0);
+      let radius: f32 = 0.0;
+      let mut shift: f32 = 0.0;
+
+      for i in 0..coords.len() {
+        // sum_x += coords[i].x();
+        // sum_y += coords[i].y();
+
+        if i > 0 {
+          shift += elements[i-1].length();
+        }
+
+        if i < (coords.len() - 1) {
+          elements.push(
+            Vector2D::new(
+              coords[i],
+              Coord::new(
+                coords[i+1].x() - coords[i].x(),
+                coords[i+1].y() - coords[i].y(),
+              ),
+              texture.new_shifted_phase(shift),
+            )
+          );
+        }
+
+        if i == (coords.len() - 1) {
+          elements.push(
+            Vector2D::new(
+              coords[i],
+              Coord::new(
+                coords[0].x() - coords[i].x(),
+                coords[0].y() - coords[i].y(),
+              ),
+              texture.new_shifted_phase(shift),
+            )
+          );
+        } 
+      }
+
+      /* c_o_m = Coord::new(
+        sum_x / coords.len() as f32,
+        sum_y / coords.len() as f32,
+      ); */
+
+      return Some(Shape {
+        name,
+        elements,
+        // // c_o_m,
+        radius,
+        anchor,
+      });
+    } else {
+      println!("Number of vertices should be bigger than one!");
+
+      return None;
+    }
+  }
 
   pub fn from_v2d(name: String, vec2d: Vector2D) -> Shape {
     let new_vec2d: Vector2D = Vector2D::new(
@@ -36,12 +107,12 @@ impl Shape {
       vec2d.base.x() + vec2d.tip.x() / 2.0,
       vec2d.base.y() + vec2d.tip.y() / 2.0,
     );
-    let c_o_m: Coord = Coord::new(0.0, 0.0);
+    // let c_o_m: Coord = Coord::new(0.0, 0.0);
 
     return Shape {
       name,
       elements,
-      c_o_m,
+      // c_o_m,
       radius,
       anchor,
     };
@@ -54,7 +125,7 @@ impl Shape {
 
     if width > 0.0 && height > 0.0 {
       let mut elements: Vec<Vector2D> = Vec::with_capacity(4);
-      let c_o_m: Coord = Coord::new(0.0, 0.0);
+      // let c_o_m: Coord = Coord::new(0.0, 0.0);
       let anchor: Coord = Coord::new(0.0, 0.0);
       let radius: f32 = f32::sqrt(width * width + height * height) / 2.0;
   
@@ -89,7 +160,7 @@ impl Shape {
       return Some(Shape {
         name,
         elements,
-        c_o_m,
+        // c_o_m,
         radius,
         anchor,
       });
@@ -105,7 +176,7 @@ impl Shape {
     if radius > 0.0 && num_sides > 2 {
 
       let mut elements: Vec<Vector2D> = Vec::with_capacity(num_sides);
-      let c_o_m: Coord = Coord::new(0.0, 0.0);
+      // let c_o_m: Coord = Coord::new(0.0, 0.0);
       let anchor: Coord = Coord::new(0.0, 0.0);
 
       let delta_alpha: f32 = std::f32::consts::TAU / (num_sides as f32);
@@ -132,7 +203,7 @@ impl Shape {
       return Some(Shape {
         name,
         elements,
-        c_o_m,
+        // c_o_m,
         radius,
         anchor,
       });

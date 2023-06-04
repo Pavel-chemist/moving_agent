@@ -385,24 +385,4 @@ impl Vector2D {
     }
 
   }
-
-  /* pub fn get_quad(&self) -> Quad {
-    if self.tip.x() >= 0.0 && self.tip.y() >= 0.0 {
-      return Quad::TR;
-    } else if self.tip.x() < 0.0 && self.tip.y() >= 0.0 {
-      return Quad::TL;
-    } else if self.tip.x() >= 0.0 && self.tip.y() < 0.0 {
-      return Quad::BR;
-    } else {
-      return Quad::BL;
-    }
-  } */
 }
-
-/* pub enum Quad {
-  TR, //top right
-  TL, //top left
-  BR, // bottom right
-  BL, // bottom left
-} */
-
