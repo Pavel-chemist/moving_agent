@@ -331,9 +331,9 @@
         ],
         texture: (
             main_color: (
-                r: 191,
-                g: 191,
-                b: 191,
+                r: 31,
+                g: 31,
+                b: 31,
                 a: 255,
             ),
             edge_color: (
@@ -345,15 +345,15 @@
             edge_width: 10.0,
             edge_transition_type: Lin,
             periodic_color: (
-                r: 63,
-                g: 63,
-                b: 63,
+                r: 127,
+                g: 127,
+                b: 127,
                 a: 255,
             ),
             period_length: 40.0,
             period_start_phase: 0.0,
-            period_type: Sin,
-            period_fraction: 0.0,
+            period_type: Step,
+            period_fraction: 0.05,
         ),
     ),
 ]

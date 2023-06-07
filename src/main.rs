@@ -6,27 +6,29 @@
 
 procedural:
 - edge textures -> change brightness / color depending on distance to the line ends, are symmetric around middle
-  -- can be used to enchance or reduce corner visibility
+  -- can be used to enchance or reduce corner visibility +
   
 - periodic -> anchored to the start of line, characterized by period and phase
-  -- can be adjusted to seamlesly wrap around a polygon
+  -- can be adjusted to seamlesly wrap around a polygon +
   
   
   
 Moving Agent features to add (with no particular order):
   
-  1) pan and zoom for top-view
+  1) pan and zoom for top-view +
   2) move rendering (raster creation) of top-view and first-person view into separate threads
   3) add smooth transitions for agent movements
-  4) add agent collisions with lines and polygons in world
-  5) make prettier agent
+  4) add agent collisions with lines and polygons in world +
+  5) make prettier agent +
   7) create dot display modes i.e. display only polygon vertices:
    -- 2d "wireframe",
    -- 2d "wireframe with transparent surfaces"
    -- 2d "occluded wireframe"
   8) add stereo modes (parallel-eye/cross-eye and anaglyph)
   9) world segmentation (this is to decrease computational load for collisions and renderings)
-  11) investigate openGL api */
+  11) investigate openGL api
+  
+   */
 
 use std::{path::Path, fs::File, io::Read};
 
@@ -64,24 +66,8 @@ mod agent;
 mod world;
 
 const WIND_LABEL: &str = "Moving Agent";
-
-// big_window consts:
-/* const WIND_WIDTH: i32 = 1820;
-const WIND_HEIGHT: i32 = 1000;
-const MAIN_IMAGE_WIDTH: i32 = 1560;
-const MAIN_IMAGE_HEIGHT: i32 = 800; */
-
-// small window consts
 const WIND_WIDTH: i32 = 1000;
 const WIND_HEIGHT: i32 = 720;
-const MAIN_IMAGE_WIDTH: i32 = 780;
-const MAIN_IMAGE_HEIGHT: i32 = 520;
-
-const FIRST_PERSON_VIEW_HEIGHT: i32 = 128;
-
-const MAIN_IMAGE_FRAME_THICKNESS: i32 = 4;
-const MAIN_IMAGE_X_POS: i32 = 10;
-const MAIN_IMAGE_Y_POS: i32 = 10;
 const MENU_HEIGHT: i32 = 32;
 
 #[derive(Clone)]
@@ -95,8 +81,16 @@ enum Message {
     KeyPress(char),
 }
 
+#[derive(Debug)]
+enum ViewMode {
+    Top,
+    FirstPerson,
+}
+
 fn main() {
-    let mut world: World = world::World::new(MAIN_IMAGE_WIDTH, MAIN_IMAGE_HEIGHT);
+    let mut view_mode: ViewMode = ViewMode::Top;
+
+    let mut world: World = world::World::new(WIND_WIDTH, WIND_HEIGHT - MENU_HEIGHT);
     add_walls_to_world(&mut world);
 
     let mut agent: Agent = Agent::new(
@@ -129,37 +123,12 @@ fn main() {
         Message::Quit,
     );
 
-    let mut framing_frame_1 = frame::Frame::default()
-        .with_pos(MAIN_IMAGE_X_POS, MAIN_IMAGE_Y_POS + MENU_HEIGHT)
-        .with_size(
-            MAIN_IMAGE_WIDTH + MAIN_IMAGE_FRAME_THICKNESS * 2,
-            MAIN_IMAGE_HEIGHT + MAIN_IMAGE_FRAME_THICKNESS * 2,
-        );
-    framing_frame_1.set_frame(FrameType::EngravedBox);
-
     let mut top_view_frame = frame::Frame::default()
         .with_pos(
-            MAIN_IMAGE_X_POS + MAIN_IMAGE_FRAME_THICKNESS,
-            MAIN_IMAGE_Y_POS + MAIN_IMAGE_FRAME_THICKNESS + MENU_HEIGHT,
+            0,
+            MENU_HEIGHT,
         )
-        .with_size(MAIN_IMAGE_WIDTH, MAIN_IMAGE_HEIGHT);
-
-
-    let mut framing_frame_2 = frame::Frame::default()
-        .with_pos(MAIN_IMAGE_X_POS, MAIN_IMAGE_Y_POS + MENU_HEIGHT + MAIN_IMAGE_FRAME_THICKNESS * 2 + MAIN_IMAGE_HEIGHT)
-        .with_size(
-            MAIN_IMAGE_WIDTH + MAIN_IMAGE_FRAME_THICKNESS * 2,
-            FIRST_PERSON_VIEW_HEIGHT + MAIN_IMAGE_FRAME_THICKNESS * 2,
-        );
-    framing_frame_2.set_frame(FrameType::EngravedBox);
-
-    let mut first_person_view_frame = frame::Frame::default()
-    .with_pos(
-        MAIN_IMAGE_X_POS + MAIN_IMAGE_FRAME_THICKNESS,
-        MAIN_IMAGE_Y_POS + MAIN_IMAGE_FRAME_THICKNESS * 3 + MENU_HEIGHT + MAIN_IMAGE_HEIGHT,
-    )
-    .with_size(MAIN_IMAGE_WIDTH, FIRST_PERSON_VIEW_HEIGHT);
-
+        .with_size(WIND_WIDTH, WIND_HEIGHT - MENU_HEIGHT);
     wind.end();
     wind.show();
 
@@ -230,30 +199,30 @@ fn main() {
     top_view_frame.handle(move |_, event: Event| {
         match event {
             Event::Push => {
-                let x = app::event_x() - MAIN_IMAGE_X_POS - MAIN_IMAGE_FRAME_THICKNESS;
-                let y = app::event_y() - MAIN_IMAGE_Y_POS - MAIN_IMAGE_FRAME_THICKNESS - MENU_HEIGHT;
+                let x = app::event_x();
+                let y = app::event_y() - MENU_HEIGHT;
                 let button = app::event_mouse_button();
                 top_view_frame_handle_sender.send(Message::MouseDown(x, y, button));
                 true
             }
             Event::Drag => {
-                let x = app::event_x() - MAIN_IMAGE_X_POS - MAIN_IMAGE_FRAME_THICKNESS;
-                let y = app::event_y() - MAIN_IMAGE_Y_POS - MAIN_IMAGE_FRAME_THICKNESS - MENU_HEIGHT;
-                if x >= 0 && x < MAIN_IMAGE_WIDTH && y >= 0 && y < MAIN_IMAGE_HEIGHT {
+                let x = app::event_x();
+                let y = app::event_y() - MENU_HEIGHT;
+                if x >= 0 && x < WIND_WIDTH && y >= 0 && y < WIND_HEIGHT - MENU_HEIGHT {
                     top_view_frame_handle_sender.send(Message::MouseDrag(x, y));
                 }
                 true
             }
             Event::Released => {
-                let x = app::event_x() - MAIN_IMAGE_X_POS - MAIN_IMAGE_FRAME_THICKNESS;
-                let y = app::event_y() - MAIN_IMAGE_Y_POS - MAIN_IMAGE_FRAME_THICKNESS - MENU_HEIGHT;
+                let x = app::event_x();
+                let y = app::event_y() - MENU_HEIGHT;
                 let button = app::event_mouse_button();
                 top_view_frame_handle_sender.send(Message::MouseReleased(x, y, button));
                 true
             }
             /* Event::Move => {
-                let mut x = app::event_x() - MAIN_IMAGE_X_POS - MAIN_IMAGE_FRAME_THICKNESS;
-                let mut y = app::event_y() - MAIN_IMAGE_Y_POS - MAIN_IMAGE_FRAME_THICKNESS - MENU_HEIGHT;
+                let mut x = app::event_x();
+                let mut y = app::event_y() - MENU_HEIGHT;
                 let d_x = app::event_dx();
                 let d_y = app::event_dy();
 
@@ -285,8 +254,13 @@ fn main() {
                     fltk::app::quit();
                 }
                 Message::Tick => {
-                    redraw_image(&mut world, &agent, &mut top_view_frame);
-                    draw_fisrt_person_view(&mut agent, &mut first_person_view_frame);
+                    match view_mode {
+                        ViewMode::FirstPerson => draw_fisrt_person_view(
+                            &mut agent,
+                            &mut top_view_frame,
+                        ),
+                        ViewMode::Top => redraw_image(&mut world, &agent, &mut top_view_frame),
+                    }
                 }
                 Message::MouseDown(x, y, button) => {
                     println!("The image was clicked at coordinates x={}, y={}", x, y);
@@ -358,6 +332,14 @@ fn main() {
                             world.is_updated = true;
                             agent.is_updated = true;
                         }
+                        'v' => {
+                            match view_mode {
+                                ViewMode::Top => view_mode = ViewMode::FirstPerson,
+                                ViewMode::FirstPerson => view_mode = ViewMode::Top,
+                            }
+                            world.is_updated = true;
+                            agent.is_updated = true;
+                        }
                         _ => {}
                     }
                 }
@@ -378,8 +360,8 @@ fn redraw_image(world: &mut World, agent: &Agent, top_view_frame: &mut frame::Fr
             &agent.shape,
             agent.center,
             0.80,
-            MAIN_IMAGE_WIDTH,
-            MAIN_IMAGE_HEIGHT,
+            WIND_WIDTH,
+            WIND_HEIGHT - MENU_HEIGHT,
         );
 
         let image = unsafe { RgbImage::from_data(
@@ -399,11 +381,17 @@ fn redraw_image(world: &mut World, agent: &Agent, top_view_frame: &mut frame::Fr
 
 fn draw_fisrt_person_view(agent: &mut Agent, first_person_view_frame: &mut frame::Frame) {
     if agent.is_updated {
-        let agent_line_view: Vec<RGBAColor> = agent.get_view(MAIN_IMAGE_WIDTH);
-        let mut agent_view: RGBACanvas = RGBACanvas::new(MAIN_IMAGE_WIDTH, FIRST_PERSON_VIEW_HEIGHT);
+        let agent_line_view: Vec<RGBAColor> = agent.get_view(WIND_WIDTH);
+        let mut agent_view: RGBACanvas = RGBACanvas::new(WIND_WIDTH, WIND_HEIGHT - MENU_HEIGHT);
     
-        for j in 0..FIRST_PERSON_VIEW_HEIGHT {
+        /* for j in 0..MAIN_IMAGE_HEIGHT {
             for i in 0..MAIN_IMAGE_WIDTH {
+                agent_view.put_pixel(i, j, agent_line_view[i as usize]);
+            }
+        } */
+
+        for j in 0..(WIND_HEIGHT - MENU_HEIGHT) {
+            for i in 0..WIND_WIDTH {
                 agent_view.put_pixel(i, j, agent_line_view[i as usize]);
             }
         }
