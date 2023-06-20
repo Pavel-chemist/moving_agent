@@ -34,7 +34,7 @@ pub struct Agent {
 }
 
 impl Agent {
-  pub fn new(init_coord: Coord, init_angle: Angle, f_o_v: Angle, m_v_d: f32) -> Agent {
+  pub fn new(init_coord: Coord, init_angle: Angle, f_o_v: Angle) -> Agent {
     let mut shape: Shape = Shape::new_box(
       String::from("Agent's shape"),
       50.0,
@@ -57,7 +57,7 @@ impl Agent {
       angle: init_angle,
       shape,
       f_o_v,
-      m_v_d,
+      m_v_d: 1000.0,
       visible_walls: Vec::new(),
       is_updated: true,
     };

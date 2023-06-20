@@ -12,34 +12,28 @@ use crate::{
 
 
 pub struct World {
-    pub width: f32, //world width
-    pub height: f32, //world height
-    pub static_background: RGBACanvas, //contains all static objects pre-rendered(?) or just a backdrop
     pub shapes: Vec<Shape>,
     pub walls: Vec<Vector2D>,
     pub is_updated: bool,
 }
 
 impl World {
-    pub fn new(width: i32, height: i32) -> World {
+    pub fn new() -> World {
         let mut new_world: World = World {
-            width: width as f32,
-            height: height as f32,
-            static_background: RGBACanvas::new(width, height),
             shapes: Vec::new(),
             walls: Vec::new(),
-            is_updated: false,
+            is_updated: true,
         };
 
         new_world.add_shapes();
-        new_world.create_static_background();
+        // new_world.create_static_background();
 
         return new_world;
     }
 
 /////////////////////////////////////////////////////////
 
-    fn create_static_background(&mut self) {
+    /* fn create_static_background(&mut self) {
         let mut background: RGBACanvas = RGBACanvas::new_f(self.width, self.height);
         let grid_color: RGBAColor = RGBAColor::new_p(Palette::DarkGrey);
         for j in 0..background.height {
@@ -54,9 +48,9 @@ impl World {
             // self.walls[i].draw_simple(&mut background);
             self.walls[i].draw_smooth(&mut background);
         }
-        self.static_background = background;
+        // self.static_background = background;
         self.is_updated = true;
-    }
+    } */
 
     pub fn render_top_view(&self, agent_shape: &Shape, center: Coord, scale: f32, canvas_width: i32, canvas_height: i32) -> RGBACanvas{
         // create top view for the world that is scaled and shifted
@@ -101,7 +95,7 @@ impl World {
             }
         }
         
-        self.create_static_background();
+        // self.create_static_background();
     }
 
     pub fn get_local_walls(&self, location: Coord, range: f32) -> Vec<Vector2D> {

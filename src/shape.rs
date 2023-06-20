@@ -10,6 +10,14 @@ use serde::{Deserialize, Serialize};
 use crate::{common_structs::{Coord, Angle}, vector_2d::Vector2D, linear_texture::LinearTexture, rgba_canvas::RGBACanvas};
 
 #[derive(Deserialize, Serialize)]
+pub struct WorldSetup {
+  pub initial_coord: Coord,
+  pub initial_angle_deg: f32,
+  pub agents_field_of_view_deg: f32,
+  pub world_shapes: Vec<ShapeDescription>,
+}
+
+#[derive(Deserialize, Serialize)]
 pub struct ShapeDescription {
   pub name: String,
   pub anchor: Coord,

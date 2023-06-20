@@ -32,7 +32,6 @@ Moving Agent features to add (with no particular order):
 
 use std::{path::Path, fs::File, io::Read};
 
-use serde::{Serialize, Deserialize};
 use agent::Agent;
 use common_structs::{
     Coord,
@@ -47,12 +46,10 @@ use fltk::{
     *,
 };
 
-use linear_texture::{LinearTexture, TextureEdgeType, TextureBodyType};
-use rgba_canvas::RGBACanvas;
-use shape::Shape;
-use world::World;
 
-use ellipse::Ellipse;
+use rgba_canvas::RGBACanvas;
+use shape::{Shape, WorldSetup};
+use world::World;
 
 use crate::shape::ShapeDescription;
 
@@ -90,16 +87,17 @@ enum ViewMode {
 fn main() {
     let mut view_mode: ViewMode = ViewMode::Top;
 
-    let mut world: World = world::World::new(WIND_WIDTH, WIND_HEIGHT - MENU_HEIGHT);
-    add_walls_to_world(&mut world);
+    let initialization_data: WorldSetup = get_init_data_from_file().unwrap();
+
+    let mut world: World = world::World::new();
+    add_shapes_to_world(&mut world, initialization_data.world_shapes);
 
     let mut agent: Agent = Agent::new(
-        // Coord::new_i(width / 2, height / 2),
-        Coord::new_i(200, 310),
-        Angle::new_deg(0.0),
-        Angle::new_deg(120.0),
-        1000.0,
+        initialization_data.initial_coord,
+        Angle::new_deg(initialization_data.initial_angle_deg),
+        Angle::new_deg(initialization_data.agents_field_of_view_deg),
     );
+
     agent.update_visible_walls(world.walls.clone());
 
     let application: App = app::App::default();
@@ -383,12 +381,6 @@ fn draw_fisrt_person_view(agent: &mut Agent, first_person_view_frame: &mut frame
     if agent.is_updated {
         let agent_line_view: Vec<RGBAColor> = agent.get_view(WIND_WIDTH);
         let mut agent_view: RGBACanvas = RGBACanvas::new(WIND_WIDTH, WIND_HEIGHT - MENU_HEIGHT);
-    
-        /* for j in 0..MAIN_IMAGE_HEIGHT {
-            for i in 0..MAIN_IMAGE_WIDTH {
-                agent_view.put_pixel(i, j, agent_line_view[i as usize]);
-            }
-        } */
 
         for j in 0..(WIND_HEIGHT - MENU_HEIGHT) {
             for i in 0..WIND_WIDTH {
@@ -411,9 +403,23 @@ fn draw_fisrt_person_view(agent: &mut Agent, first_person_view_frame: &mut frame
     }
 }
 
-fn add_walls_to_world(world: &mut World) {
+fn add_shapes_to_world(world: &mut World, shape_descriptions: Vec<ShapeDescription>) {
     let mut shapes: Vec<Shape> = Vec::new();
 
+    for i in 0..shape_descriptions.len() {
+        shapes.push(Shape::from_coord_list(
+            String::from(&shape_descriptions[i].name),
+            shape_descriptions[i].vertices.clone(),
+            shape_descriptions[i].texture,
+        ).unwrap());
+
+        shapes[i].shift(shape_descriptions[i].anchor);
+    }
+
+    world.add_shapes_as_walls(&shapes);
+}
+
+fn get_init_data_from_file() -> Option<WorldSetup> {
     // Create a path to the desired file
     let path = Path::new("data/world-shapes.ron");
     let display = path.display();
@@ -429,21 +435,7 @@ fn add_walls_to_world(world: &mut World) {
     match file.read_to_string(&mut s) {
         Err(why) => panic!("couldn't read {}: {}", display, why),
         Ok(_) => {
-            // print!("{} contains:\n{}", display, s);
-
-            let shape_descriptions: Vec<ShapeDescription> = ron::from_str(&s).unwrap();
-
-            for i in 0..shape_descriptions.len() {
-                shapes.push(Shape::from_coord_list(
-                    String::from(&shape_descriptions[i].name),
-                    shape_descriptions[i].vertices.clone(),
-                    shape_descriptions[i].texture,
-                ).unwrap());
-
-                shapes[i].shift(shape_descriptions[i].anchor);
-            }
+            return Some(ron::from_str(&s).unwrap());
         },
     }
-
-    world.add_shapes_as_walls(&shapes);
 }

@@ -1,359 +1,367 @@
-[
-    (
-        name: "Box shape",
-        anchor: (
-            x: 500.0,
-            y: 300.0,
-        ),
-        vertices: [
-            (
-                x: 68.16226,
-                y: -88.62227,
-            ),
-            (
-                x: 30.000458,
-                y: 107.70317,
-            ),
-            (
-                x: -68.16226,
-                y: 88.62227,
-            ),
-            (
-                x: -30.000458,
-                y: -107.70317,
-            ),
-        ],
-        texture: (
-            main_color: (
-                r: 127,
-                g: 255,
-                b: 0,
-                a: 255,
-            ),
-            edge_color: (
-                r: 255,
-                g: 255,
-                b: 255,
-                a: 255,
-            ),
-            edge_width: 10.0,
-            edge_transition_type: Lin,
-            periodic_color: (
-                r: 0,
-                g: 127,
-                b: 0,
-                a: 255,
-            ),
-            period_length: 50.0,
-            period_start_phase: 0.0,
-            period_type: Lin,
-            period_fraction: 0.5,
-        ),
+(
+    initial_coord: (
+        x: 100.0,
+        y: 100.0,
     ),
-    (
-        name: "Random Shape",
-        anchor: (
-            x: 150.0,
-            y: 200.0,
+    initial_angle_deg: 45.0,
+    agents_field_of_view_deg: 120.0,
+    world_shapes: [
+        (
+            name: "Box shape",
+            anchor: (
+                x: 500.0,
+                y: 300.0,
+            ),
+            vertices: [
+                (
+                    x: 68.16226,
+                    y: -88.62227,
+                ),
+                (
+                    x: 30.000458,
+                    y: 107.70317,
+                ),
+                (
+                    x: -68.16226,
+                    y: 88.62227,
+                ),
+                (
+                    x: -30.000458,
+                    y: -107.70317,
+                ),
+            ],
+            texture: (
+                main_color: (
+                    r: 127,
+                    g: 255,
+                    b: 0,
+                    a: 255,
+                ),
+                edge_color: (
+                    r: 255,
+                    g: 255,
+                    b: 255,
+                    a: 255,
+                ),
+                edge_width: 10.0,
+                edge_transition_type: Lin,
+                periodic_color: (
+                    r: 0,
+                    g: 127,
+                    b: 0,
+                    a: 255,
+                ),
+                period_length: 50.0,
+                period_start_phase: 0.0,
+                period_type: Lin,
+                period_fraction: 0.5,
+            ),
         ),
-        vertices: [
-            (
-                x: 0.0,
-                y: 0.0,
+        (
+            name: "Random Shape",
+            anchor: (
+                x: 150.0,
+                y: 200.0,
             ),
-            (
-                x: 100.0,
-                y: 0.0,
+            vertices: [
+                (
+                    x: 0.0,
+                    y: 0.0,
+                ),
+                (
+                    x: 100.0,
+                    y: 0.0,
+                ),
+                (
+                    x: 80.0,
+                    y: 70.0,
+                ),
+                (
+                    x: 10.0,
+                    y: 90.0,
+                ),
+            ],
+            texture: (
+                main_color: (
+                    r: 255,
+                    g: 0,
+                    b: 0,
+                    a: 255,
+                ),
+                edge_color: (
+                    r: 255,
+                    g: 255,
+                    b: 0,
+                    a: 255,
+                ),
+                edge_width: 10.0,
+                edge_transition_type: Quad,
+                periodic_color: (
+                    r: 127,
+                    g: 255,
+                    b: 0,
+                    a: 255,
+                ),
+                period_length: 20.0,
+                period_start_phase: 0.0,
+                period_type: Step,
+                period_fraction: 0.3333,
             ),
-            (
-                x: 80.0,
-                y: 70.0,
-            ),
-            (
-                x: 10.0,
-                y: 90.0,
-            ),
-        ],
-        texture: (
-            main_color: (
-                r: 255,
-                g: 0,
-                b: 0,
-                a: 255,
-            ),
-            edge_color: (
-                r: 255,
-                g: 255,
-                b: 0,
-                a: 255,
-            ),
-            edge_width: 10.0,
-            edge_transition_type: Quad,
-            periodic_color: (
-                r: 127,
-                g: 255,
-                b: 0,
-                a: 255,
-            ),
-            period_length: 20.0,
-            period_start_phase: 0.0,
-            period_type: Step,
-            period_fraction: 0.3333,
         ),
-    ),
-    (
-        name: "Top wall",
-        anchor: (
-            x: 400.0,
-            y: 10.0,
-        ),
-        vertices: [
-            (
-                x: 400.0,
-                y: -10.0,
-            ),
-            (
+        (
+            name: "Top wall",
+            anchor: (
                 x: 400.0,
                 y: 10.0,
             ),
-            (
-                x: -400.0,
-                y: 10.0,
+            vertices: [
+                (
+                    x: 400.0,
+                    y: -10.0,
+                ),
+                (
+                    x: 400.0,
+                    y: 10.0,
+                ),
+                (
+                    x: -400.0,
+                    y: 10.0,
+                ),
+                (
+                    x: -400.0,
+                    y: -10.0,
+                ),
+            ],
+            texture: (
+                main_color: (
+                    r: 255,
+                    g: 255,
+                    b: 0,
+                    a: 255,
+                ),
+                edge_color: (
+                    r: 255,
+                    g: 255,
+                    b: 255,
+                    a: 255,
+                ),
+                edge_width: 10.0,
+                edge_transition_type: Lin,
+                periodic_color: (
+                    r: 255,
+                    g: 127,
+                    b: 0,
+                    a: 255,
+                ),
+                period_length: 50.0,
+                period_start_phase: 0.0,
+                period_type: Step,
+                period_fraction: 0.2,
             ),
-            (
-                x: -400.0,
-                y: -10.0,
-            ),
-        ],
-        texture: (
-            main_color: (
-                r: 255,
-                g: 255,
-                b: 0,
-                a: 255,
-            ),
-            edge_color: (
-                r: 255,
-                g: 255,
-                b: 255,
-                a: 255,
-            ),
-            edge_width: 10.0,
-            edge_transition_type: Lin,
-            periodic_color: (
-                r: 255,
-                g: 127,
-                b: 0,
-                a: 255,
-            ),
-            period_length: 50.0,
-            period_start_phase: 0.0,
-            period_type: Step,
-            period_fraction: 0.2,
         ),
-    ),
-    (
-        name: "Bottom wall",
-        anchor: (
-            x: 400.0,
-            y: 510.0,
-        ),
-        vertices: [
-            (
+        (
+            name: "Bottom wall",
+            anchor: (
                 x: 400.0,
-                y: -10.0,
+                y: 510.0,
             ),
-            (
-                x: 400.0,
-                y: 10.0,
+            vertices: [
+                (
+                    x: 400.0,
+                    y: -10.0,
+                ),
+                (
+                    x: 400.0,
+                    y: 10.0,
+                ),
+                (
+                    x: -400.0,
+                    y: 10.0,
+                ),
+                (
+                    x: -400.0,
+                    y: -10.0,
+                ),
+            ],
+            texture: (
+                main_color: (
+                    r: 0,
+                    g: 255,
+                    b: 255,
+                    a: 255,
+                ),
+                edge_color: (
+                    r: 255,
+                    g: 255,
+                    b: 255,
+                    a: 255,
+                ),
+                edge_width: 10.0,
+                edge_transition_type: Lin,
+                periodic_color: (
+                    r: 0,
+                    g: 0,
+                    b: 255,
+                    a: 255,
+                ),
+                period_length: 50.0,
+                period_start_phase: 0.0,
+                period_type: Step,
+                period_fraction: 0.2,
             ),
-            (
-                x: -400.0,
-                y: 10.0,
-            ),
-            (
-                x: -400.0,
-                y: -10.0,
-            ),
-        ],
-        texture: (
-            main_color: (
-                r: 0,
-                g: 255,
-                b: 255,
-                a: 255,
-            ),
-            edge_color: (
-                r: 255,
-                g: 255,
-                b: 255,
-                a: 255,
-            ),
-            edge_width: 10.0,
-            edge_transition_type: Lin,
-            periodic_color: (
-                r: 0,
-                g: 0,
-                b: 255,
-                a: 255,
-            ),
-            period_length: 50.0,
-            period_start_phase: 0.0,
-            period_type: Step,
-            period_fraction: 0.2,
         ),
-    ),
-    (
-        name: "Left wall",
-        anchor: (
-            x: 10.0,
-            y: 260.0,
-        ),
-        vertices: [
-            (
-                x: 10.0,
-                y: -260.0,
-            ),
-            (
+        (
+            name: "Left wall",
+            anchor: (
                 x: 10.0,
                 y: 260.0,
             ),
-            (
-                x: -10.0,
+            vertices: [
+                (
+                    x: 10.0,
+                    y: -260.0,
+                ),
+                (
+                    x: 10.0,
+                    y: 260.0,
+                ),
+                (
+                    x: -10.0,
+                    y: 260.0,
+                ),
+                (
+                    x: -10.0,
+                    y: -260.0,
+                ),
+            ],
+            texture: (
+                main_color: (
+                    r: 255,
+                    g: 127,
+                    b: 0,
+                    a: 255,
+                ),
+                edge_color: (
+                    r: 255,
+                    g: 255,
+                    b: 255,
+                    a: 255,
+                ),
+                edge_width: 10.0,
+                edge_transition_type: Lin,
+                periodic_color: (
+                    r: 255,
+                    g: 0,
+                    b: 0,
+                    a: 255,
+                ),
+                period_length: 50.0,
+                period_start_phase: 0.0,
+                period_type: Step,
+                period_fraction: 0.2,
+            ),
+        ),
+        (
+            name: "Right wall",
+            anchor: (
+                x: 770.0,
                 y: 260.0,
             ),
-            (
-                x: -10.0,
-                y: -260.0,
+            vertices: [
+                (
+                    x: 10.0,
+                    y: -260.0,
+                ),
+                (
+                    x: 10.0,
+                    y: 180.0,
+                ),
+                (
+                    x: -10.0,
+                    y: 180.0,
+                ),
+                (
+                    x: -10.0,
+                    y: -260.0,
+                ),
+            ],
+            texture: (
+                main_color: (
+                    r: 0,
+                    g: 255,
+                    b: 0,
+                    a: 255,
+                ),
+                edge_color: (
+                    r: 255,
+                    g: 255,
+                    b: 255,
+                    a: 255,
+                ),
+                edge_width: 10.0,
+                edge_transition_type: Lin,
+                periodic_color: (
+                    r: 0,
+                    g: 127,
+                    b: 0,
+                    a: 255,
+                ),
+                period_length: 50.0,
+                period_start_phase: 0.0,
+                period_type: Step,
+                period_fraction: 0.2,
             ),
-        ],
-        texture: (
-            main_color: (
-                r: 255,
-                g: 127,
-                b: 0,
-                a: 255,
-            ),
-            edge_color: (
-                r: 255,
-                g: 255,
-                b: 255,
-                a: 255,
-            ),
-            edge_width: 10.0,
-            edge_transition_type: Lin,
-            periodic_color: (
-                r: 255,
-                g: 0,
-                b: 0,
-                a: 255,
-            ),
-            period_length: 50.0,
-            period_start_phase: 0.0,
-            period_type: Step,
-            period_fraction: 0.2,
         ),
-    ),
-    (
-        name: "Right wall",
-        anchor: (
-            x: 770.0,
-            y: 260.0,
+        (
+            name: "Middle wall",
+            anchor: (
+                x: 350.0,
+                y: 320.0,
+            ),
+            vertices: [
+                (
+                    x: 10.0,
+                    y: -200.0,
+                ),
+                (
+                    x: 10.0,
+                    y: 200.0,
+                ),
+                (
+                    x: -10.0,
+                    y: 200.0,
+                ),
+                (
+                    x: -10.0,
+                    y: -200.0,
+                ),
+            ],
+            texture: (
+                main_color: (
+                    r: 31,
+                    g: 31,
+                    b: 31,
+                    a: 255,
+                ),
+                edge_color: (
+                    r: 255,
+                    g: 255,
+                    b: 255,
+                    a: 255,
+                ),
+                edge_width: 10.0,
+                edge_transition_type: Lin,
+                periodic_color: (
+                    r: 127,
+                    g: 127,
+                    b: 127,
+                    a: 255,
+                ),
+                period_length: 40.0,
+                period_start_phase: 0.0,
+                period_type: Step,
+                period_fraction: 0.05,
+            ),
         ),
-        vertices: [
-            (
-                x: 10.0,
-                y: -260.0,
-            ),
-            (
-                x: 10.0,
-                y: 180.0,
-            ),
-            (
-                x: -10.0,
-                y: 180.0,
-            ),
-            (
-                x: -10.0,
-                y: -260.0,
-            ),
-        ],
-        texture: (
-            main_color: (
-                r: 0,
-                g: 255,
-                b: 0,
-                a: 255,
-            ),
-            edge_color: (
-                r: 255,
-                g: 255,
-                b: 255,
-                a: 255,
-            ),
-            edge_width: 10.0,
-            edge_transition_type: Lin,
-            periodic_color: (
-                r: 0,
-                g: 127,
-                b: 0,
-                a: 255,
-            ),
-            period_length: 50.0,
-            period_start_phase: 0.0,
-            period_type: Step,
-            period_fraction: 0.2,
-        ),
-    ),
-    (
-        name: "Middle wall",
-        anchor: (
-            x: 350.0,
-            y: 320.0,
-        ),
-        vertices: [
-            (
-                x: 10.0,
-                y: -200.0,
-            ),
-            (
-                x: 10.0,
-                y: 200.0,
-            ),
-            (
-                x: -10.0,
-                y: 200.0,
-            ),
-            (
-                x: -10.0,
-                y: -200.0,
-            ),
-        ],
-        texture: (
-            main_color: (
-                r: 31,
-                g: 31,
-                b: 31,
-                a: 255,
-            ),
-            edge_color: (
-                r: 255,
-                g: 255,
-                b: 255,
-                a: 255,
-            ),
-            edge_width: 10.0,
-            edge_transition_type: Lin,
-            periodic_color: (
-                r: 127,
-                g: 127,
-                b: 127,
-                a: 255,
-            ),
-            period_length: 40.0,
-            period_start_phase: 0.0,
-            period_type: Step,
-            period_fraction: 0.05,
-        ),
-    ),
-]
+    ]
+)
