@@ -130,7 +130,14 @@ impl RGBACanvas {
         // else just ignore pixels outside of canvas borders
     }
 
-    // pb fn
+    pub fn put_pixel_simple(&mut self, x: i32, y: i32, color: RGBAColor) {
+        let index: usize = 4 * self.u_width * y as usize + 4 * x as usize;
+
+        self.data[index + 0] = color.r;
+        self.data[index + 1] = color.g;
+        self.data[index + 2] = color.b;
+        self.data[index + 3] = color.a;
+    }
 
     pub fn put_square(&mut self, x: i32, y: i32, size: i32, color: RGBAColor) {
         for j in (y - size)..(y + size + 1) {

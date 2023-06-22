@@ -26,31 +26,11 @@ impl World {
         };
 
         new_world.add_shapes();
-        // new_world.create_static_background();
 
         return new_world;
     }
 
 /////////////////////////////////////////////////////////
-
-    /* fn create_static_background(&mut self) {
-        let mut background: RGBACanvas = RGBACanvas::new_f(self.width, self.height);
-        let grid_color: RGBAColor = RGBAColor::new_p(Palette::DarkGrey);
-        for j in 0..background.height {
-            for i in 0..background.width {
-                if j % 100 == 0 || i % 100 == 0 {
-                    background.put_pixel(i, j, grid_color);
-                }
-            }
-        }
-
-        for i in 0..self.walls.len() {
-            // self.walls[i].draw_simple(&mut background);
-            self.walls[i].draw_smooth(&mut background);
-        }
-        // self.static_background = background;
-        self.is_updated = true;
-    } */
 
     pub fn render_top_view(&self, agent_shape: &Shape, center: Coord, scale: f32, canvas_width: i32, canvas_height: i32) -> RGBACanvas{
         // create top view for the world that is scaled and shifted
@@ -94,8 +74,6 @@ impl World {
                 self.walls.push(shapes[j].elements[i].new_shifted(shapes[j].anchor));
             }
         }
-        
-        // self.create_static_background();
     }
 
     pub fn get_local_walls(&self, location: Coord, range: f32) -> Vec<Vector2D> {

@@ -40,7 +40,7 @@ use common_structs::{
 };
 use fltk::{
     app::{self, App, MouseButton, MouseWheel},
-    enums::{self, ColorDepth, FrameType, Event},
+    enums::{self, ColorDepth, FrameType, Event, Cursor},
     image::RgbImage,
     prelude::*,
     *,
@@ -65,7 +65,8 @@ mod world;
 const WIND_LABEL: &str = "Moving Agent";
 const WIND_WIDTH: i32 = 1000;
 const WIND_HEIGHT: i32 = 720;
-const MENU_HEIGHT: i32 = 32;
+// const MENU_HEIGHT: i32 = 32;
+const MENU_HEIGHT: i32 = 0;
 
 #[derive(Clone)]
 enum Message {
@@ -76,6 +77,8 @@ enum Message {
     MouseReleased(i32, i32, MouseButton),
     Tick,
     KeyPress(char),
+    WindowResize,
+    ToggleFullScreen,
 }
 
 #[derive(Debug)]
@@ -86,6 +89,7 @@ enum ViewMode {
 
 fn main() {
     let mut view_mode: ViewMode = ViewMode::Top;
+    let mut is_full_screen: bool = false;
 
     let initialization_data: WorldSetup = get_init_data_from_file().unwrap();
 
@@ -121,12 +125,22 @@ fn main() {
         Message::Quit,
     );
 
+    menu.add_emit(
+        "&View/FullScreen\t",
+        enums::Shortcut::Ctrl | 'z',
+        menu::MenuFlag::Normal,
+        s.clone(),
+        Message::ToggleFullScreen,
+    );
+
     let mut top_view_frame = frame::Frame::default()
         .with_pos(
             0,
             MENU_HEIGHT,
         )
         .with_size(WIND_WIDTH, WIND_HEIGHT - MENU_HEIGHT);
+
+    wind.make_resizable(true);
     wind.end();
     wind.show();
 
@@ -134,6 +148,14 @@ fn main() {
     let key_interceptor_sender =s.clone();
     let mut chars_vec: Vec<char> = Vec::new();
     wind.handle(move |_, event| match event {
+        Event::Resize => {
+            // println!("Resize event: {:?}", app::event());
+
+            key_interceptor_sender.send(Message::WindowResize);
+            // key_interceptor_sender.send(Message::Tick);
+
+            false
+        }
         Event::KeyDown => {
             match app::event_key().to_char() {
                 Some(char) => {
@@ -257,7 +279,7 @@ fn main() {
                             &mut agent,
                             &mut top_view_frame,
                         ),
-                        ViewMode::Top => redraw_image(&mut world, &agent, &mut top_view_frame),
+                        ViewMode::Top => draw_top_view(&mut world, &agent, &mut top_view_frame),
                     }
                 }
                 Message::MouseDown(x, y, button) => {
@@ -286,6 +308,7 @@ fn main() {
                         // println!("Mouse moved sideways: {}", mouse_dx);
 
                         /* agent.turn_sideways((mouse_dx as f32) / 3.0);
+
                         world.is_updated = true;
                         agent.is_updated = true; */
                     }
@@ -341,6 +364,22 @@ fn main() {
                         _ => {}
                     }
                 }
+                Message::WindowResize => {
+                    world.is_updated = true;
+                    agent.is_updated = true;
+                }
+                Message::ToggleFullScreen => {
+                    is_full_screen = !is_full_screen;
+
+                    wind.fullscreen(is_full_screen);
+
+                    if is_full_screen {
+                        wind.set_cursor(Cursor::None);
+                    } else {
+                        wind.set_cursor(Cursor::Default);
+                    }
+                    
+                }
                 _ => {
                     // println!("yet undefined event");
                 }
@@ -352,14 +391,14 @@ fn main() {
 }
 
 
-fn redraw_image(world: &mut World, agent: &Agent, top_view_frame: &mut frame::Frame) {
+fn draw_top_view(world: &mut World, agent: &Agent, top_view_frame: &mut frame::Frame) {
     if world.is_updated {
         let rendered_scene: RGBACanvas = world.render_top_view(
             &agent.shape,
             agent.center,
             0.80,
-            WIND_WIDTH,
-            WIND_HEIGHT - MENU_HEIGHT,
+            top_view_frame.width(),
+            top_view_frame.height(),
         );
 
         let image = unsafe { RgbImage::from_data(
@@ -379,12 +418,15 @@ fn redraw_image(world: &mut World, agent: &Agent, top_view_frame: &mut frame::Fr
 
 fn draw_fisrt_person_view(agent: &mut Agent, first_person_view_frame: &mut frame::Frame) {
     if agent.is_updated {
-        let agent_line_view: Vec<RGBAColor> = agent.get_view(WIND_WIDTH);
-        let mut agent_view: RGBACanvas = RGBACanvas::new(WIND_WIDTH, WIND_HEIGHT - MENU_HEIGHT);
+        let agent_line_view: Vec<RGBAColor> = agent.get_view(first_person_view_frame.width());
+        let mut agent_view: RGBACanvas = RGBACanvas::new(
+            first_person_view_frame.width(),
+            first_person_view_frame.height(),
+        );
 
-        for j in 0..(WIND_HEIGHT - MENU_HEIGHT) {
-            for i in 0..WIND_WIDTH {
-                agent_view.put_pixel(i, j, agent_line_view[i as usize]);
+        for j in 0..first_person_view_frame.height() {
+            for i in 0..first_person_view_frame.width() {
+                agent_view.put_pixel_simple(i, j, agent_line_view[i as usize]);
             }
         }
     
