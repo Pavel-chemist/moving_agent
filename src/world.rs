@@ -2,12 +2,11 @@
 
 use crate::{
     common_structs::{
-        RGBAColor,
-        Coord, Angle, Palette,
+        Coord,
     },
     rgba_canvas::RGBACanvas,
     shape::Shape,
-    vector_2d::Vector2D, agent::Agent,
+    vector_2d::Vector2D,
 };
 
 

@@ -1,12 +1,315 @@
 (
     initial_coord: (
-        x: 100.0,
-        y: 100.0,
+        x: -22.0,
+        y: 0.0,
     ),
-    initial_angle_deg: 45.0,
-    agents_field_of_view_deg: 120.0,
+    initial_angle_deg: 0.0,
+    agents_field_of_view_deg: 90.0,
     world_shapes: [
         (
+            name: "Main Labirynth structure",
+            anchor: (
+                x: 0.0,
+                y: 0.0,
+            ),
+            vertices: [
+                (
+                    x: -23.0,
+                    y: -1.0,
+                ),
+                (
+                    x: -3.0,
+                    y: -1.0,
+                ),
+                (
+                    x: -3.0,
+                    y: -3.0,
+                ),
+                (
+                    x: -1.0,
+                    y: -3.0,
+                ),
+                (
+                    x: -1.0,
+                    y: -17.0,
+                ),
+                (
+                    x: 1.0,
+                    y: -17.0,
+                ),
+                (
+                    x: 1.0,
+                    y: -3.0,
+                ),
+                (
+                    x: 3.0,
+                    y: -3.0,
+                ),
+                (
+                    x: 3.0,
+                    y: -1.0,
+                ),
+                (
+                    x: 19.0,
+                    y: -1.0,
+                ),
+                (
+                    x: 19.0,
+                    y: 1.0,
+                ),
+                (
+                    x: 3.0,
+                    y: 1.0,
+                ),
+                (
+                    x: 3.0,
+                    y: 3.0,
+                ),
+                (
+                    x: 1.0,
+                    y: 3.0,
+                ),
+                (
+                    x: 1.0,
+                    y: 13.0,
+                ),
+                (
+                    x: -1.0,
+                    y: 13.0,
+                ),
+                (
+                    x: -1.0,
+                    y: 3.0,
+                ),
+                (
+                    x: -3.0,
+                    y: 3.0,
+                ),
+                (
+                    x: -3.0,
+                    y: 1.0,
+                ),
+                (
+                    x: -23.0,
+                    y: 1.0,
+                ),
+            ],
+            texture: (
+                main_color: (
+                    r: 32,
+                    g: 32,
+                    b: 32,
+                    a: 255,
+                ),
+                edge_color: (
+                    r: 255,
+                    g: 255,
+                    b: 255,
+                    a: 255,
+                ),
+                edge_width: 0.2,
+                edge_transition_type: Lin,
+                periodic_color: (
+                    r: 127,
+                    g: 127,
+                    b: 127,
+                    a: 255,
+                ),
+                period_length: 0.5,
+                period_start_phase: 0.0,
+                period_type: Step,
+                period_fraction: 0.1,
+            ),
+        ),
+        (
+            name: "Diagonal_1",
+            anchor: (
+                x: 0.0,
+                y: 0.0,
+            ),
+            vertices: [
+                (
+                    x: -3.0,
+                    y: -1.0,
+                ),
+                (
+                    x: -1.0,
+                    y: -3.0,
+                ),
+                (
+                    x: -3.0,
+                    y: -3.0,
+                ),
+            ],
+            texture: (
+                main_color: (
+                    r: 32,
+                    g: 32,
+                    b: 32,
+                    a: 255,
+                ),
+                edge_color: (
+                    r: 255,
+                    g: 255,
+                    b: 255,
+                    a: 255,
+                ),
+                edge_width: 0.2,
+                edge_transition_type: Lin,
+                periodic_color: (
+                    r: 127,
+                    g: 127,
+                    b: 127,
+                    a: 255,
+                ),
+                period_length: 0.72,
+                period_start_phase: 0.0,
+                period_type: Step,
+                period_fraction: 0.1,
+            ),
+        ),
+        (
+            name: "Diagonal_2",
+            anchor: (
+                x: 0.0,
+                y: 0.0,
+            ),
+            vertices: [
+                (
+                    x: 3.0,
+                    y: -1.0,
+                ),
+                (
+                    x: 1.0,
+                    y: -3.0,
+                ),
+                (
+                    x: 3.0,
+                    y: -3.0,
+                ),
+            ],
+            texture: (
+                main_color: (
+                    r: 32,
+                    g: 32,
+                    b: 32,
+                    a: 255,
+                ),
+                edge_color: (
+                    r: 255,
+                    g: 255,
+                    b: 255,
+                    a: 255,
+                ),
+                edge_width: 0.2,
+                edge_transition_type: Lin,
+                periodic_color: (
+                    r: 127,
+                    g: 127,
+                    b: 127,
+                    a: 255,
+                ),
+                period_length: 0.72,
+                period_start_phase: 0.0,
+                period_type: Step,
+                period_fraction: 0.1,
+            ),
+        ),
+        (
+            name: "Diagonal_3",
+            anchor: (
+                x: 0.0,
+                y: 0.0,
+            ),
+            vertices: [
+                (
+                    x: 3.0,
+                    y: 1.0,
+                ),
+                (
+                    x: 1.0,
+                    y: 3.0,
+                ),
+                (
+                    x: 3.0,
+                    y: 3.0,
+                ),
+            ],
+            texture: (
+                main_color: (
+                    r: 32,
+                    g: 32,
+                    b: 32,
+                    a: 255,
+                ),
+                edge_color: (
+                    r: 255,
+                    g: 255,
+                    b: 255,
+                    a: 255,
+                ),
+                edge_width: 0.2,
+                edge_transition_type: Lin,
+                periodic_color: (
+                    r: 127,
+                    g: 127,
+                    b: 127,
+                    a: 255,
+                ),
+                period_length: 0.72,
+                period_start_phase: 0.0,
+                period_type: Step,
+                period_fraction: 0.1,
+            ),
+        ),
+        (
+            name: "Diagonal_4",
+            anchor: (
+                x: 0.0,
+                y: 0.0,
+            ),
+            vertices: [
+                (
+                    x: -3.0,
+                    y: 1.0,
+                ),
+                (
+                    x: -1.0,
+                    y: 3.0,
+                ),
+                (
+                    x: -3.0,
+                    y: 3.0,
+                ),
+            ],
+            texture: (
+                main_color: (
+                    r: 32,
+                    g: 32,
+                    b: 32,
+                    a: 255,
+                ),
+                edge_color: (
+                    r: 255,
+                    g: 255,
+                    b: 255,
+                    a: 255,
+                ),
+                edge_width: 0.2,
+                edge_transition_type: Lin,
+                periodic_color: (
+                    r: 127,
+                    g: 127,
+                    b: 127,
+                    a: 255,
+                ),
+                period_length: 0.72,
+                period_start_phase: 0.0,
+                period_type: Step,
+                period_fraction: 0.1,
+            ),
+        ),
+        /* (
             name: "Box shape",
             anchor: (
                 x: 500.0,
@@ -56,8 +359,8 @@
                 period_type: Lin,
                 period_fraction: 0.5,
             ),
-        ),
-        (
+        ), */
+        /* (
             name: "Random Shape",
             anchor: (
                 x: 150.0,
@@ -362,6 +665,6 @@
                 period_type: Step,
                 period_fraction: 0.05,
             ),
-        ),
+        ), */
     ]
 )

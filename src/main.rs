@@ -32,7 +32,7 @@ Moving Agent features to add (with no particular order):
 
 use std::{path::Path, fs::File, io::Read};
 
-use agent::Agent;
+use agent::{Agent, Direction};
 use common_structs::{
     Coord,
     Angle,
@@ -67,6 +67,8 @@ const WIND_WIDTH: i32 = 1000;
 const WIND_HEIGHT: i32 = 720;
 // const MENU_HEIGHT: i32 = 32;
 const MENU_HEIGHT: i32 = 0;
+
+const DELTA_T: f64 = 0.0166667;
 
 #[derive(Clone)]
 enum Message {
@@ -182,21 +184,7 @@ fn main() {
             false
         }
         Event::Move => {
-            // let mut x = app::event_x() - MAIN_IMAGE_X_POS - MAIN_IMAGE_FRAME_THICKNESS;
-            // let mut y = app::event_y() - MAIN_IMAGE_Y_POS - MAIN_IMAGE_FRAME_THICKNESS - MENU_HEIGHT;
-            // let d_x = app::event_dx();
-            // let d_y = app::event_dy();
-
             let current_x = app::event_x();
-
-
-            // println!("d_x: {:?}; d_y: {:?}", d_x, d_y);
-
-            // if x < 0 { x = 0 }
-            // if y < 0 { y = 0 }
-
-            // if x >= MAIN_IMAGE_WIDTH { x = MAIN_IMAGE_WIDTH - 1 }
-            // if y >= MAIN_IMAGE_HEIGHT { y = MAIN_IMAGE_HEIGHT - 1 }
 
             key_interceptor_sender.send(Message::MouseMove(current_x));
 
@@ -211,8 +199,10 @@ fn main() {
     let callback = move |handle| {
         callback_sender.send(Message::Tick);
         
-        app::repeat_timeout3(0.016667, handle);
+        app::repeat_timeout3(DELTA_T, handle);
     };
+
+    app::add_timeout3(DELTA_T, callback);
     
 
     let top_view_frame_handle_sender = s.clone();
@@ -240,31 +230,9 @@ fn main() {
                 top_view_frame_handle_sender.send(Message::MouseReleased(x, y, button));
                 true
             }
-            /* Event::Move => {
-                let mut x = app::event_x();
-                let mut y = app::event_y() - MENU_HEIGHT;
-                let d_x = app::event_dx();
-                let d_y = app::event_dy();
-
-                // println!("d_x: {:?}; d_y: {:?}", d_x, d_y);
-
-                if x < 0 { x = 0 }
-                if y < 0 { y = 0 }
-
-                if x >= MAIN_IMAGE_WIDTH { x = MAIN_IMAGE_WIDTH - 1 }
-                if y >= MAIN_IMAGE_HEIGHT { y = MAIN_IMAGE_HEIGHT - 1 }
-
-                top_view_frame_handle_sender.send(Message::MouseMove(x, y, d_x, d_y));
-
-                true
-            } */
             _ => false,
         }
     });
-
-    
-
-    app::add_timeout3(0.033, callback);
 
     while application.wait() {
         if let Some(msg) = r.recv() {
@@ -284,19 +252,6 @@ fn main() {
                 }
                 Message::MouseDown(x, y, button) => {
                     println!("The image was clicked at coordinates x={}, y={}", x, y);
-
-                    /* if world.ellipses.len() == 0 {
-                        let central_ellipse: Ellipse = Ellipse::new(
-                            Coord::new((world.width as f32) / 2.0, (world.height as f32) / 2.0),
-                            75.0,
-                            50.0,
-                            RGBAColor::new_rgb(255, 255, 0),
-                        );
-
-                        world.ellipses.push(central_ellipse);
-                    } */
-
-                    world.is_updated = true;
                 }
                 Message::MouseMove(current_x) => {
                     if mouse_x != -1 {
@@ -305,39 +260,36 @@ fn main() {
                     mouse_x = current_x;
 
                     if mouse_dx != 0 {
-                        // println!("Mouse moved sideways: {}", mouse_dx);
-
-                        /* agent.turn_sideways((mouse_dx as f32) / 3.0);
+                        agent.turn_sideways((mouse_dx as f32) / 3.0);
 
                         world.is_updated = true;
-                        agent.is_updated = true; */
+                        agent.is_updated = true;
                     }
                     
                 }
                 Message::KeyPress(key_char) => {
                     match key_char {
                         'w' => {
-                            // move forward
-                            agent.move_forward(5.0);
+                            agent.agent_move(Direction::Forward);
 
                             world.is_updated = true;
                             agent.is_updated = true;
                         }
                         's' => {
-                            // move backward
-                            agent.move_forward(-5.0);
+                            agent.agent_move(Direction::Backward);
+
                             world.is_updated = true;
                             agent.is_updated = true;
                         }
                         'd' => {
-                            // move right
-                            agent.move_sideways(5.0);
+                            agent.agent_move(Direction::Right);
+
                             world.is_updated = true;
                             agent.is_updated = true;
                         }
                         'a' => {
-                            // move left
-                            agent.move_sideways(-5.0);
+                            agent.agent_move(Direction::Left);
+
                             world.is_updated = true;
                             agent.is_updated = true;
                         }
@@ -396,7 +348,7 @@ fn draw_top_view(world: &mut World, agent: &Agent, top_view_frame: &mut frame::F
         let rendered_scene: RGBACanvas = world.render_top_view(
             &agent.shape,
             agent.center,
-            0.80,
+            50.0,
             top_view_frame.width(),
             top_view_frame.height(),
         );

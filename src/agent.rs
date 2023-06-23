@@ -9,24 +9,27 @@ use crate::{
     Coord,
     Angle,
     RGBAColor,
-    Marker,
     Palette,
   },
-  rgba_canvas::RGBACanvas,
-  world::{World, self},
   vector_2d::Vector2D,
   linear_texture::{
-    TextureBodyType,
-    TextureEdgeType,
     LinearTexture,
   },
   shape::Shape,
 };
 
+pub enum Direction {
+  Forward,
+  Backward,
+  Left,
+  Right,
+}
+
 pub struct Agent {
   pub center: Coord,
   angle: Angle,
   pub shape: Shape,
+  step_size: f32,
   f_o_v: Angle, // field of view
   m_v_d: f32, // max view distance
   visible_walls: Vec<Vector2D>,
@@ -37,13 +40,13 @@ impl Agent {
   pub fn new(init_coord: Coord, init_angle: Angle, f_o_v: Angle) -> Agent {
     let mut shape: Shape = Shape::new_box(
       String::from("Agent's shape"),
-      50.0,
-      40.0,
+      0.4,
+      0.3,
       LinearTexture::new_plain(RGBAColor::new_p(Palette::Green)),
     ).unwrap();
     let inner_shape: Shape = Shape::new_regular_polygon(
       String::from("Agent's inner shape"),
-      20.0,
+      0.20,
       3,
       LinearTexture::new_plain(RGBAColor::new_p(Palette::Red)),
     ).unwrap();
@@ -56,31 +59,32 @@ impl Agent {
       center: init_coord,
       angle: init_angle,
       shape,
+      step_size: 0.05,
       f_o_v,
-      m_v_d: 1000.0,
+      m_v_d: 10.0,
       visible_walls: Vec::new(),
       is_updated: true,
     };
   }
 
-  pub fn draw(&self, canvas: &mut RGBACanvas) {
+  /* pub fn draw(&self, canvas: &mut RGBACanvas) {
     self.shape.draw(canvas);
-  }
+  } */
   
-  pub fn move_forward(&mut self, step_size: f32) {
-    let directed_step: Coord = Coord::new(step_size, 0.0).new_rotated(self.angle);
+  pub fn agent_move(&mut self, direction: Direction) {
+    let directed_step: Coord;
+
+    match direction {
+      Direction::Forward => { directed_step = Coord::new(self.step_size, 0.0).new_rotated(self.angle); }
+      Direction::Backward => { directed_step = Coord::new(-self.step_size, 0.0).new_rotated(self.angle); }
+      Direction::Left => { directed_step = Coord::new(0.0, -self.step_size).new_rotated(self.angle); }
+      Direction::Right => { directed_step = Coord::new(0.0, self.step_size).new_rotated(self.angle); }
+    }
+
+    // let directed_step: Coord = Coord::new(self.step_size, 0.0).new_rotated(self.angle);
 
     self.center = self.center.new_offset(directed_step);
 
-    self.shape.shift(directed_step);
-
-    self.collide();
-  }
-
-  pub fn move_sideways(&mut self, step_size: f32) {
-    let directed_step: Coord = Coord::new(0.0, step_size).new_rotated(self.angle);
-
-    self.center = self.center.new_offset(directed_step);
     self.shape.shift(directed_step);
 
     self.collide();
